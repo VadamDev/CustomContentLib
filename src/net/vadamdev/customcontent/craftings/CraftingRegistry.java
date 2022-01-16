@@ -13,6 +13,10 @@ public class CraftingRegistry {
         craftings.add(craft);
     }
 
+    public static void registerCrafting(Craft craft) {
+        craftings.add(craft);
+    }
+
     public static void registerAll() {
         craftings.forEach(craft -> {
             ShapedRecipe recipe = new ShapedRecipe(craft.getResult());

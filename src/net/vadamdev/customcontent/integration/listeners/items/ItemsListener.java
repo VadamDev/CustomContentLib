@@ -3,11 +3,19 @@ package net.vadamdev.customcontent.integration.listeners.items;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 
 public class ItemsListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if(event.getItem() != null) ItemsInteractionManager.checkAndTrigger(event);
+        if(event.getItem() != null)
+            ItemsInteractionManager.triggerInteractAction(event);
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerItemConsumeEvent event) {
+        if(event.getItem() != null)
+            ItemsInteractionManager.triggerConsumeAction(event);
     }
 
     /*@EventHandler

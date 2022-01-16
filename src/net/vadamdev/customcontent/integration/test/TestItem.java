@@ -18,7 +18,7 @@ public class TestItem extends CustomItem implements DurabilityProvider {
 
     @Override
     public String getRegistryName() {
-        return "test";
+        return "test_item";
     }
 
     @Override

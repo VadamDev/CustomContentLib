@@ -1,6 +1,5 @@
 package net.vadamdev.customcontent.utils;
 
-import net.vadamdev.customcontent.api.items.CustomItem;
 import net.vadamdev.viaapi.tools.builders.ItemBuilder;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -11,10 +10,6 @@ import org.bukkit.inventory.ItemStack;
  * @since 22.12.2021
  */
 public class CustomContentSerializer {
-    public static void serializeItemStack(CustomItem customItem, FileConfiguration config) {
-        serializeItemStack(customItem.getItemStack(), customItem.getRegistryName(), config);
-    }
-
     public static void serializeItemStack(ItemStack itemStack, String registryName, FileConfiguration config) {
         ConfigurationSection section = config.createSection(registryName);
 
