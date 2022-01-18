@@ -5,6 +5,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
@@ -18,7 +19,9 @@ public interface DurabilityProvider {
      * @return The modified ItemStack (use it in your constructor)
      */
     default ItemStack setDefaultDurability(ItemStack itemStack) {
-        return NBTHelper.setIntegerInNBTTag(itemStack, "Durability", getDefaultDurability());
+        itemStack = NBTHelper.setIntegerInNBTTag(itemStack, "Durability", getDefaultDurability());
+        if(getDurabilityBar() != null) itemStack = updateDurabilityBar(itemStack, itemStack.getItemMeta().getLore());
+        return itemStack;
     }
 
     /**
@@ -50,7 +53,22 @@ public interface DurabilityProvider {
         if(getDurability(itemStack) <= 0) getBreakAction().accept(player, itemStack);
     }
 
+    /**
+     * Update the bar in the CustomItem's lore
+     * @param itemStack
+     * @param lore Default lore
+     * @return The modified itemstack, it's actually only used for the CustomItem constructors
+     */
+    default ItemStack updateDurabilityBar(ItemStack itemStack, List<String> lore) {
+        if(getDurabilityBar() != null) getDurabilityBar().applyDurabilityBar(itemStack, lore, getDurability(itemStack), getMaxDurability());
+        return itemStack;
+    }
+
     int getMaxDurability();
+
+    default IDurabilityBar getDurabilityBar() {
+        return null;
+    }
 
     default Sound getBreakSound() {
         return Sound.ITEM_BREAK;

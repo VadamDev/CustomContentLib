@@ -1,7 +1,9 @@
 package net.vadamdev.customcontent.integration.listeners.items;
 
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 
@@ -10,6 +12,12 @@ public class ItemsListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         if(event.getItem() != null)
             ItemsInteractionManager.triggerInteractAction(event);
+    }
+
+    @EventHandler
+    public void onPlayerInteract(BlockBreakEvent event) {
+        if(event.getPlayer() != null && event.getPlayer().getItemInHand().getType() != Material.AIR && event.getBlock() != null)
+            ItemsInteractionManager.triggerBreakAction(event);
     }
 
     @EventHandler

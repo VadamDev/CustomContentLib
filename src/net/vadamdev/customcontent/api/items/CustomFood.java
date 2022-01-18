@@ -22,7 +22,7 @@ public abstract class CustomFood {
 
     /**
      * It will make the food instantly ate
-     * You also need to do the item consumption yourself
+     * You also need to do the item consumption / hunger yourself
      */
     public boolean isEdibleEvenWithFullHunger() {
         return false;

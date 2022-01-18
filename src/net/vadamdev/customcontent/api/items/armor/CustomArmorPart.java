@@ -45,7 +45,7 @@ public abstract class CustomArmorPart extends CustomItem implements DurabilityPr
     }
 
     @Override
-    public Consumer<ItemUseEvent> getAction() {
+    public Consumer<ItemUseEvent> getInteractAction() {
         return null;
     }
 }

@@ -17,7 +17,7 @@ public abstract class ItemBlock extends CustomItem {
     }
 
     @Override
-    public Consumer<ItemUseEvent> getAction() {
+    public Consumer<ItemUseEvent> getInteractAction() {
         return event -> {
             if(event.getClickedBlock() != null && event.getBlockFace() != null) event.getClickedBlock().getRelative(event.getBlockFace()).setType(getPlacedMaterial());
         };
