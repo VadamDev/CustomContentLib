@@ -1,51 +1,104 @@
 package net.vadamdev.customcontent.api.items.armor;
 
-import net.vadamdev.customcontent.api.items.CustomItem;
+import net.vadamdev.customcontent.api.IRegistrable;
 import net.vadamdev.customcontent.api.items.DurabilityProvider;
-import net.vadamdev.customcontent.lib.events.ItemUseEvent;
+import net.vadamdev.customcontent.lib.events.CustomArmorEvent;
+import net.vadamdev.customcontent.utils.DurabilityUtils;
+import net.vadamdev.customcontent.utils.NBTHelper;
 import net.vadamdev.viaapi.tools.builders.ItemBuilder;
-import org.bukkit.Bukkit;
+import net.vadamdev.viaapi.tools.math.MathUtils;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
  * @author VadamDev
- * @since 30.12.2021
+ * @since 23/02/2022
  */
-public abstract class CustomArmorPart extends CustomItem implements DurabilityProvider {
+public abstract class CustomArmorPart implements IRegistrable, DurabilityProvider {
+    private final ArmorPart armorPart;
+    private ItemStack itemStack;
+
+    protected final List<String> defaultLore;
+
     public CustomArmorPart(ArmorType armorType, ArmorPart armorPart, String name, String... lore) {
-        super(new ItemBuilder(armorType.get(armorPart)).setName(name).setLore(lore).toItemStack());
+        this.armorPart = armorPart;
+        this.itemStack = NBTHelper.setStringInNBTTag(new ItemBuilder(armorType.get(armorPart)).setName(name).setLore(lore).toItemStack(), "RegistryName", getRegistryName());
+        this.itemStack = NBTHelper.setBooleanInNBTTag(itemStack, "CustomArmorPart", true);
+        this.defaultLore = itemStack.getItemMeta().getLore();
         itemStack = setDefaultDurability(itemStack);
     }
 
-    public ItemStack decreaseDurability(Player holder, ItemStack itemStack) {
-        ItemStack nItem = setDurability(itemStack, getDurability(itemStack) - 1);
-
-        if(getDurability(itemStack) <= 0) return null;
-
-        Bukkit.broadcastMessage(getDurability(itemStack) + "/" + getMaxDurability());
-
-        if(shouldUseDefaultDurabilityBar()) {
-            int itemStackMaxDurability = itemStack.getType().getMaxDurability();
-            int customMaxDurability = getMaxDurability();
-            int durability = getDurability(itemStack);
-
-            short logicDurability = (short) (itemStackMaxDurability * durability / customMaxDurability);
-
-            nItem.setDurability(logicDurability);
-        }
-
-        return nItem;
-    }
-
-    public boolean shouldUseDefaultDurabilityBar() {
-        return true;
+    /**
+     * IF YOU'RE MAKING A CUSTOM DAMAGE ACTION, DONT FORGET TO EXECUTE THE applyDurability METHOD!
+     * @return The Action
+     */
+    public Consumer<CustomArmorEvent> getDamageAction() {
+        return this::applyDurability;
     }
 
     @Override
-    public Consumer<ItemUseEvent> getInteractAction() {
-        return null;
+    public ItemStack getItemStack() {
+        return itemStack;
+    }
+
+    protected void applyDurability(CustomArmorEvent event) {
+        Player player = event.getPlayer();
+        ItemStack item = event.getItem();
+
+        EntityEquipment equipment = player.getEquipment();
+
+        item.setDurability((short) 0);
+
+        if(!MathUtils.percentageLuck(DurabilityUtils.calculateArmorDurabilityWithdrawChance(item.getEnchantmentLevel(Enchantment.DURABILITY))))
+            return;
+
+        switch (armorPart) {
+            case HELMET:
+                equipment.setHelmet(setDurability(item, getDurability(item) - 1));
+                updateDurabilityBar(equipment.getHelmet(), defaultLore);
+
+                if(getDurability(item) <= 0) {
+                    equipment.setHelmet(null);
+                    player.playSound(player.getLocation(), getBreakSound(), 1, 1);
+                }
+
+                break;
+            case CHESTPLATE:
+                equipment.setChestplate(setDurability(item, getDurability(item) - 1));
+                updateDurabilityBar(equipment.getChestplate(), defaultLore);
+
+                if(getDurability(item) <= 0) {
+                    equipment.setChestplate(null);
+                    player.playSound(player.getLocation(), getBreakSound(), 1, 1);
+                }
+                break;
+            case LEGGINGS:
+                equipment.setLeggings(setDurability(item, getDurability(item) - 1));
+                updateDurabilityBar(equipment.getLeggings(), defaultLore);
+
+                if(getDurability(item) <= 0) {
+                    equipment.setLeggings(null);
+                    player.playSound(player.getLocation(), getBreakSound(), 1, 1);
+                }
+
+                break;
+            case BOOTS:
+                equipment.setBoots(setDurability(item, getDurability(item) - 1));
+                updateDurabilityBar(equipment.getBoots(), defaultLore);
+
+                if(getDurability(item) <= 0) {
+                    equipment.setBoots(null);
+                    player.playSound(player.getLocation(), getBreakSound(), 1, 1);
+                }
+
+                break;
+            default:
+                break;
+        }
     }
 }

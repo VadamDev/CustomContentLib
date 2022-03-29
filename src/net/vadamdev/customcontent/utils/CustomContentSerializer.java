@@ -7,9 +7,9 @@ import org.bukkit.inventory.ItemStack;
 
 /**
  * @author VadamDev
- * @since 22.12.2021
+ * @since 22/12/2021
  */
-public class CustomContentSerializer {
+public final class CustomContentSerializer {
     public static void serializeItemStack(ItemStack itemStack, String registryName, FileConfiguration config) {
         ConfigurationSection section = config.createSection(registryName);
 

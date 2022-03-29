@@ -1,11 +1,13 @@
-package net.vadamdev.customcontent.api.items.durabilitybar;
+package net.vadamdev.customcontent.integration.example;
 
 import net.vadamdev.customcontent.api.items.IDurabilityBar;
 
 /**
+ * DONT USE THIS CLASS IT'S USED FOR DEMONSTRATION PURPOSES !
+ *
  * An example of what a DurabilityBar can do.
  * @author VadamDev
- * @since 18.01.2022
+ * @since 18/01/2022
  */
 public class NumberDurabilityBar implements IDurabilityBar {
     private final String text, placeholder;

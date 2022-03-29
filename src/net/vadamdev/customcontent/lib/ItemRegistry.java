@@ -1,5 +1,7 @@
 package net.vadamdev.customcontent.lib;
 
+import net.vadamdev.customcontent.CustomContentIntegration;
+import net.vadamdev.customcontent.api.IRegistrable;
 import net.vadamdev.customcontent.api.items.CustomFood;
 import net.vadamdev.customcontent.api.items.CustomItem;
 import net.vadamdev.customcontent.api.items.armor.CustomArmorPart;
@@ -13,18 +15,19 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * @author VadamDev
- * @since 22.12.2021
+ * @since 22/12/2021
  */
-public class ItemRegistry {
+public final class ItemRegistry {
+    private static final Logger logger = CustomContentIntegration.instance.getLogger();
+
     private static final FileConfiguration itemsConfig = FileUtils.ITEMS.getConfig();
-    private static final FileConfiguration armorsConfig = FileUtils.ARMORS.getConfig();
 
     //List of all registred items This list is used for the give command
-    private static final Map<String, ItemStack> customItems = new HashMap<>();
-    private static final Map<String, CustomArmorPart> customArmorParts = new HashMap<>();
+    protected static final Map<String, ItemStack> customItems = new HashMap<>();
 
     /**
      * Register a CustomContentLib Item and load it's configuration if exists
@@ -38,20 +41,9 @@ public class ItemRegistry {
             return;
         }
 
-        ItemStack itemStack;
-
-        if(customItem.isConfigurable() && itemsConfig.isSet(registryName)) {
-            System.out.println("[CustomContentLib] Loading configuration for " + registryName);
-            itemStack = CustomContentSerializer.unserializeItemStack(customItem.getItemStack(), registryName, itemsConfig);
-        }else {
-            itemStack = customItem.getItemStack();
-            System.out.println("[CustomContentLib] Can't load configuration for " + registryName + ", using default ItemStack");
-            if(customItem.isConfigurable()) CustomContentSerializer.serializeItemStack(customItem.getItemStack(), customItem.getRegistryName(), itemsConfig);
-        }
-
         ItemsInteractionManager.putInteraction(customItem);
 
-        customItems.put(registryName, itemStack);
+        customItems.put(registryName, getItemStackInConfiguration(customItem, itemsConfig));
     }
 
     /**
@@ -66,41 +58,33 @@ public class ItemRegistry {
             return;
         }
 
-        ItemStack itemStack;
-        if(customFood.isConfigurable() && itemsConfig.isSet(registryName)) {
-            System.out.println("[CustomContentLib] Loading configuration for " + registryName);
-            itemStack = CustomContentSerializer.unserializeItemStack(customFood.getItemStack(), registryName, itemsConfig);
-        }else {
-            itemStack = customFood.getItemStack();
-            System.out.println("[CustomContentLib] Can't load configuration for " + registryName + ", using default ItemStack");
-            if(customFood.isConfigurable()) CustomContentSerializer.serializeItemStack(customFood.getItemStack(), customFood.getRegistryName(), itemsConfig);
-        }
-
         if(!customFood.isEdibleEvenWithFullHunger()) ItemsInteractionManager.putInteraction(customFood);
         else ItemsInteractionManager.putInteraction(customFood.getRegistryName(), event -> customFood.getAction().accept(new PlayerItemConsumeEvent(event.getPlayer(), event.getItem())));
 
-        customItems.put(registryName, itemStack);
+        customItems.put(registryName, getItemStackInConfiguration(customFood, itemsConfig));
     }
 
     /**
-     * Register a CustomContentLib Armor and load it's configuration if exists
-     * @param customItem
+     * THIS METHOD WAS DEPLACED IN THE ArmorRegistry CLASS.
+     * @param customArmorPart
      */
     @Deprecated
-    public static void registerCustomArmorPart(CustomArmorPart customItem) {
-        ItemStack itemStack;
-        String registryName = customItem.getRegistryName();
+    public static void registerCustomArmorPart(CustomArmorPart customArmorPart) {
+        ArmorRegistry.registerCustomArmorPart(customArmorPart);
+    }
 
-        if(customItem.isConfigurable() && armorsConfig.isSet(registryName)) {
-            System.out.println("[CustomContentLib] Loading configuration for " + registryName);
-            itemStack = CustomContentSerializer.unserializeItemStack(customItem.getItemStack(), registryName, armorsConfig);
-        }else {
-            itemStack = customItem.getItemStack();
-            System.out.println("[CustomContentLib] Can't load configuration for " + registryName + ", using default ItemStack");
-            if(customItem.isConfigurable()) CustomContentSerializer.serializeItemStack(customItem.getItemStack(), customItem.getRegistryName(), armorsConfig);
+    /**
+     * Register a ItemStack as a custom item
+     * @param itemStack
+     * @param registryName
+     */
+    public static void registerEmptyItem(ItemStack itemStack, String registryName) {
+        if(isRegistered(registryName)) {
+            try { throw new AlreadyRegisteredException(registryName); }catch (AlreadyRegisteredException e) { e.printStackTrace(); }
+            return;
         }
 
-        customArmorParts.put(registryName, customItem);
+        logger.info("[CustomContentLib] Loading empty item (" + registryName + ")");
 
         customItems.put(registryName, itemStack);
     }
@@ -113,7 +97,20 @@ public class ItemRegistry {
         return customItems.containsKey(registryName);
     }
 
-    public static CustomArmorPart getCustomArmorPart(String registryName) {
-        return customArmorParts.get(registryName);
+    /*
+       Private Methods
+     */
+    protected static ItemStack getItemStackInConfiguration(IRegistrable registrable, FileConfiguration dataFile) {
+        ItemStack itemStack = registrable.getItemStack();
+
+        if(registrable.isConfigurable() && dataFile.isSet(registrable.getRegistryName())) {
+            logger.info("[CustomContentLib] Loading configuration for " + registrable.getRegistryName());
+            itemStack = CustomContentSerializer.unserializeItemStack(registrable.getItemStack(), registrable.getRegistryName(), dataFile);
+        }else if(registrable.isConfigurable()) {
+            logger.warning("[CustomContentLib] Can't load configuration for " + registrable.getRegistryName() + ", using default ItemStack");
+            CustomContentSerializer.serializeItemStack(registrable.getItemStack(), registrable.getRegistryName(), dataFile);
+        }
+
+        return itemStack;
     }
 }

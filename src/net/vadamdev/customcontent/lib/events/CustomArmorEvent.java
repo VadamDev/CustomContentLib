@@ -1,7 +1,6 @@
 package net.vadamdev.customcontent.lib.events;
 
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -10,37 +9,25 @@ import org.bukkit.inventory.ItemStack;
 
 /**
  * @author VadamDev
+ * @since 23/02/2022
  */
-public class ItemUseEvent extends PlayerEvent implements Cancellable {
-    private final ItemAction action;
+public class CustomArmorEvent extends PlayerEvent implements Cancellable {
     private final ItemStack item;
-    private final Block clickedBlock;
-    private final BlockFace blockFace;
+    private  final Entity damager;
     private boolean cancelled;
 
-    public ItemUseEvent(Player who, ItemAction action, ItemStack item, Block clickedBlock, BlockFace clickedFace) {
+    public CustomArmorEvent(Player who, Entity damager, ItemStack item) {
         super(who);
-
-        this.action = action;
+        this.damager = damager;
         this.item = item;
-        this.clickedBlock = clickedBlock;
-        this.blockFace = clickedFace;
-    }
-
-    public ItemAction getAction() {
-        return action;
     }
 
     public ItemStack getItem() {
         return item;
     }
 
-    public Block getClickedBlock() {
-        return clickedBlock;
-    }
-
-    public BlockFace getBlockFace() {
-        return blockFace;
+    public Entity getDamager() {
+        return damager;
     }
 
     @Override

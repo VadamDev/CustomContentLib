@@ -2,6 +2,9 @@ package net.vadamdev.customcontent.integration.listeners.items;
 
 import net.vadamdev.customcontent.api.items.CustomFood;
 import net.vadamdev.customcontent.api.items.CustomItem;
+import net.vadamdev.customcontent.api.items.armor.CustomArmorPart;
+import net.vadamdev.customcontent.lib.ItemRegistry;
+import net.vadamdev.customcontent.lib.events.CustomArmorEvent;
 import net.vadamdev.customcontent.lib.events.ItemAction;
 import net.vadamdev.customcontent.lib.events.ItemBreakBlockEvent;
 import net.vadamdev.customcontent.lib.events.ItemUseEvent;
@@ -18,16 +21,20 @@ import java.util.function.Consumer;
 
 /**
  * @author VadamDev
- * @since 22.12.2021
+ * @since 22/12/2021
  */
 public class ItemsInteractionManager {
     private static final Map<String, Consumer<ItemUseEvent>> customItemActions = new HashMap<>();
     private static final Map<String, Consumer<ItemBreakBlockEvent>> customItemBreakActions = new HashMap<>();
     private static final Map<String, Consumer<PlayerItemConsumeEvent>> customFoodsActions = new HashMap<>();
+    private static final Map<String, Consumer<CustomArmorEvent>> customArmorsActions = new HashMap<>();
 
     public static void putInteraction(CustomItem customItem) {
-        if(customItem.getInteractAction() != null) customItemActions.put(customItem.getRegistryName(), customItem.getInteractAction());
-        if(customItem.getBlockBreakAction() != null) customItemBreakActions.put(customItem.getRegistryName(), customItem.getBlockBreakAction());
+        if(customItem.getInteractAction() != null)
+            customItemActions.put(customItem.getRegistryName(), customItem.getInteractAction());
+
+        if(customItem.getBlockBreakAction() != null)
+            customItemBreakActions.put(customItem.getRegistryName(), customItem.getBlockBreakAction());
     }
 
     public static void putInteraction(String registryName, Consumer<ItemUseEvent> action) {
@@ -36,6 +43,10 @@ public class ItemsInteractionManager {
 
     public static void putInteraction(CustomFood customFood) {
         customFoodsActions.put(customFood.getRegistryName(), customFood.getAction());
+    }
+
+    public static void putInteraction(CustomArmorPart customArmorPart) {
+        customArmorsActions.put(customArmorPart.getRegistryName(), customArmorPart.getDamageAction());
     }
 
     /*
@@ -68,13 +79,16 @@ public class ItemsInteractionManager {
         event.setCancelled(true);
     }
 
+    /*
+       Custom Food
+     */
     protected static void triggerConsumeAction(PlayerItemConsumeEvent event) {
         ItemStack itemStack = event.getItem().clone();
         if(isCustomFood(itemStack) && !event.isCancelled()) getCustomFoodAction(itemStack).accept(event);
     }
 
     /*
-        CustomItems
+        Custom Items Getters
      */
     private static boolean isCustomInterractItem(ItemStack itemStack) {
         String registryName = NBTHelper.getStringInNBTTag(itemStack, "RegistryName");
@@ -97,7 +111,7 @@ public class ItemsInteractionManager {
     }
 
     /*
-       Custom Food
+       Custom Food Getters
      */
     private static boolean isCustomFood(ItemStack itemStack) {
         String registryName = NBTHelper.getStringInNBTTag(itemStack, "RegistryName");
@@ -107,5 +121,18 @@ public class ItemsInteractionManager {
 
     private static Consumer<PlayerItemConsumeEvent> getCustomFoodAction(ItemStack itemStack) {
         return isCustomFood(itemStack) ? customFoodsActions.get(NBTHelper.getStringInNBTTag(itemStack, "RegistryName")) : null;
+    }
+
+    /*
+       Custom Armor Part Getters
+     */
+
+    private static boolean isCustomArmorPart(ItemStack itemStack) {
+        if(NBTHelper.getStringInNBTTag(itemStack ,"RegistryName") == null || !NBTHelper.getBooleanInNBTTag(itemStack ,"CustomArmorPart")) return false;
+        return ItemRegistry.isRegistered(NBTHelper.getStringInNBTTag(itemStack ,"RegistryName"));
+    }
+
+    public static Consumer<CustomArmorEvent> getCustomArmorPartAction(ItemStack itemStack) {
+        return isCustomArmorPart(itemStack) ? customArmorsActions.get(NBTHelper.getStringInNBTTag(itemStack, "RegistryName")) : null;
     }
 }

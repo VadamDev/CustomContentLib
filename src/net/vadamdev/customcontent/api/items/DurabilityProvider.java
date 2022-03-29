@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 
 /**
  * @author VadamDev
- * @since 22.12.2021
+ * @since 22/12/2021
  */
 public interface DurabilityProvider {
     /**
@@ -20,7 +20,8 @@ public interface DurabilityProvider {
      */
     default ItemStack setDefaultDurability(ItemStack itemStack) {
         itemStack = NBTHelper.setIntegerInNBTTag(itemStack, "Durability", getDefaultDurability());
-        if(getDurabilityBar() != null) itemStack = updateDurabilityBar(itemStack, itemStack.getItemMeta().getLore());
+        itemStack = NBTHelper.setIntegerInNBTTag(itemStack, "MaxDurability", getMaxDurability());
+        if(getDurabilityBar() != null) updateDurabilityBar(itemStack, itemStack.getItemMeta().getLore());
         return itemStack;
     }
 
@@ -57,11 +58,9 @@ public interface DurabilityProvider {
      * Update the bar in the CustomItem's lore
      * @param itemStack
      * @param lore Default lore
-     * @return The modified itemstack, it's actually only used for the CustomItem constructors
      */
-    default ItemStack updateDurabilityBar(ItemStack itemStack, List<String> lore) {
+    default void updateDurabilityBar(ItemStack itemStack, List<String> lore) {
         if(getDurabilityBar() != null) getDurabilityBar().applyDurabilityBar(itemStack, lore, getDurability(itemStack), getMaxDurability());
-        return itemStack;
     }
 
     int getMaxDurability();

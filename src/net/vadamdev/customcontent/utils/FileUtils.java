@@ -1,6 +1,6 @@
 package net.vadamdev.customcontent.utils;
 
-import net.vadamdev.customcontent.integration.CustomContentIntegration;
+import net.vadamdev.customcontent.CustomContentIntegration;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

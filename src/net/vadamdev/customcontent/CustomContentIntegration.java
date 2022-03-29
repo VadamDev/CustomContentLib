@@ -1,11 +1,8 @@
-package net.vadamdev.customcontent.integration;
+package net.vadamdev.customcontent;
 
 import net.vadamdev.customcontent.craftings.CraftListener;
+import net.vadamdev.customcontent.integration.CustomContentCommand;
 import net.vadamdev.customcontent.integration.listeners.items.ItemsListener;
-import net.vadamdev.customcontent.integration.test.TestArmorPart;
-import net.vadamdev.customcontent.integration.test.TestFood;
-import net.vadamdev.customcontent.integration.test.TestItem;
-import net.vadamdev.customcontent.lib.ItemRegistry;
 import net.vadamdev.customcontent.utils.FileUtils;
 import net.vadamdev.viaapi.integration.VIAPIIntegration;
 
@@ -27,9 +24,8 @@ public class CustomContentIntegration extends VIAPIIntegration {
 
         registerCommand(new CustomContentCommand());
 
-        ItemRegistry.registerCustomItem(new TestItem());
-        ItemRegistry.registerCustomFood(new TestFood());
-        ItemRegistry.registerCustomArmorPart(new TestArmorPart());
+        //ItemRegistry.registerCustomItem(new ItemHammer());
+        //ArmorRegistry.registerCustomArmorPart(new TestArmorPart());
     }
 
     @Override
@@ -44,6 +40,6 @@ public class CustomContentIntegration extends VIAPIIntegration {
 
     @Override
     public String getVersion() {
-        return "0.1.2";
+        return "0.1.3";
     }
 }

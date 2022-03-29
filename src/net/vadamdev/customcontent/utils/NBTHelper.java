@@ -6,7 +6,7 @@ import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 
 /**
  * @author VadamDev
- * @since 04.01.2021
+ * @since 04/01/2021
  */
 public class NBTHelper {
     public static org.bukkit.inventory.ItemStack setStringInNBTTag(org.bukkit.inventory.ItemStack itemStack, String key, String value) {

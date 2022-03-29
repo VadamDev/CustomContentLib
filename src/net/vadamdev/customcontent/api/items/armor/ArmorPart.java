@@ -4,7 +4,7 @@ import org.bukkit.Material;
 
 /**
  * @author VadamDev
- * @since 31.12.2021
+ * @since 31/12/2021
  */
 public enum ArmorPart {
     HELMET,

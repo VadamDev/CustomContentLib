@@ -7,27 +7,29 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class CraftListener implements Listener {
-    @EventHandler
-    public void onCraft(PrepareItemCraftEvent event) {
-        if (event.getInventory().getResult() != null && !event.getInventory().getResult().getType().equals(Material.AIR)) {
-            Craft craft = getByResult(event.getInventory().getResult());
-            if (craft != null && !equals(event.getInventory().getContents(), craft.toArray())) event.getInventory().setResult(new ItemStack(Material.AIR));
-        }
-    }
+	@EventHandler
+	public void onCraft(PrepareItemCraftEvent event) {
+		if (event.getInventory().getResult() != null) {
+			Craft craft = getByResult(event.getInventory().getResult());
 
-    private boolean equals(ItemStack[] items, ItemStack[] otherItems) {
-        for (int a = 1; a <= 9; a++) {
-            ItemStack item = items[a];
-            ItemStack otherItem = otherItems[a];
+			if (craft != null && !equals(event.getInventory().getContents(), craft.toArray()))
+				event.getInventory().setResult(new ItemStack(Material.AIR, 0));
+		}
+	}
 
-            if(item.getType().equals(Material.AIR) && otherItem.getType().equals(Material.AIR)) continue;
-            if (!item.isSimilar(otherItem)) return false;
-        }
+	private boolean equals(ItemStack[] items, ItemStack[] otherItems) {
+		for (int a = 1; a <= 9; a++) {
+			ItemStack item = items[a];
+			ItemStack otherItem = otherItems[a];
 
-        return true;
-    }
+			if(item.getType().equals(Material.AIR) && otherItem.getType().equals(Material.AIR)) continue;
+			if(!item.isSimilar(otherItem)) return false;
+		}
 
-    private Craft getByResult(ItemStack result) {
-        return CraftingRegistry.getRegisteredCrafting().stream().filter(craft -> craft.getResult().isSimilar(result)).findFirst().orElse(null);
-    }
+		return true;
+	}
+
+	private Craft getByResult(ItemStack result) {
+		return CraftingRegistry.getCraftings().parallelStream().filter(craft -> craft.getResult().isSimilar(result)).findAny().orElse(null);
+	}
 }

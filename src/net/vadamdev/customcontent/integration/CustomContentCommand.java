@@ -7,22 +7,23 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author VadamDev
- * @since 04.01.2021
  */
 public class CustomContentCommand extends Command {
     public CustomContentCommand() {
         super("customcontent");
-        setAliases(Arrays.asList("customcontentlib"));
+        setAliases(Collections.singletonList("customcontentlib"));
     }
 
     @Override
     public boolean execute(CommandSender sender, String label, String[] args) {
         if(sender instanceof Player) {
             Player player = (Player) sender;
+
+            if(!player.hasPermission("customcontent.give")) return false;
 
             if(args.length == 2) {
                 if(args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get")) {
@@ -115,8 +116,10 @@ public class CustomContentCommand extends Command {
                     }
                 }
             }
+
+            return true;
         }
 
-        return true;
+        return false;
     }
 }

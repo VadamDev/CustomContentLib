@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * @author VadamDev
- * @since 17.01.2022
+ * @since 17/01/2022
  */
 public interface IDurabilityBar {
     /**
@@ -25,7 +25,8 @@ public interface IDurabilityBar {
     String getPlaceholder();
 
     /**
-     * Only used in DurabilityProvider.
+     * Method  called by the DurabilityProvider class.
+     * You should theoretically not override it.
      * @param itemStack
      * @param lore Default lore
      * @param durability The durability
@@ -38,7 +39,7 @@ public interface IDurabilityBar {
 
         for(int index = 0; index < newLore.size(); index++) {
             if(newLore.get(index).contains(getPlaceholder())) {
-                newLore.set(index, newLore.get(index).replaceAll(getPlaceholder(), createDurabilityBar(durability, maxDurability)));
+                newLore.set(index, newLore.get(index).replace(getPlaceholder(), createDurabilityBar(durability, maxDurability)));
                 break;
             }
         }

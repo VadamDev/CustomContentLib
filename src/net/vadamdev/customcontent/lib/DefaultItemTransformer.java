@@ -10,9 +10,9 @@ import java.util.Map;
 
 /**
  * @author VadamDev
- * @since 07.01.2022
+ * @since 07/01/2022
  */
-public class DefaultItemTransformer {
+public final class DefaultItemTransformer {
     private static final Map<String, CustomItem> transformer = new HashMap<>();
 
     /**

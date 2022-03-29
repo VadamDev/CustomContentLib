@@ -1,5 +1,6 @@
 package net.vadamdev.customcontent.api.items;
 
+import net.vadamdev.customcontent.api.IRegistrable;
 import net.vadamdev.customcontent.lib.events.ItemBreakBlockEvent;
 import net.vadamdev.customcontent.lib.events.ItemUseEvent;
 import net.vadamdev.customcontent.utils.NBTHelper;
@@ -10,9 +11,9 @@ import java.util.function.Consumer;
 
 /**
  * @author VadamDev
- * @since 22.12.2021
+ * @since 22/12/2021
  */
-public abstract class CustomItem {
+public abstract class CustomItem implements IRegistrable {
     protected ItemStack itemStack;
     protected final List<String> defaultLore;
 
@@ -20,8 +21,6 @@ public abstract class CustomItem {
         this.itemStack = NBTHelper.setStringInNBTTag(itemStack, "RegistryName", getRegistryName());
         this.defaultLore = itemStack.getItemMeta().getLore();
     }
-
-    public abstract String getRegistryName();
 
     public Consumer<ItemUseEvent> getInteractAction() {
         return null;
@@ -31,10 +30,7 @@ public abstract class CustomItem {
         return null;
     }
 
-    public boolean isConfigurable() {
-        return true;
-    }
-
+    @Override
     public ItemStack getItemStack() {
         return itemStack;
     }

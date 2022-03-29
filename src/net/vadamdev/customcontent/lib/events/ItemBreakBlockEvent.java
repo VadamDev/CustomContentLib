@@ -7,6 +7,9 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * @author VadamDev
+ */
 public class ItemBreakBlockEvent extends PlayerEvent implements Cancellable {
     private final ItemStack item;
     private final Block block;
@@ -15,7 +18,6 @@ public class ItemBreakBlockEvent extends PlayerEvent implements Cancellable {
     public ItemBreakBlockEvent(Player who, ItemStack item, Block block) {
         super(who);
 
-        this.player = who;
         this.item = item;
         this.block = block;
     }
