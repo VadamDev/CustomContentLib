@@ -51,9 +51,9 @@ public class Craft {
 		int index = 1;
 		for (String shape : this.shape) {
 			String[] tmpShapes = shape.split("");
-
-			for (String currentShape : tmpShapes)
+			for (String currentShape : tmpShapes) {
 				items[index++] = ingredients.getOrDefault(currentShape, new ItemStack(Material.AIR, 0));
+			}
 		}
 
 		return items;

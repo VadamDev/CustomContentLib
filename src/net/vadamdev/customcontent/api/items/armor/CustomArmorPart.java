@@ -21,16 +21,17 @@ import java.util.function.Consumer;
  */
 public abstract class CustomArmorPart implements IRegistrable, DurabilityProvider {
     private final ArmorPart armorPart;
-    private ItemStack itemStack;
+    protected ItemStack itemStack;
 
     protected final List<String> defaultLore;
 
     public CustomArmorPart(ArmorType armorType, ArmorPart armorPart, String name, String... lore) {
         this.armorPart = armorPart;
+
         this.itemStack = NBTHelper.setStringInNBTTag(new ItemBuilder(armorType.get(armorPart)).setName(name).setLore(lore).toItemStack(), "RegistryName", getRegistryName());
         this.itemStack = NBTHelper.setBooleanInNBTTag(itemStack, "CustomArmorPart", true);
         this.defaultLore = itemStack.getItemMeta().getLore();
-        itemStack = setDefaultDurability(itemStack);
+        this.itemStack = setDefaultDurability(itemStack);
     }
 
     /**

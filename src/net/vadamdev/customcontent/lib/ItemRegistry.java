@@ -9,6 +9,7 @@ import net.vadamdev.customcontent.integration.listeners.items.ItemsInteractionMa
 import net.vadamdev.customcontent.lib.exceptions.AlreadyRegisteredException;
 import net.vadamdev.customcontent.utils.CustomContentSerializer;
 import net.vadamdev.customcontent.utils.FileUtils;
+import net.vadamdev.customcontent.utils.NBTHelper;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
@@ -65,7 +66,7 @@ public final class ItemRegistry {
     }
 
     /**
-     * THIS METHOD WAS DEPLACED IN THE ArmorRegistry CLASS.
+     * THIS METHOD WAS REPLACED IN THE ArmorRegistry CLASS.
      * @param customArmorPart
      */
     @Deprecated
@@ -95,6 +96,15 @@ public final class ItemRegistry {
 
     public static boolean isRegistered(String registryName) {
         return customItems.containsKey(registryName);
+    }
+
+    public static boolean isCustomItem(ItemStack itemStack, String registryName) {
+        String theoreticalRegistryName = NBTHelper.getStringInNBTTag(itemStack, "RegistryName");
+        return theoreticalRegistryName != null && isRegistered(registryName) && NBTHelper.getStringInNBTTag(itemStack, "RegistryName").equals(registryName);
+    }
+
+    public static Map<String, ItemStack> getCustomItems() {
+        return customItems;
     }
 
     /*

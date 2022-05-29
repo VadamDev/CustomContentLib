@@ -22,13 +22,13 @@ public abstract class ArmorSet implements ITickable {
         return false;
     }
 
-    protected boolean hasFullSet(Player player) {
+    public boolean hasFullSet(Player player) {
         EntityEquipment equipment = player.getEquipment();
 
-        boolean helmet = pieces[0] == null || isSimilar(equipment.getHelmet(), pieces[0]);
-        boolean chestplate = pieces[1] == null || isSimilar(equipment.getChestplate(), pieces[1]);
-        boolean leggings = pieces[2] == null || isSimilar(equipment.getLeggings(), pieces[2]);
-        boolean boots = pieces[3] == null || isSimilar(equipment.getBoots(), pieces[3]);
+        boolean helmet = pieces[0] == null || (equipment.getHelmet() != null && isSimilar(equipment.getHelmet(), pieces[0]));
+        boolean chestplate = pieces[1] == null || (equipment.getChestplate() != null && isSimilar(equipment.getChestplate(), pieces[1]));
+        boolean leggings = pieces[2] == null || (equipment.getLeggings() != null && isSimilar(equipment.getLeggings(), pieces[2]));
+        boolean boots = pieces[3] == null || (equipment.getBoots() != null && isSimilar(equipment.getBoots(), pieces[3]));
 
         return helmet && chestplate && leggings && boots;
     }

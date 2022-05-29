@@ -17,15 +17,13 @@ public class CustomContentIntegration extends VIAPIIntegration {
     public void onEnable() {
         instance = this;
 
-        for(FileUtils value : FileUtils.values()) saveResource(getClass(), value.getFilename(), value.getFilename());
+        for(FileUtils value : FileUtils.values())
+            saveResource(getClass(), value.getFilename(), value.getFilename());
 
         registerListener(new ItemsListener());
         registerListener(new CraftListener());
 
         registerCommand(new CustomContentCommand());
-
-        //ItemRegistry.registerCustomItem(new ItemHammer());
-        //ArmorRegistry.registerCustomArmorPart(new TestArmorPart());
     }
 
     @Override
@@ -40,6 +38,6 @@ public class CustomContentIntegration extends VIAPIIntegration {
 
     @Override
     public String getVersion() {
-        return "0.1.3";
+        return "0.1.4-BETA";
     }
 }

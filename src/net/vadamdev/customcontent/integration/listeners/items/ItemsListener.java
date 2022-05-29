@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -28,13 +29,16 @@ public class ItemsListener implements Listener {
     //InteractEvent
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
+        if(event.getAction().equals(Action.PHYSICAL))
+            return;
+
         if(event.getItem() != null)
             ItemsInteractionManager.triggerInteractAction(event);
     }
 
     //Break Event
     @EventHandler
-    public void onPlayerInteract(BlockBreakEvent event) {
+    public void onBlockBreak(BlockBreakEvent event) {
         if(event.getPlayer() != null && event.getPlayer().getItemInHand().getType() != Material.AIR && event.getBlock() != null)
             ItemsInteractionManager.triggerBreakAction(event);
     }
@@ -43,7 +47,7 @@ public class ItemsListener implements Listener {
        Custom Food
      */
     @EventHandler
-    public void onPlayerInteract(PlayerItemConsumeEvent event) {
+    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
         if(event.getItem() != null)
             ItemsInteractionManager.triggerConsumeAction(event);
     }
