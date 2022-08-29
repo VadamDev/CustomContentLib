@@ -1,8 +1,8 @@
-package net.vadamdev.customcontent.integration.listeners.items;
+package net.vadamdev.customcontent.internal.deprecated.items;
 
+import net.vadamdev.customcontent.internal.deprecated.events.CustomArmorEvent;
 import net.vadamdev.customcontent.lib.ItemRegistry;
-import net.vadamdev.customcontent.lib.events.CustomArmorEvent;
-import net.vadamdev.customcontent.utils.NBTHelper;
+import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,8 +11,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.EntityEquipment;
@@ -21,12 +19,14 @@ import org.bukkit.inventory.ItemStack;
 /**
  * @author VadamDev
  */
+@Deprecated
 public class ItemsListener implements Listener {
     /*
        Custom Items
      */
 
     //InteractEvent
+    @Deprecated
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if(event.getAction().equals(Action.PHYSICAL))
@@ -37,6 +37,7 @@ public class ItemsListener implements Listener {
     }
 
     //Break Event
+    @Deprecated
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if(event.getPlayer() != null && event.getPlayer().getItemInHand().getType() != Material.AIR && event.getBlock() != null)
@@ -46,6 +47,7 @@ public class ItemsListener implements Listener {
     /*
        Custom Food
      */
+    @Deprecated
     @EventHandler
     public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
         if(event.getItem() != null)
@@ -57,9 +59,11 @@ public class ItemsListener implements Listener {
      */
 
     //Custom Armors
+    @Deprecated
     @EventHandler(priority = EventPriority.LOW)
     public void onEntityDamagedByEntity(EntityDamageByEntityEvent event) {
-        if(event.isCancelled()) return;
+        if(event.isCancelled())
+            return;
 
         if(event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
@@ -76,33 +80,6 @@ public class ItemsListener implements Listener {
 
             if(equipment.getBoots() != null && isCustomArmorPart(equipment.getBoots()))
                 ItemsInteractionManager.getCustomArmorPartAction(equipment.getBoots()).accept(new CustomArmorEvent(player, event.getDamager(), equipment.getBoots()));
-        }
-    }
-
-    /*
-       This is WIP
-     */
-    @EventHandler(priority = EventPriority.LOW)
-    public void onAnvilClick(InventoryClickEvent event) {
-        ItemStack item = event.getCurrentItem();
-
-        if(event.getInventory().getType().equals(InventoryType.ANVIL) && event.getRawSlot() == 2 && isCustomArmorPart(item)) {
-            ItemStack reparationItem = event.getInventory().getItem(1);
-
-            if(reparationItem == null || (!reparationItem.getType().equals(Material.DIAMOND) && !reparationItem.getType().equals(Material.IRON_INGOT) &&
-                    !reparationItem.getType().equals(Material.GOLD_INGOT) && !reparationItem.getType().equals(Material.LEATHER)))
-                return;
-
-            if(NBTHelper.getIntegerInNBTTag(item, "MaxDurability") != 0) {
-                int maxDurability = NBTHelper.getIntegerInNBTTag(item, "MaxDurability");
-                int toAdd = maxDurability / 4;
-                int durability = NBTHelper.getIntegerInNBTTag(item, "Durability");
-
-                if((durability + toAdd) > maxDurability)
-                    event.getInventory().setItem(2, NBTHelper.setIntegerInNBTTag(item, "Durability", maxDurability));
-                else
-                    event.getInventory().setItem(2, NBTHelper.setIntegerInNBTTag(item, "Durability", durability + toAdd));
-            }
         }
     }
 

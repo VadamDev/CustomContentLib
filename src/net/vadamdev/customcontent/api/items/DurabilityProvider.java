@@ -1,6 +1,6 @@
 package net.vadamdev.customcontent.api.items;
 
-import net.vadamdev.customcontent.utils.NBTHelper;
+import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -51,7 +51,7 @@ public interface DurabilityProvider {
      * @param itemStack The item
      */
     default void checkDurability(Player player, ItemStack itemStack) {
-        if(getDurability(itemStack) <= 0) getBreakAction().accept(player, itemStack);
+        if(getDurability(itemStack) <= 1) getBreakAction().accept(player, itemStack);
     }
 
     /**

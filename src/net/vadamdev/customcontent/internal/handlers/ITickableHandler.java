@@ -1,4 +1,4 @@
-package net.vadamdev.customcontent.lib;
+package net.vadamdev.customcontent.internal.handlers;
 
 import net.vadamdev.customcontent.api.ITickable;
 import net.vadamdev.viaapi.VIAPI;

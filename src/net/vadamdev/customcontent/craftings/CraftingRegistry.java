@@ -1,6 +1,6 @@
 package net.vadamdev.customcontent.craftings;
 
-import net.vadamdev.customcontent.CustomContentIntegration;
+import net.vadamdev.customcontent.CustomContentLib;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
@@ -13,7 +13,7 @@ import java.util.*;
  * @author VadamDev
  */
 public class CraftingRegistry {
-    public static final Set<Recipe> vanillaRecipeSet = new HashSet<>();
+    protected static final Set<Recipe> vanillaRecipeSet = new HashSet<>();
 
     private static final Set<ItemStack> toRemove = new HashSet<>();
     private static final List<Craft> customCraftings = new ArrayList<>();
@@ -32,7 +32,8 @@ public class CraftingRegistry {
     }
 
     private static void processCraftingRemoving(JavaPlugin plugin) {
-        if(toRemove.isEmpty()) return;
+        if(toRemove.isEmpty())
+            return;
 
         Iterator<Recipe> recipeIterator = plugin.getServer().recipeIterator();
         while(recipeIterator.hasNext()) {
@@ -42,13 +43,12 @@ public class CraftingRegistry {
                 recipeIterator.remove();
         }
 
-        CustomContentIntegration.instance.getLogger().info("Removed " + toRemove.size() + " vanilla recipes !");
+        CustomContentLib.instance.getLogger().info("Removed " + toRemove.size() + " vanilla recipes !");
     }
 
     private static void processCraftingAdding(JavaPlugin plugin) {
         //Save default recipes
         Iterator<Recipe> recipeIterator = Bukkit.recipeIterator();
-
         while(recipeIterator.hasNext())
             vanillaRecipeSet.add(recipeIterator.next());
 
@@ -61,7 +61,11 @@ public class CraftingRegistry {
             plugin.getServer().addRecipe(recipe);
         });
 
-        CustomContentIntegration.instance.getLogger().info("Added " + customCraftings.size() + " custom recipes !");
+        CustomContentLib.instance.getLogger().info("Added " + customCraftings.size() + " custom recipes !");
+    }
+
+    public static Craft getCraftByResult(ItemStack craftResult) {
+        return CraftingRegistry.getCustomCraftings().stream().filter(craft -> craft.getResult().isSimilar(craftResult)).findFirst().orElse(null);
     }
 
     public static List<Craft> getCustomCraftings() {

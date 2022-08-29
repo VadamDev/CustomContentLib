@@ -1,7 +1,9 @@
 package net.vadamdev.customcontent.api.items;
 
+import net.vadamdev.customcontent.annotations.ForRemoval;
 import net.vadamdev.customcontent.api.IRegistrable;
-import net.vadamdev.customcontent.utils.NBTHelper;
+import net.vadamdev.customcontent.lib.utils.NBTHelper;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -18,7 +20,15 @@ public abstract class CustomFood implements IRegistrable {
         this.itemStack = NBTHelper.setStringInNBTTag(itemStack, "RegistryName", getRegistryName());
     }
 
-    public abstract Consumer<PlayerItemConsumeEvent> getAction();
+    public boolean onEat(Player player, ItemStack item) {
+        return false;
+    }
+
+    @Deprecated
+    @ForRemoval(deadLine = "1.0.0")
+    public Consumer<PlayerItemConsumeEvent> getAction() {
+        return null;
+    }
 
     /**
      * It will make the food instantly ate

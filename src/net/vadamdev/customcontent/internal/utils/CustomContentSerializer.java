@@ -1,4 +1,4 @@
-package net.vadamdev.customcontent.utils;
+package net.vadamdev.customcontent.internal.utils;
 
 import net.vadamdev.viaapi.tools.builders.ItemBuilder;
 import org.bukkit.configuration.ConfigurationSection;

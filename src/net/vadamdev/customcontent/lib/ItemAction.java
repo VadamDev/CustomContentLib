@@ -1,4 +1,4 @@
-package net.vadamdev.customcontent.lib.events;
+package net.vadamdev.customcontent.lib;
 
 import org.bukkit.event.block.Action;
 

@@ -1,7 +1,6 @@
-package net.vadamdev.customcontent.utils;
+package net.vadamdev.customcontent.internal.utils;
 
-import net.vadamdev.customcontent.CustomContentIntegration;
-import org.bukkit.configuration.InvalidConfigurationException;
+import net.vadamdev.customcontent.CustomContentLib;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -10,15 +9,14 @@ import java.io.IOException;
 
 public enum FileUtils {
     ITEMS("items.yml"),
-    ARMORS("armors.yml"),
-    BLOCKS("blocks.yml");
+    ARMORS("armors.yml");
 
     private final String filename;
     private final File dataForlder;
 
     FileUtils(String filename) {
         this.filename = filename;
-        this.dataForlder = CustomContentIntegration.instance.getDataFolder();
+        this.dataForlder = CustomContentLib.instance.getDataFolder();
     }
 
     public File getFile() {
@@ -35,10 +33,6 @@ public enum FileUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void reload(FileConfiguration configuration) throws IOException, InvalidConfigurationException {
-        configuration.load(configuration.getName());
     }
 
     public String getFilename(){

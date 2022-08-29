@@ -1,4 +1,4 @@
-package net.vadamdev.customcontent.utils;
+package net.vadamdev.customcontent.lib.utils;
 
 import net.vadamdev.customcontent.lib.ItemRegistry;
 import org.bukkit.inventory.ItemStack;

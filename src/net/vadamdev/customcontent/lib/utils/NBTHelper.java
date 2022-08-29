@@ -1,4 +1,4 @@
-package net.vadamdev.customcontent.utils;
+package net.vadamdev.customcontent.lib.utils;
 
 import net.minecraft.server.v1_8_R3.ItemStack;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;

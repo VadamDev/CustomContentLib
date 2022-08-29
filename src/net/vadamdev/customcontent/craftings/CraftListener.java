@@ -14,7 +14,7 @@ public class CraftListener implements Listener {
 		ItemStack result = inventory.getResult();
 
 		if (result != null && !result.getType().equals(Material.AIR)) {
-			Craft craft = getByResult(result);
+			Craft craft = CraftingRegistry.getCraftByResult(result);
 
 			if(craft != null && !equals(inventory.getContents(), craft.toArray()))
 				inventory.setResult(new ItemStack(Material.AIR));
@@ -55,9 +55,5 @@ public class CraftListener implements Listener {
 		}
 
 		return false;
-	}
-
-	private Craft getByResult(ItemStack result) {
-		return CraftingRegistry.getCustomCraftings().parallelStream().filter(craft -> craft.getResult().isSimilar(result)).findFirst().orElse(null);
 	}
 }

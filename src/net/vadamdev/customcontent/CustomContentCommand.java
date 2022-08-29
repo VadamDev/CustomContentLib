@@ -1,8 +1,8 @@
-package net.vadamdev.customcontent.integration;
+package net.vadamdev.customcontent;
 
 import net.vadamdev.customcontent.lib.ItemRegistry;
+import net.vadamdev.viaapi.tools.commands.PermissionCommand;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -15,31 +15,29 @@ import java.util.stream.Stream;
 /**
  * @author VadamDev
  */
-public class CustomContentCommand extends Command {
+public class CustomContentCommand extends PermissionCommand {
     public CustomContentCommand() {
         super("customcontent");
         setAliases(Collections.singletonList("customcontentlib"));
     }
 
     @Override
-    public boolean execute(CommandSender sender, String label, String[] args) {
+    public boolean executePermissionCommand(CommandSender sender, String label, String[] args) {
         if(sender instanceof Player) {
             Player player = (Player) sender;
 
-            if(!player.hasPermission("customcontentlib.admin")) return false;
-
-            if(args.length == 1) {
-                StringBuilder stringBuilder = new StringBuilder("§3CustomContentLib §f» §bHere is the list of registered custom items: ");
+            if(args.length == 1 && args[0].equalsIgnoreCase("list")) {
+                StringBuilder stringBuilder = new StringBuilder("§3CustomContentLib §f» §bHere's the list of registered custom items: ");
                 ItemRegistry.getCustomItems().forEach((registryName, itemStack) -> stringBuilder.append(registryName + ", "));
                 player.sendMessage(stringBuilder.toString());
-            }else if(args.length == 2) {
-                if(args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get")) {
-                    ItemStack item = ItemRegistry.getCustomItemAsItemStack(args[1]);
+            }else if(args.length == 2 && (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get"))) {
+                ItemStack item = ItemRegistry.getCustomItemAsItemStack(args[1]);
 
-                    if(item != null) player.getInventory().addItem(item);
-                    else player.sendMessage("§3CustomContentLib §f» §c" + args[1] + " doesn't exist !");
-                }else player.sendMessage("§3CustomContentLib §f» §cInvalid arguments !");
-            }if(args.length == 3) {
+                if(item != null)
+                    player.getInventory().addItem(item);
+                else
+                    player.sendMessage("§3CustomContentLib §f» §c" + args[1] + " doesn't exist !");
+            }else if(args.length == 3) {
                 if(args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get")) {
                     if(Bukkit.getPlayer(args[2]) == null) {
                         ItemStack item = ItemRegistry.getCustomItemAsItemStack(args[1]);
@@ -64,8 +62,9 @@ public class CustomContentCommand extends Command {
                         if(item != null) target.getInventory().addItem(item);
                         else player.sendMessage("§3CustomContentLib §f» §c" + args[1] + " doesn't exist !");
                     }
-                }else player.sendMessage("§3CustomContentLib §f» §cInvalid arguments !");
-            }if(args.length == 4) {
+                }else
+                    player.sendMessage("§3CustomContentLib §f» §cInvalid arguments !");
+            }else if(args.length == 4) {
                 if(args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get")) {
                     if(Bukkit.getPlayer(args[2]) != null) {
                         ItemStack item = ItemRegistry.getCustomItemAsItemStack(args[1]);
@@ -83,8 +82,10 @@ public class CustomContentCommand extends Command {
 
                         Bukkit.getPlayer(args[2]).getInventory().addItem(item);
                     }
-                }else player.sendMessage("§3CustomContentLib §f» §cInvalid arguments !");
-            }else player.sendMessage("§3CustomContentLib §f» §cInvalid arguments !");
+                }else
+                    player.sendMessage("§3CustomContentLib §f» §cInvalid arguments !");
+            }else
+                player.sendMessage("§3CustomContentLib §f» §cInvalid arguments !");
         }else {
             if(args.length == 3) {
                 if(args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get")) {
@@ -122,6 +123,11 @@ public class CustomContentCommand extends Command {
         }
 
         return false;
+    }
+
+    @Override
+    public String getGlobalPermission() {
+        return "customcontentlib.admin";
     }
 
     @Override

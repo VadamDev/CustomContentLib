@@ -1,13 +1,16 @@
 package net.vadamdev.customcontent.api.items.armor;
 
+import net.vadamdev.customcontent.annotations.ForRemoval;
 import net.vadamdev.customcontent.api.IRegistrable;
 import net.vadamdev.customcontent.api.items.DurabilityProvider;
-import net.vadamdev.customcontent.lib.events.CustomArmorEvent;
-import net.vadamdev.customcontent.utils.DurabilityUtils;
-import net.vadamdev.customcontent.utils.NBTHelper;
+import net.vadamdev.customcontent.internal.deprecated.events.CustomArmorEvent;
+import net.vadamdev.customcontent.lib.utils.DurabilityUtils;
+import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import net.vadamdev.viaapi.tools.builders.ItemBuilder;
 import net.vadamdev.viaapi.tools.math.MathUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
@@ -34,12 +37,20 @@ public abstract class CustomArmorPart implements IRegistrable, DurabilityProvide
         this.itemStack = setDefaultDurability(itemStack);
     }
 
+    public boolean onHolderDamaged(Player player, Entity damager, ItemStack item) {
+        Bukkit.broadcastMessage("onHolderDamaged");
+        applyDurability(player, item);
+        return false;
+    }
+
     /**
      * IF YOU'RE MAKING A CUSTOM DAMAGE ACTION, DONT FORGET TO EXECUTE THE applyDurability METHOD!
      * @return The Action
      */
+    @Deprecated
+    @ForRemoval(deadLine = "1.0.0")
     public Consumer<CustomArmorEvent> getDamageAction() {
-        return this::applyDurability;
+        return event -> {};
     }
 
     @Override
@@ -47,10 +58,7 @@ public abstract class CustomArmorPart implements IRegistrable, DurabilityProvide
         return itemStack;
     }
 
-    protected void applyDurability(CustomArmorEvent event) {
-        Player player = event.getPlayer();
-        ItemStack item = event.getItem();
-
+    protected void applyDurability(Player player, ItemStack item) {
         EntityEquipment equipment = player.getEquipment();
 
         item.setDurability((short) 0);

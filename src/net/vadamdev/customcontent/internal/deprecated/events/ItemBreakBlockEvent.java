@@ -1,4 +1,4 @@
-package net.vadamdev.customcontent.lib.events;
+package net.vadamdev.customcontent.internal.deprecated.events;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -10,11 +10,13 @@ import org.bukkit.inventory.ItemStack;
 /**
  * @author VadamDev
  */
+@Deprecated
 public class ItemBreakBlockEvent extends PlayerEvent implements Cancellable {
     private final ItemStack item;
     private final Block block;
     private boolean cancelled;
 
+    @Deprecated
     public ItemBreakBlockEvent(Player who, ItemStack item, Block block) {
         super(who);
 
@@ -22,19 +24,23 @@ public class ItemBreakBlockEvent extends PlayerEvent implements Cancellable {
         this.block = block;
     }
 
+    @Deprecated
     public ItemStack getItem() {
         return item;
     }
 
+    @Deprecated
     public Block getBlock() {
         return block;
     }
 
+    @Deprecated
     @Override
     public boolean isCancelled() {
         return cancelled;
     }
 
+    @Deprecated
     @Override
     public void setCancelled(boolean b) {
         this.cancelled = b;
