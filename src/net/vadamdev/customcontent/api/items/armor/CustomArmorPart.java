@@ -1,14 +1,11 @@
 package net.vadamdev.customcontent.api.items.armor;
 
-import net.vadamdev.customcontent.annotations.ForRemoval;
 import net.vadamdev.customcontent.api.IRegistrable;
 import net.vadamdev.customcontent.api.items.DurabilityProvider;
-import net.vadamdev.customcontent.internal.deprecated.events.CustomArmorEvent;
 import net.vadamdev.customcontent.lib.utils.DurabilityUtils;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import net.vadamdev.viaapi.tools.builders.ItemBuilder;
 import net.vadamdev.viaapi.tools.math.MathUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -16,7 +13,6 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * @author VadamDev
@@ -37,20 +33,13 @@ public abstract class CustomArmorPart implements IRegistrable, DurabilityProvide
         this.itemStack = setDefaultDurability(itemStack);
     }
 
-    public boolean onHolderDamaged(Player player, Entity damager, ItemStack item) {
-        Bukkit.broadcastMessage("onHolderDamaged");
-        applyDurability(player, item);
-        return false;
-    }
-
     /**
      * IF YOU'RE MAKING A CUSTOM DAMAGE ACTION, DONT FORGET TO EXECUTE THE applyDurability METHOD!
      * @return The Action
      */
-    @Deprecated
-    @ForRemoval(deadLine = "1.0.0")
-    public Consumer<CustomArmorEvent> getDamageAction() {
-        return event -> {};
+    public boolean onHolderDamaged(Player player, Entity damager, ItemStack item) {
+        applyDurability(player, item);
+        return false;
     }
 
     @Override

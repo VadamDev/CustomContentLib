@@ -1,5 +1,9 @@
 package net.vadamdev.customcontent.craftings;
 
+import net.vadamdev.customcontent.CustomContentLib;
+import net.vadamdev.customcontent.api.IRegistrable;
+import net.vadamdev.customcontent.internal.CommonRegistry;
+import net.vadamdev.customcontent.lib.CustomContentRegistry;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -8,24 +12,39 @@ import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 
 public class CraftListener implements Listener {
+	private final CommonRegistry commonRegistry;
+
+	public CraftListener() {
+		this.commonRegistry = CustomContentLib.instance.getCommonRegistry();
+	}
+
 	@EventHandler
 	public void onCraft(PrepareItemCraftEvent event) {
-		CraftingInventory inventory = event.getInventory();
-		ItemStack result = inventory.getResult();
+		CraftingInventory craftingInventory = event.getInventory();
+		ItemStack currentResult = craftingInventory.getResult();
 
-		if (result != null && !result.getType().equals(Material.AIR)) {
-			Craft craft = CraftingRegistry.getCraftByResult(result);
+		if (currentResult != null && !currentResult.getType().equals(Material.AIR)) {
+			ItemStack[] craftMatrix = craftingInventory.getContents();
+			Craft craft = CraftingRegistry.getCraftByResult(currentResult);
 
-			if(craft != null && !equals(inventory.getContents(), craft.toArray()))
-				inventory.setResult(new ItemStack(Material.AIR));
+			if(craft != null) {
+				if(!equals(craftMatrix, craft.toArray())) {
+					craftingInventory.setResult(new ItemStack(Material.AIR));
+				}
+			}else if(CraftingRegistry.vanillaRecipeSet.parallelStream().anyMatch(recipe -> recipe.getResult().isSimilar(currentResult))) {
+				for (ItemStack item : craftMatrix) {
+					if(item == null || item.getType().equals(Material.AIR))
+						continue;
+
+					for (IRegistrable customItem : commonRegistry.getCustomItems()) {
+						if(CustomContentRegistry.isCustomItem(item, customItem.getRegistryName())) {
+							craftingInventory.setResult(new ItemStack(Material.AIR));
+							return;
+						}
+					}
+				}
+			}
 		}
-
-		CraftingRegistry.vanillaRecipeSet.stream().filter(recipe -> recipe.getResult().equals(result)).forEach(recipe -> {
-			CraftingRegistry.getCustomCraftings().forEach(craft -> {
-				if(contains(inventory.getContents(), craft.toArray()))
-					inventory.setResult(new ItemStack(Material.AIR));
-			});
-		});
 	}
 
 	private boolean equals(ItemStack[] inventoryMatrix, ItemStack[] craftingMatrix) {
@@ -33,7 +52,7 @@ public class CraftListener implements Listener {
 			ItemStack item = inventoryMatrix[i];
 			ItemStack otherItem = craftingMatrix[i];
 
-			if(item == null || otherItem == null || item.getType().equals(Material.AIR) && otherItem.getType().equals(Material.AIR))
+			if(item == null || otherItem == null || item.getType().equals(Material.AIR) || otherItem.getType().equals(Material.AIR))
 				continue;
 
 			if(!item.isSimilar(otherItem))
@@ -41,19 +60,5 @@ public class CraftListener implements Listener {
 		}
 
 		return true;
-	}
-
-	private boolean contains(ItemStack[] inventoryMatrix, ItemStack[] craftingMatrix) {
-		for (ItemStack i1 : inventoryMatrix) {
-			for (ItemStack i2 : craftingMatrix) {
-				if(!i1.hasItemMeta())
-					continue;
-
-				if(i1.isSimilar(i2))
-					return true;
-			}
-		}
-
-		return false;
 	}
 }

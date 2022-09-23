@@ -39,12 +39,6 @@ public class Craft {
 		return ingredients;
 	}
 
-	public Map<Character, ItemStack> getIngredientsInChar() {
-		Map<Character, ItemStack> charIngredients = new HashMap<>();
-		ingredients.forEach((Char, itemStack) -> charIngredients.put(Char.charAt(0), itemStack));
-		return charIngredients;
-	}
-
 	public ItemStack[] toArray() {
 		ItemStack[] items = new ItemStack[(shape.length * 3) + 1];
 

@@ -3,9 +3,9 @@ package net.vadamdev.customcontent.internal.handlers;
 import net.vadamdev.customcontent.CustomContentLib;
 import net.vadamdev.customcontent.api.items.CustomFood;
 import net.vadamdev.customcontent.api.items.CustomItem;
-import net.vadamdev.customcontent.internal.GeneralRegistry;
+import net.vadamdev.customcontent.internal.CommonRegistry;
+import net.vadamdev.customcontent.lib.CustomContentRegistry;
 import net.vadamdev.customcontent.lib.ItemAction;
-import net.vadamdev.customcontent.lib.ItemRegistry;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,10 +24,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 22/08/2022
  */
 public class ItemsHandler implements Listener {
-    private final GeneralRegistry generalRegistry;
+    private final CommonRegistry commonRegistry;
 
     public ItemsHandler() {
-        generalRegistry = CustomContentLib.instance.getGeneralRegistry();
+        commonRegistry = CustomContentLib.instance.getCommonRegistry();
     }
 
     @EventHandler
@@ -40,7 +40,7 @@ public class ItemsHandler implements Listener {
 
         AtomicBoolean flag = new AtomicBoolean(false);
 
-        generalRegistry.getCustomItems().stream().filter(customItem -> ItemRegistry.isCustomItem(itemStack, customItem.getRegistryName())).forEach(customItem -> {
+        commonRegistry.getCustomItems().stream().filter(customItem -> CustomContentRegistry.isCustomItem(itemStack, customItem.getRegistryName())).forEach(customItem -> {
             if(customItem instanceof CustomItem) {
                 flag.set(((CustomItem) customItem).onClick(player, ItemAction.of(event.getAction()), event.getClickedBlock(), event.getBlockFace(), itemStack));
             }else if(customItem instanceof CustomFood) {
@@ -65,7 +65,7 @@ public class ItemsHandler implements Listener {
 
         AtomicBoolean flag = new AtomicBoolean(false);
 
-        generalRegistry.getCustomItems().stream().filter(customItem -> ItemRegistry.isCustomItem(itemStack, customItem.getRegistryName())).forEach(customItem -> {
+        commonRegistry.getCustomItems().stream().filter(customItem -> CustomContentRegistry.isCustomItem(itemStack, customItem.getRegistryName())).forEach(customItem -> {
             if (customItem instanceof CustomItem) {
                 flag.set(((CustomItem) customItem).onEntityClick(player, event.getRightClicked(), itemStack));
             }
@@ -77,19 +77,19 @@ public class ItemsHandler implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if(event.getEntity() instanceof Player) {
-            Player player = (Player) event.getEntity();
+        if(event.getDamager() instanceof Player) {
+            Player damager = (Player) event.getDamager();
 
-            ItemStack itemStack = player.getItemInHand();
+            ItemStack itemStack = damager.getItemInHand();
 
             if(itemStack == null || itemStack.getType().equals(Material.AIR))
                 return;
 
             AtomicBoolean flag = new AtomicBoolean(false);
 
-            generalRegistry.getCustomItems().stream().filter(customItem -> ItemRegistry.isCustomItem(itemStack, customItem.getRegistryName())).forEach(customItem -> {
+            commonRegistry.getCustomItems().stream().filter(customItem -> CustomContentRegistry.isCustomItem(itemStack, customItem.getRegistryName())).forEach(customItem -> {
                 if (customItem instanceof CustomItem) {
-                    flag.set(((CustomItem) customItem).hurtEntity(player, event.getDamager(), itemStack));
+                    flag.set(((CustomItem) customItem).hurtEntity(damager, event.getEntity(), itemStack));
                 }
             });
 
@@ -108,7 +108,7 @@ public class ItemsHandler implements Listener {
 
         AtomicBoolean flag = new AtomicBoolean(false);
 
-        generalRegistry.getCustomItems().stream().filter(customItem -> ItemRegistry.isCustomItem(itemStack, customItem.getRegistryName())).forEach(customItem -> {
+        commonRegistry.getCustomItems().stream().filter(customItem -> CustomContentRegistry.isCustomItem(itemStack, customItem.getRegistryName())).forEach(customItem -> {
             if (customItem instanceof CustomItem) {
                 flag.set(((CustomItem) customItem).mineBlock(player, event.getBlock(), event.getExpToDrop(), itemStack));
             }
@@ -127,7 +127,7 @@ public class ItemsHandler implements Listener {
 
         AtomicBoolean flag = new AtomicBoolean(false);
 
-        generalRegistry.getCustomItems().stream().filter(customItem -> ItemRegistry.isCustomItem(itemStack, customItem.getRegistryName())).forEach(customItem -> {
+        commonRegistry.getCustomItems().stream().filter(customItem -> CustomContentRegistry.isCustomItem(itemStack, customItem.getRegistryName())).forEach(customItem -> {
             if (customItem instanceof CustomFood) {
                 flag.set(((CustomFood) customItem).onEat(event.getPlayer(), itemStack));
             }

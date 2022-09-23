@@ -4,6 +4,8 @@ import net.minecraft.server.v1_8_R3.ItemStack;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 
+import javax.annotation.Nullable;
+
 /**
  * @author VadamDev
  * @since 04/01/2021
@@ -19,10 +21,10 @@ public class NBTHelper {
         return CraftItemStack.asBukkitCopy(nmsItem);
     }
 
+    @Nullable
     public static String getStringInNBTTag(org.bukkit.inventory.ItemStack itemStack, String key) {
         ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
-        NBTTagCompound nbtTag = nmsItem.hasTag() ? nmsItem.getTag() : new NBTTagCompound();
-        return nbtTag.getString(key);
+        return nmsItem.hasTag() ? nmsItem.getTag().getString(key) : null;
     }
 
     public static org.bukkit.inventory.ItemStack setIntegerInNBTTag(org.bukkit.inventory.ItemStack itemStack, String key, int value) {
@@ -37,8 +39,7 @@ public class NBTHelper {
 
     public static int getIntegerInNBTTag(org.bukkit.inventory.ItemStack itemStack, String key) {
         ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
-        NBTTagCompound nbtTag = nmsItem.hasTag() ? nmsItem.getTag() : new NBTTagCompound();
-        return nbtTag.getInt(key);
+        return nmsItem.hasTag() ? nmsItem.getTag().getInt(key) : 0;
     }
 
     public static org.bukkit.inventory.ItemStack setBooleanInNBTTag(org.bukkit.inventory.ItemStack itemStack, String key, boolean value) {
@@ -53,7 +54,6 @@ public class NBTHelper {
 
     public static boolean getBooleanInNBTTag(org.bukkit.inventory.ItemStack itemStack, String key) {
         ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
-        NBTTagCompound nbtTag = nmsItem.hasTag() ? nmsItem.getTag() : new NBTTagCompound();
-        return nbtTag.getBoolean(key);
+        return nmsItem.hasTag() ? nmsItem.getTag().getBoolean(key) : false;
     }
 }

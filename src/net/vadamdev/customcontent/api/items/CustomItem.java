@@ -1,9 +1,6 @@
 package net.vadamdev.customcontent.api.items;
 
-import net.vadamdev.customcontent.annotations.ForRemoval;
 import net.vadamdev.customcontent.api.IRegistrable;
-import net.vadamdev.customcontent.internal.deprecated.events.ItemBreakBlockEvent;
-import net.vadamdev.customcontent.internal.deprecated.events.ItemUseEvent;
 import net.vadamdev.customcontent.lib.ItemAction;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import org.bukkit.block.Block;
@@ -13,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * @author VadamDev
@@ -42,18 +38,6 @@ public abstract class CustomItem implements IRegistrable {
 
     public boolean mineBlock(Player player, Block block, int exp, ItemStack itemStack) {
         return false;
-    }
-
-    @Deprecated
-    @ForRemoval(deadLine = "1.0.0")
-    public Consumer<ItemUseEvent> getInteractAction() {
-        return null;
-    }
-
-    @Deprecated
-    @ForRemoval(deadLine = "1.0.0")
-    public Consumer<ItemBreakBlockEvent> getBlockBreakAction() {
-        return null;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package net.vadamdev.customcontent.lib.exceptions;
+package net.vadamdev.customcontent.internal.exceptions;
 
 /**
  * @author VadamDev

@@ -1,13 +1,9 @@
 package net.vadamdev.customcontent.api.items;
 
-import net.vadamdev.customcontent.annotations.ForRemoval;
 import net.vadamdev.customcontent.api.IRegistrable;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.function.Consumer;
 
 /**
  * @author VadamDev
@@ -22,12 +18,6 @@ public abstract class CustomFood implements IRegistrable {
 
     public boolean onEat(Player player, ItemStack item) {
         return false;
-    }
-
-    @Deprecated
-    @ForRemoval(deadLine = "1.0.0")
-    public Consumer<PlayerItemConsumeEvent> getAction() {
-        return null;
     }
 
     /**

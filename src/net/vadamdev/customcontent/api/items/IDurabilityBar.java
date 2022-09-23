@@ -25,7 +25,7 @@ public interface IDurabilityBar {
     String getPlaceholder();
 
     /**
-     * Method  called by the DurabilityProvider class.
+     * Method called by the DurabilityProvider class.
      * You should theoretically not override it.
      * @param itemStack
      * @param lore Default lore

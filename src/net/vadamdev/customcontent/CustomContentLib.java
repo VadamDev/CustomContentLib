@@ -1,11 +1,15 @@
 package net.vadamdev.customcontent;
 
 import net.vadamdev.customcontent.craftings.CraftListener;
-import net.vadamdev.customcontent.internal.GeneralRegistry;
-import net.vadamdev.customcontent.internal.deprecated.items.ItemsListener;
+import net.vadamdev.customcontent.internal.BlocksRegistry;
+import net.vadamdev.customcontent.internal.CommonRegistry;
+import net.vadamdev.customcontent.internal.ItemsRegistry;
 import net.vadamdev.customcontent.internal.handlers.ArmorsHandler;
+import net.vadamdev.customcontent.internal.handlers.BlocksHandler;
 import net.vadamdev.customcontent.internal.handlers.ItemsHandler;
+import net.vadamdev.customcontent.internal.handlers.TileEntityHandler;
 import net.vadamdev.customcontent.internal.utils.FileUtils;
+import net.vadamdev.viaapi.VIAPI;
 import net.vadamdev.viaapi.VIPlugin;
 import net.vadamdev.viaapi.startup.APIVersion;
 
@@ -18,10 +22,15 @@ import java.util.Arrays;
 public class CustomContentLib extends VIPlugin {
     public static CustomContentLib instance;
 
-    private GeneralRegistry generalRegistry;
+    private CommonRegistry commonRegistry;
+    private ItemsRegistry itemsRegistry;
+    private BlocksRegistry blocksRegistry;
+
+    private TileEntityHandler tileEntityHandler;
 
     private ItemsHandler itemsHandler;
     private ArmorsHandler armorsHandler;
+    private BlocksHandler blocksHandler;
 
     @Override
     public void onEnable() {
@@ -32,22 +41,34 @@ public class CustomContentLib extends VIPlugin {
         for(FileUtils value : FileUtils.values())
             saveResource(value.getFilename());
 
-        generalRegistry = new GeneralRegistry();
+        commonRegistry = new CommonRegistry();
+        itemsRegistry = new ItemsRegistry();
+
+        tileEntityHandler = new TileEntityHandler();
+        blocksRegistry = new BlocksRegistry();
 
         itemsHandler = new ItemsHandler();
         armorsHandler = new ArmorsHandler();
+        blocksHandler = new BlocksHandler();
 
         registerListeners();
         registerCommands();
+
+        VIAPI.getScheduler().runTaskLater(this, r -> tileEntityHandler.loadAll(blocksRegistry), 100);
+    }
+
+    @Override
+    public void onDisable() {
+        tileEntityHandler.saveAll();
     }
 
     private void registerListeners(){
         Arrays.asList(
                 itemsHandler,
                 armorsHandler,
+                blocksHandler,
 
-                new CraftListener(),
-                new ItemsListener()
+                new CraftListener()
         ).forEach(e -> this.getServer().getPluginManager().registerEvents(e, this));
     }
 
@@ -57,8 +78,20 @@ public class CustomContentLib extends VIPlugin {
         ).forEach(this::registerCommand);
     }
 
-    public GeneralRegistry getGeneralRegistry() {
-        return generalRegistry;
+    public CommonRegistry getCommonRegistry() {
+        return commonRegistry;
+    }
+
+    public ItemsRegistry getItemsRegistry() {
+        return itemsRegistry;
+    }
+
+    public BlocksRegistry getBlocksRegistry() {
+        return blocksRegistry;
+    }
+
+    public TileEntityHandler getTileEntityHandler() {
+        return tileEntityHandler;
     }
 
     @Override

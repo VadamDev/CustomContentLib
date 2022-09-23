@@ -2,8 +2,8 @@ package net.vadamdev.customcontent.internal.handlers;
 
 import net.vadamdev.customcontent.CustomContentLib;
 import net.vadamdev.customcontent.api.items.armor.CustomArmorPart;
-import net.vadamdev.customcontent.internal.GeneralRegistry;
-import net.vadamdev.customcontent.lib.ItemRegistry;
+import net.vadamdev.customcontent.internal.CommonRegistry;
+import net.vadamdev.customcontent.lib.CustomContentRegistry;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -13,7 +13,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -22,10 +21,10 @@ import org.bukkit.inventory.ItemStack;
  * @since 22/08/2022
  */
 public class ArmorsHandler implements Listener {
-    private final GeneralRegistry generalRegistry;
+    private final CommonRegistry commonRegistry;
 
     public ArmorsHandler() {
-        generalRegistry = CustomContentLib.instance.getGeneralRegistry();
+        commonRegistry = CustomContentLib.instance.getCommonRegistry();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -35,15 +34,14 @@ public class ArmorsHandler implements Listener {
 
         if(event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
-            EntityEquipment equipment = player.getEquipment();
 
-            for (ItemStack itemStack : equipment.getArmorContents()) {
+            for (ItemStack itemStack : player.getEquipment().getArmorContents()) {
                 if(itemStack.getType().equals(Material.AIR) || !isCustomArmorPart(itemStack))
                     continue;
 
-                generalRegistry.getCustomItems().stream().filter(customItem -> ItemRegistry.isCustomItem(itemStack, customItem.getRegistryName())).forEach(customItem -> {
-                    ((CustomArmorPart) customItem).onHolderDamaged(player, event.getDamager(), itemStack);
-                });
+                commonRegistry.getCustomItems().stream()
+                        .filter(customItem -> CustomContentRegistry.isCustomItem(itemStack, customItem.getRegistryName()))
+                        .forEach(customItem -> ((CustomArmorPart) customItem).onHolderDamaged(player, event.getDamager(), itemStack));
             }
         }
     }
@@ -80,6 +78,6 @@ public class ArmorsHandler implements Listener {
         if(registryName == null || !NBTHelper.getBooleanInNBTTag(itemStack ,"CustomArmorPart"))
             return false;
 
-        return ItemRegistry.isRegistered(registryName);
+        return CustomContentRegistry.isRegistered(registryName);
     }
 }

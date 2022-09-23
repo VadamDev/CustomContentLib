@@ -9,7 +9,8 @@ import java.io.IOException;
 
 public enum FileUtils {
     ITEMS("items.yml"),
-    ARMORS("armors.yml");
+    ARMORS("armors.yml"),
+    BLOCKS("blocks.yml");
 
     private final String filename;
     private final File dataForlder;

@@ -1,6 +1,6 @@
 package net.vadamdev.customcontent.lib.utils;
 
-import net.vadamdev.customcontent.lib.ItemRegistry;
+import net.vadamdev.customcontent.lib.CustomContentRegistry;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -20,6 +20,6 @@ public class DurabilityUtils {
         if(NBTHelper.getStringInNBTTag(itemStack ,"RegistryName") == null) return false;
         if(NBTHelper.getIntegerInNBTTag(itemStack ,"Durability") == 0 && NBTHelper.getIntegerInNBTTag(itemStack ,"MaxDurability") == 0) return false;
 
-        return ItemRegistry.isRegistered(NBTHelper.getStringInNBTTag(itemStack ,"RegistryName"));
+        return CustomContentRegistry.isRegistered(NBTHelper.getStringInNBTTag(itemStack ,"RegistryName"));
     }
 }
