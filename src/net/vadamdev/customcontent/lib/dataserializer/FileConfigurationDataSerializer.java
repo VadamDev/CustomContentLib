@@ -17,11 +17,11 @@ import java.util.Map;
  * @author VadamDev
  * @since 20/09/2022
  */
-public class ConfigurationDataSerializer implements IDataSerializer {
+public class FileConfigurationDataSerializer implements IDataSerializer {
     private final FileConfiguration configFile;
     private final File dataFile;
 
-    public ConfigurationDataSerializer(FileConfiguration configFile, File dataFile) {
+    public FileConfigurationDataSerializer(FileConfiguration configFile, File dataFile) {
         this.configFile = configFile;
         this.dataFile = dataFile;
     }
@@ -53,10 +53,10 @@ public class ConfigurationDataSerializer implements IDataSerializer {
 
             ConfigurationSection section = configFile.getConfigurationSection(strBlockPos);
             for (String sectionKey : section.getKeys(false)) {
-                DataType type = DataType.valueOf(section.getString(sectionKey + ".type"));
-                String data = section.getString(sectionKey + ".data");
-
-                ISerializableData.parseFrom(type, data).ifPresent(serializableData -> compound.put(sectionKey, serializableData));
+                ISerializableData.parseFrom(
+                        DataType.valueOf(section.getString(sectionKey + ".type")),
+                        section.getString(sectionKey + ".data")
+                ).ifPresent(serializableData -> compound.put(sectionKey, serializableData));
             }
 
             dataMap.put(BlockPos.fromSerializableString(strBlockPos), compound);

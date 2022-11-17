@@ -48,6 +48,10 @@ public final class BlocksRegistry {
         customBlocks.add(customBlock);
     }
 
+    public boolean isCustomBlock(BlockPos blockPos) {
+        return customBlocks.stream().anyMatch(block -> block.getDataSerializer().contains(blockPos));
+    }
+
     public Optional<CustomTileEntity> getTileEntityAt(BlockPos blockPos) {
         return tileEntityHandler.getTileEntityAt(blockPos);
     }

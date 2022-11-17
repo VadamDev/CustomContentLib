@@ -1,8 +1,8 @@
 package net.vadamdev.customcontent.lib;
 
 import net.vadamdev.customcontent.CustomContentLib;
-import net.vadamdev.customcontent.annotations.ForRemoval;
 import net.vadamdev.customcontent.api.blocks.CustomBlock;
+import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
 import net.vadamdev.customcontent.api.items.CustomFood;
 import net.vadamdev.customcontent.api.items.CustomItem;
 import net.vadamdev.customcontent.api.items.EmptyItem;
@@ -15,6 +15,7 @@ import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author VadamDev
@@ -24,6 +25,10 @@ public final class CustomContentRegistry {
     private static final CommonRegistry COMMON_REGISTRY = CustomContentLib.instance.getCommonRegistry();
     private static final ItemsRegistry ITEM_REGISTRY = CustomContentLib.instance.getItemsRegistry();
     private static final BlocksRegistry BLOCK_REGISTRY = CustomContentLib.instance.getBlocksRegistry();
+
+    /*
+       -----------------------------------ITEMS-----------------------------------
+     */
 
     /**
      * Register a CustomContentLib Item and load it's configuration if exists
@@ -41,6 +46,10 @@ public final class CustomContentRegistry {
         ITEM_REGISTRY.registerCustomFood(customFood);
     }
 
+    /*
+       -----------------------------------AMORS-----------------------------------
+     */
+
     /**
      * Register a CustomContentLib Armor and load it's configuration if exists
      * @param customArmorPart
@@ -57,6 +66,10 @@ public final class CustomContentRegistry {
         ITEM_REGISTRY.registerArmorSet(armorSet);
     }
 
+    /*
+       -----------------------------------BLOCKS-----------------------------------
+     */
+
     /**
      * Register a CustomContentLib Block
      * @param customBlock
@@ -65,19 +78,20 @@ public final class CustomContentRegistry {
         BLOCK_REGISTRY.registerCustomBlock(customBlock);
     }
 
+    public static boolean isCustomBlock(BlockPos blockPos) {
+        return BLOCK_REGISTRY.isCustomBlock(blockPos);
+    }
+
+    public static Optional<CustomTileEntity> getTileEntityAt(BlockPos blockPos) {
+        return BLOCK_REGISTRY.getTileEntityAt(blockPos);
+    }
+
     /**
      * Register a ItemStack as a custom item
      * @param emptyItem
      */
     public static void registerEmptyItem(EmptyItem emptyItem) {
         ITEM_REGISTRY.registerEmptyItem(emptyItem);
-    }
-
-    @ForRemoval(deadLine = "1.0.0-pre3", reason = "Better empty item system")
-    @Deprecated
-    public static void registerEmptyItem(ItemStack itemStack, String registryName) {
-        CustomContentLib.instance.getLogger().warning(registryName + " was registered with a deprecated method. Please use the new method !");
-        ITEM_REGISTRY.registerEmptyItem(new EmptyItem(itemStack, registryName));
     }
 
     /*

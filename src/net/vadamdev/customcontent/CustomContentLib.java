@@ -12,11 +12,15 @@ import net.vadamdev.customcontent.internal.utils.FileUtils;
 import net.vadamdev.viaapi.VIAPI;
 import net.vadamdev.viaapi.VIPlugin;
 import net.vadamdev.viaapi.startup.APIVersion;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.event.Listener;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
- * CustomContentLib is an VIAPI extension for create new items in vanilla minecraft.
+ * CustomContentLib is an VIAPI extension for create new items and blocks in vanilla minecraft.
  * @author VadamDev
  */
 public class CustomContentLib extends VIPlugin {
@@ -62,14 +66,24 @@ public class CustomContentLib extends VIPlugin {
         tileEntityHandler.saveAll();
     }
 
-    private void registerListeners(){
-        Arrays.asList(
-                itemsHandler,
-                armorsHandler,
-                blocksHandler,
+    private void registerListeners() {
+        FileConfiguration config = FileUtils.CONFIG.getConfig();
 
-                new CraftListener()
-        ).forEach(e -> this.getServer().getPluginManager().registerEvents(e, this));
+        List<Listener> listeners = new ArrayList<>();
+
+        if(config.getBoolean("customItems"))
+            listeners.add(itemsHandler);
+
+        if(config.getBoolean("customArmors"))
+            listeners.add(armorsHandler);
+
+        if(config.getBoolean("customBlocks"))
+            listeners.add(blocksHandler);
+
+        if(config.getBoolean("customCraftings"))
+            listeners.add(new CraftListener());
+
+        listeners.forEach(e -> this.getServer().getPluginManager().registerEvents(e, this));
     }
 
     private void registerCommands() {

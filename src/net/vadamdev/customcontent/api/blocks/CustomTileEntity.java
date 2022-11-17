@@ -4,6 +4,8 @@ import net.vadamdev.customcontent.api.blocks.serialization.SerializableDataCompo
 import net.vadamdev.customcontent.lib.BlockPos;
 import org.bukkit.World;
 
+import javax.annotation.Nonnull;
+
 /**
  * @author VadamDev
  * @since 01/09/2022
@@ -17,6 +19,7 @@ public class CustomTileEntity {
         this.world = this.blockPos.getWorld();
     }
 
+    @Nonnull
     public SerializableDataCompound save(SerializableDataCompound compound) {
         return compound;
     }

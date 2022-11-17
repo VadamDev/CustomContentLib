@@ -58,6 +58,9 @@ public class TileEntityHandler {
     }
 
     public Optional<CustomTileEntity> getTileEntityAt(BlockPos blockPos) {
+        if(!tileEntities.containsKey(blockPos))
+            return Optional.empty();
+
         return Optional.ofNullable(tileEntities.get(blockPos).getB());
     }
 

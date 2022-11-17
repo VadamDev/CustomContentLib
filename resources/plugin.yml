@@ -1,5 +1,5 @@
 name: CustomContentLib
-version: 1.0.0-pre2
+version: 1.0.0-pre3
 author: VadamDev
 main: net.vadamdev.customcontent.CustomContentLib
 depend: [VIAPI]

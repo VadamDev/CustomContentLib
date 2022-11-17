@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 
 public enum FileUtils {
+    CONFIG("config.yml"),
     ITEMS("items.yml"),
     ARMORS("armors.yml"),
     BLOCKS("blocks.yml");

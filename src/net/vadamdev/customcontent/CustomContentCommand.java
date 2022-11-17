@@ -8,7 +8,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.StringUtil;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,6 +40,29 @@ public class CustomContentCommand extends PermissionCommand {
                 StringBuilder stringBuilder = new StringBuilder("§3CustomContentLib §f» §bHere's the list of registered custom items: ");
                 commonRegistry.getCustomItemstacks().forEach((registryName, itemStack) -> stringBuilder.append(registryName + ", "));
                 player.sendMessage(stringBuilder.toString());
+            }else if(args.length == 1 && args[0].equalsIgnoreCase("dump")) {
+                try {
+                    Date date = new Date();
+                    String fileName = "dump_" + new SimpleDateFormat("MM_dd_yyyy_kk_mm").format(date) + ".txt";
+                    File file = new File(CustomContentLib.instance.getDataFolder() + File.separator + fileName);
+
+                    if(!file.exists())
+                        file.createNewFile();
+
+                    FileWriter writer = new FileWriter(file);
+
+                    commonRegistry.getCustomItems().forEach(customItem -> {
+                        try {
+                            writer.append(customItem.getRegistryName() + ":" + customItem.getItemStack().getType().getId()).append("\n");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }else if(args.length == 2 && (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get"))) {
                 ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
 

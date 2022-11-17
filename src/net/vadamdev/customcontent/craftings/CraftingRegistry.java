@@ -16,7 +16,7 @@ public class CraftingRegistry {
     protected static final Set<Recipe> vanillaRecipeSet = new HashSet<>();
 
     private static final Set<ItemStack> toRemove = new HashSet<>();
-    private static final Set<Craft> customCraftings = new HashSet<>();
+    private static final List<Craft> customCraftings = new ArrayList<>();
 
     public static void removeVanillaRecipe(ItemStack result) {
         toRemove.add(result);
@@ -68,7 +68,7 @@ public class CraftingRegistry {
         return CraftingRegistry.getCustomCraftings().stream().filter(craft -> craft.getResult().isSimilar(craftResult)).findFirst().orElse(null);
     }
 
-    public static Set<Craft> getCustomCraftings() {
+    public static List<Craft> getCustomCraftings() {
         return customCraftings;
     }
 }
