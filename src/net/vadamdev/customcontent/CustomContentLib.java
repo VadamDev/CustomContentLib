@@ -58,7 +58,10 @@ public class CustomContentLib extends VIPlugin {
         registerListeners();
         registerCommands();
 
-        VIAPI.getScheduler().runTaskLater(this, r -> tileEntityHandler.loadAll(blocksRegistry), 100);
+        VIAPI.getScheduler().runTaskLaterAsynchronously(this, r -> {
+            blocksHandler.loadAll(blocksRegistry);
+            tileEntityHandler.loadAll(blocksRegistry);
+        }, 5 * 20);
     }
 
     @Override

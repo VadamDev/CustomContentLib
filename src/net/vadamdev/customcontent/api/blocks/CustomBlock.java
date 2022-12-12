@@ -1,6 +1,5 @@
 package net.vadamdev.customcontent.api.blocks;
 
-import net.vadamdev.customcontent.CustomContentLib;
 import net.vadamdev.customcontent.api.IRegistrable;
 import net.vadamdev.customcontent.api.blocks.serialization.IDataSerializer;
 import net.vadamdev.customcontent.lib.BlockPos;
@@ -20,8 +19,8 @@ public abstract class CustomBlock implements IRegistrable {
     protected ItemStack itemStack;
 
     public CustomBlock(ItemStack itemStack) {
-        if(!itemStack.getType().isBlock())
-            throw new UnsupportedOperationException("Provided itemstack is not a block");
+        /*if(!itemStack.getType().isBlock())
+            throw new UnsupportedOperationException("Provided itemstack is not a block");*/
 
         this.itemStack = NBTHelper.setStringInNBTTag(itemStack, "RegistryName", getRegistryName());
     }
@@ -31,22 +30,15 @@ public abstract class CustomBlock implements IRegistrable {
     }
 
     public boolean onPlace(Block block, BlockPos blockPos, Player player) {
-        getDataSerializer().write(blockPos);
-
-        if(this instanceof ITileEntityProvider)
-            CustomContentLib.instance.getTileEntityHandler().addTileEntity(blockPos, this, ((ITileEntityProvider) this).createTileEntity(blockPos));
-
         return false;
     }
 
     public boolean onBreak(BlockPos blockPos, @Nullable CustomTileEntity tileEntity, @Nullable ItemStack itemStack) {
-        if(getDataSerializer().contains(blockPos))
-            getDataSerializer().remove(blockPos);
-
-        if(tileEntity != null)
-            CustomContentLib.instance.getTileEntityHandler().removeTileEntity(blockPos);
-
         return false;
+    }
+
+    public boolean canPlace(BlockPos blockPos) {
+        return true;
     }
 
     @Nonnull

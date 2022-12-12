@@ -3,24 +3,24 @@ package net.vadamdev.customcontent.internal.handlers;
 import net.vadamdev.customcontent.CustomContentLib;
 import net.vadamdev.customcontent.api.blocks.CustomBlock;
 import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
+import net.vadamdev.customcontent.api.blocks.IBlockFlagHolder;
+import net.vadamdev.customcontent.api.blocks.ITileEntityProvider;
 import net.vadamdev.customcontent.internal.BlocksRegistry;
 import net.vadamdev.customcontent.internal.CommonRegistry;
+import net.vadamdev.customcontent.lib.BlockFlags;
 import net.vadamdev.customcontent.lib.BlockPos;
 import net.vadamdev.customcontent.lib.CustomContentRegistry;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -31,9 +31,13 @@ public class BlocksHandler implements Listener {
     private final CommonRegistry commonRegistry;
     private final BlocksRegistry blocksRegistry;
 
+    private final Map<BlockPos, CustomBlock> customBlocks;
+
     public BlocksHandler() {
         this.commonRegistry = CustomContentLib.instance.getCommonRegistry();
         this.blocksRegistry = CustomContentLib.instance.getBlocksRegistry();
+
+        this.customBlocks = new HashMap<>();
     }
 
     @EventHandler
@@ -53,7 +57,21 @@ public class BlocksHandler implements Listener {
                 .filter(customItem -> CustomContentRegistry.isCustomItem(itemStack, customItem.getRegistryName()))
                 .forEach(registrable -> {
                     CustomBlock customBlock = (CustomBlock) registrable;
-                    flag.set(customBlock.onPlace(event.getBlock(), new BlockPos(event.getBlock().getLocation()), event.getPlayer()));
+                    BlockPos blockPos = new BlockPos(event.getBlock().getLocation());
+
+                    if(!customBlock.canPlace(blockPos)) {
+                        event.setCancelled(true);
+                        return;
+                    }
+
+                    customBlock.getDataSerializer().write(blockPos);
+
+                    if(customBlock instanceof ITileEntityProvider)
+                        CustomContentLib.instance.getTileEntityHandler().addTileEntity(blockPos, customBlock, ((ITileEntityProvider) this).createTileEntity(blockPos));
+
+                    flag.set(customBlock.onPlace(event.getBlock(), blockPos, event.getPlayer()));
+
+                    customBlocks.put(blockPos, customBlock);
                 });
 
         if(flag.get())
@@ -65,33 +83,75 @@ public class BlocksHandler implements Listener {
         if(event.isCancelled())
             return;
 
-        BlockPos blockPos = new BlockPos(event.getBlock());
-        AtomicBoolean flag = new AtomicBoolean(false);
+        Block block = event.getBlock();
+        BlockPos blockPos = new BlockPos(block);
 
-        Optional<CustomTileEntity> tileEntity = blocksRegistry.getTileEntityAt(blockPos);
+        findCustomBlock(blockPos).ifPresent(customBlock -> {
+            if(customBlock instanceof IBlockFlagHolder && hasBlockFlag((IBlockFlagHolder) customBlock, BlockFlags.UNBREAKABLE)) {
+                event.setCancelled(true);
+                return;
+            }
 
-        findCustomBlock(blockPos).ifPresent(customBlock -> flag.set(customBlock.onBreak(blockPos, tileEntity.orElse(null), event.getPlayer().getItemInHand())));
+            CustomTileEntity tileEntity = blocksRegistry.getTileEntityAt(blockPos).orElse(null);
 
-        if(flag.get())
+            boolean b = customBlock.onBreak(blockPos, tileEntity, event.getPlayer().getItemInHand());
+            if(b) {
+                event.setCancelled(true);
+                return;
+            }
+
+            if(tileEntity != null)
+                CustomContentLib.instance.getTileEntityHandler().removeTileEntity(blockPos);
+
+            if(customBlock.getDataSerializer().contains(blockPos))
+                customBlock.getDataSerializer().remove(blockPos);
+
+            customBlocks.remove(blockPos);
+
             event.setCancelled(true);
+            block.setType(Material.AIR);
+
+            if(!event.getPlayer().getGameMode().equals(GameMode.CREATIVE))
+                block.getWorld().dropItemNaturally(block.getLocation().clone().add(0.5f, 0.25f, 0.5f), customBlock.getItemStack());
+        });
     }
 
     @EventHandler
-    public void onBlockExplode(BlockExplodeEvent event) {
+    public void onBlockExplode(EntityExplodeEvent event) {
         if(event.isCancelled())
             return;
 
         Set<Block> toRemove = new HashSet<>();
-
         for (Block block : event.blockList()) {
             BlockPos blockPos = new BlockPos(block);
-            Optional<CustomBlock> customBlock = findCustomBlock(blockPos);
+            Optional<CustomBlock> optionalCustomBlock = findCustomBlock(blockPos);
 
-            if(customBlock.isPresent()) {
-                Optional<CustomTileEntity> tileEntity = blocksRegistry.getTileEntityAt(blockPos);
+            if(optionalCustomBlock.isPresent()) {
+                CustomBlock customBlock = optionalCustomBlock.get();
 
-                if(customBlock.get().onBreak(blockPos, tileEntity.orElse(null), null))
+                if(customBlock instanceof IBlockFlagHolder && hasBlockFlag((IBlockFlagHolder) customBlock, BlockFlags.TNT_RESISTANT, BlockFlags.UNBREAKABLE)) {
                     toRemove.add(block);
+                    return;
+                }
+
+                CustomTileEntity tileEntity = blocksRegistry.getTileEntityAt(blockPos).orElse(null);
+
+                if(customBlock.onBreak(blockPos, tileEntity, null)) {
+                    toRemove.add(block);
+                    return;
+                }
+
+                if(tileEntity != null)
+                    CustomContentLib.instance.getTileEntityHandler().removeTileEntity(blockPos);
+
+                if(customBlock.getDataSerializer().contains(blockPos))
+                    customBlock.getDataSerializer().remove(blockPos);
+
+                customBlocks.remove(blockPos);
+
+                block.setType(Material.AIR);
+                block.getWorld().dropItemNaturally(block.getLocation().clone().add(0.5f, 0.25f, 0.5f), customBlock.getItemStack());
+                toRemove.add(block);
             }
         }
 
@@ -115,7 +175,48 @@ public class BlocksHandler implements Listener {
             event.setCancelled(true);
     }
 
+    @EventHandler
+    public void onPistonExtend(BlockPistonExtendEvent event) {
+        if(event.isCancelled())
+            return;
+
+        event.getBlocks().forEach(block -> findCustomBlock(new BlockPos(block)).ifPresent(customBlock -> {
+            if(customBlock instanceof IBlockFlagHolder && hasBlockFlag((IBlockFlagHolder) customBlock, BlockFlags.PISTON_INVULNERABLE)) {
+                event.setCancelled(true);
+            }
+        }));
+    }
+
+    @EventHandler
+    public void onPistonRetract(BlockPistonRetractEvent event) {
+        if(event.isCancelled())
+            return;
+
+        event.getBlocks().forEach(block -> findCustomBlock(new BlockPos(block)).ifPresent(customBlock -> {
+            if(customBlock instanceof IBlockFlagHolder && hasBlockFlag((IBlockFlagHolder) customBlock, BlockFlags.PISTON_INVULNERABLE)) {
+                event.setCancelled(true);
+            }
+        }));
+    }
+
     private Optional<CustomBlock> findCustomBlock(BlockPos blockPos) {
-        return blocksRegistry.getCustomBlocks().stream().filter(customBlock -> customBlock.getDataSerializer().contains(blockPos)).findAny();
+        return Optional.ofNullable(customBlocks.get(blockPos));
+    }
+
+    private static boolean hasBlockFlag(IBlockFlagHolder blockFlagOwner, BlockFlags... flags) {
+        for (BlockFlags flag1 : blockFlagOwner.getFlags()) for (BlockFlags flag2 : flags) {
+            if(flag1.equals(flag2))
+                return true;
+        }
+
+        return false;
+    }
+
+    public void loadAll(BlocksRegistry blocksRegistry) {
+        blocksRegistry.getCustomBlocks().forEach(customBlock ->
+                customBlock.getDataSerializer().readAll().keySet().forEach(blockPos ->
+                        customBlocks.put(blockPos, customBlock)
+                )
+        );
     }
 }

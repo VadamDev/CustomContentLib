@@ -52,11 +52,13 @@ public class FileConfigurationDataSerializer implements IDataSerializer {
             SerializableDataCompound compound = new SerializableDataCompound();
 
             ConfigurationSection section = configFile.getConfigurationSection(strBlockPos);
-            for (String sectionKey : section.getKeys(false)) {
-                ISerializableData.parseFrom(
-                        DataType.valueOf(section.getString(sectionKey + ".type")),
-                        section.getString(sectionKey + ".data")
-                ).ifPresent(serializableData -> compound.put(sectionKey, serializableData));
+            if(section != null) {
+                for (String sectionKey : section.getKeys(false)) {
+                    ISerializableData.parseFrom(
+                            DataType.valueOf(section.getString(sectionKey + ".type")),
+                            section.getString(sectionKey + ".data")
+                    ).ifPresent(serializableData -> compound.put(sectionKey, serializableData));
+                }
             }
 
             dataMap.put(BlockPos.fromSerializableString(strBlockPos), compound);

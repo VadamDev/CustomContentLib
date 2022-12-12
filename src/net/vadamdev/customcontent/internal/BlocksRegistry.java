@@ -56,6 +56,10 @@ public final class BlocksRegistry {
         return tileEntityHandler.getTileEntityAt(blockPos);
     }
 
+    public Optional<CustomBlock> getCustomBlockAt(BlockPos blockPos) {
+        return Optional.of(null);
+    }
+
     public Set<CustomBlock> getCustomBlocks() {
         return customBlocks;
     }
