@@ -1,6 +1,6 @@
 package net.vadamdev.customcontent.api.items.armor;
 
-import net.vadamdev.customcontent.api.ITickable;
+import net.vadamdev.customcontent.api.tickable.ITickable;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;

@@ -17,8 +17,11 @@ public class DurabilityUtils {
     }
 
     public static boolean hasDurabilityProvider(ItemStack itemStack) {
-        if(NBTHelper.getStringInNBTTag(itemStack ,"RegistryName") == null) return false;
-        if(NBTHelper.getIntegerInNBTTag(itemStack ,"Durability") == 0 && NBTHelper.getIntegerInNBTTag(itemStack ,"MaxDurability") == 0) return false;
+        if(NBTHelper.getStringInNBTTag(itemStack ,"RegistryName") == null)
+            return false;
+
+        if(NBTHelper.getIntegerInNBTTag(itemStack ,"Durability") == 0 || NBTHelper.getIntegerInNBTTag(itemStack ,"MaxDurability") == 0)
+            return false;
 
         return CustomContentRegistry.isRegistered(NBTHelper.getStringInNBTTag(itemStack ,"RegistryName"));
     }

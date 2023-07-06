@@ -1,4 +1,6 @@
-package net.vadamdev.customcontent.api;
+package net.vadamdev.customcontent.api.tickable;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author VadamDev
@@ -17,5 +19,10 @@ public interface ITickable {
      */
     default boolean isTickAsync() {
         return false;
+    }
+
+    @Nonnull
+    default String getHandlerId() {
+        return "Bukkit";
     }
 }

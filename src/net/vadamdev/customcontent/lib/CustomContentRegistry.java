@@ -8,6 +8,7 @@ import net.vadamdev.customcontent.api.items.CustomItem;
 import net.vadamdev.customcontent.api.items.EmptyItem;
 import net.vadamdev.customcontent.api.items.armor.ArmorSet;
 import net.vadamdev.customcontent.api.items.armor.CustomArmorPart;
+import net.vadamdev.customcontent.api.tickable.TickableHandler;
 import net.vadamdev.customcontent.internal.BlocksRegistry;
 import net.vadamdev.customcontent.internal.CommonRegistry;
 import net.vadamdev.customcontent.internal.ItemsRegistry;
@@ -66,6 +67,14 @@ public final class CustomContentRegistry {
         ITEM_REGISTRY.registerArmorSet(armorSet);
     }
 
+    /**
+     * Register a ItemStack as a custom item
+     * @param emptyItem
+     */
+    public static void registerEmptyItem(EmptyItem emptyItem) {
+        ITEM_REGISTRY.registerEmptyItem(emptyItem);
+    }
+
     /*
        -----------------------------------BLOCKS-----------------------------------
      */
@@ -86,12 +95,12 @@ public final class CustomContentRegistry {
         return BLOCK_REGISTRY.getTileEntityAt(blockPos);
     }
 
-    /**
-     * Register a ItemStack as a custom item
-     * @param emptyItem
+    /*
+       ---------------------------------TICKABLE-----------------------------------
      */
-    public static void registerEmptyItem(EmptyItem emptyItem) {
-        ITEM_REGISTRY.registerEmptyItem(emptyItem);
+
+    public static void registerTickableHandler(TickableHandler tickableHandler) {
+        CustomContentLib.instance.getTickableManager().registerTickableHandler(tickableHandler);
     }
 
     /*

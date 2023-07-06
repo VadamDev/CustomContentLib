@@ -6,7 +6,6 @@ import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
 import net.vadamdev.customcontent.internal.handlers.TileEntityHandler;
 import net.vadamdev.customcontent.internal.utils.FileUtils;
 import net.vadamdev.customcontent.lib.BlockPos;
-import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -19,7 +18,6 @@ import java.util.logging.Logger;
  */
 public final class BlocksRegistry {
     private final Logger logger;
-    private final FileConfiguration blocksConfig;
 
     private final CommonRegistry commonRegistry;
     private final TileEntityHandler tileEntityHandler;
@@ -28,7 +26,6 @@ public final class BlocksRegistry {
 
     public BlocksRegistry() {
         this.logger = CustomContentLib.instance.getLogger();
-        this.blocksConfig = FileUtils.BLOCKS.getConfig();
 
         this.commonRegistry = CustomContentLib.instance.getCommonRegistry();
         this.tileEntityHandler = CustomContentLib.instance.getTileEntityHandler();
@@ -44,7 +41,7 @@ public final class BlocksRegistry {
 
         logger.info("Registration of " + registryName + " (Custom Block, Configurable: " + customBlock.isConfigurable() + "))");
 
-        commonRegistry.register(customBlock, blocksConfig);
+        commonRegistry.register(customBlock, FileUtils.BLOCKS);
         customBlocks.add(customBlock);
     }
 
@@ -54,10 +51,6 @@ public final class BlocksRegistry {
 
     public Optional<CustomTileEntity> getTileEntityAt(BlockPos blockPos) {
         return tileEntityHandler.getTileEntityAt(blockPos);
-    }
-
-    public Optional<CustomBlock> getCustomBlockAt(BlockPos blockPos) {
-        return Optional.of(null);
     }
 
     public Set<CustomBlock> getCustomBlocks() {

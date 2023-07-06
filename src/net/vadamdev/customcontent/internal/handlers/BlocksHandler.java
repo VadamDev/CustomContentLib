@@ -1,10 +1,7 @@
 package net.vadamdev.customcontent.internal.handlers;
 
 import net.vadamdev.customcontent.CustomContentLib;
-import net.vadamdev.customcontent.api.blocks.CustomBlock;
-import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
-import net.vadamdev.customcontent.api.blocks.IBlockFlagHolder;
-import net.vadamdev.customcontent.api.blocks.ITileEntityProvider;
+import net.vadamdev.customcontent.api.blocks.*;
 import net.vadamdev.customcontent.internal.BlocksRegistry;
 import net.vadamdev.customcontent.internal.CommonRegistry;
 import net.vadamdev.customcontent.lib.BlockFlags;
@@ -30,12 +27,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BlocksHandler implements Listener {
     private final CommonRegistry commonRegistry;
     private final BlocksRegistry blocksRegistry;
+    private final CustomTextureHandler customTextureHandler;
 
     private final Map<BlockPos, CustomBlock> customBlocks;
 
     public BlocksHandler() {
         this.commonRegistry = CustomContentLib.instance.getCommonRegistry();
         this.blocksRegistry = CustomContentLib.instance.getBlocksRegistry();
+        this.customTextureHandler = CustomContentLib.instance.getCustomTextureHandler();
 
         this.customBlocks = new HashMap<>();
     }
@@ -67,7 +66,12 @@ public class BlocksHandler implements Listener {
                     customBlock.getDataSerializer().write(blockPos);
 
                     if(customBlock instanceof ITileEntityProvider)
-                        CustomContentLib.instance.getTileEntityHandler().addTileEntity(blockPos, customBlock, ((ITileEntityProvider) this).createTileEntity(blockPos));
+                        CustomContentLib.instance.getTileEntityHandler().addTileEntity(blockPos, customBlock, ((ITileEntityProvider) customBlock).createTileEntity(blockPos));
+
+                    if(customBlock instanceof ICustomTextureHolder) {
+                        ICustomTextureHolder textureHolder = (ICustomTextureHolder) customBlock;
+                        customTextureHandler.addCustomTexture(blockPos, textureHolder.getTextureName(), textureHolder.getBlockRotation(event.getPlayer()));
+                    }
 
                     flag.set(customBlock.onPlace(event.getBlock(), blockPos, event.getPlayer()));
 
@@ -102,6 +106,9 @@ public class BlocksHandler implements Listener {
 
             if(tileEntity != null)
                 CustomContentLib.instance.getTileEntityHandler().removeTileEntity(blockPos);
+
+            if(customBlock instanceof ICustomTextureHolder)
+                customTextureHandler.removeCustomTexture(blockPos);
 
             if(customBlock.getDataSerializer().contains(blockPos))
                 customBlock.getDataSerializer().remove(blockPos);
@@ -143,6 +150,9 @@ public class BlocksHandler implements Listener {
 
                 if(tileEntity != null)
                     CustomContentLib.instance.getTileEntityHandler().removeTileEntity(blockPos);
+
+                if(customBlock instanceof ICustomTextureHolder)
+                    customTextureHandler.removeCustomTexture(blockPos);
 
                 if(customBlock.getDataSerializer().contains(blockPos))
                     customBlock.getDataSerializer().remove(blockPos);
@@ -214,9 +224,14 @@ public class BlocksHandler implements Listener {
 
     public void loadAll(BlocksRegistry blocksRegistry) {
         blocksRegistry.getCustomBlocks().forEach(customBlock ->
-                customBlock.getDataSerializer().readAll().keySet().forEach(blockPos ->
-                        customBlocks.put(blockPos, customBlock)
-                )
+                customBlock.getDataSerializer().readAll().keySet().forEach(blockPos -> {
+                    customBlocks.put(blockPos, customBlock);
+
+                    if(customBlock instanceof ICustomTextureHolder) {
+                        ICustomTextureHolder textureHolder = (ICustomTextureHolder) customBlock;
+                        customTextureHandler.addCustomTexture(blockPos, textureHolder.getTextureName(), 0); //TODO: ROTATION SERIALIZATION
+                    }
+                })
         );
     }
 }

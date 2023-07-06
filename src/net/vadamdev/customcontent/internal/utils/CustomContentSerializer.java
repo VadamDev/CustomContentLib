@@ -10,13 +10,14 @@ import org.bukkit.inventory.ItemStack;
  * @since 22/12/2021
  */
 public final class CustomContentSerializer {
-    public static void serializeItemStack(ItemStack itemStack, String registryName, FileConfiguration config) {
+    public static void serializeItemStack(ItemStack itemStack, String registryName, FileUtils configFile) {
+        FileConfiguration config = configFile.getConfig();
         ConfigurationSection section = config.createSection(registryName);
 
         section.set("name",  itemStack.getItemMeta().getDisplayName());
         section.set("lore", itemStack.getItemMeta().getLore());
 
-        FileUtils.ITEMS.save(config);
+        configFile.save(config);
     }
 
     public static ItemStack unserializeItemStack(ItemStack defaultItemStack, String registryName, FileConfiguration config) {

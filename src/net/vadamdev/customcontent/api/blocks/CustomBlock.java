@@ -19,9 +19,6 @@ public abstract class CustomBlock implements IRegistrable {
     protected ItemStack itemStack;
 
     public CustomBlock(ItemStack itemStack) {
-        /*if(!itemStack.getType().isBlock())
-            throw new UnsupportedOperationException("Provided itemstack is not a block");*/
-
         this.itemStack = NBTHelper.setStringInNBTTag(itemStack, "RegistryName", getRegistryName());
     }
 

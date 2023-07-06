@@ -4,10 +4,8 @@ import net.vadamdev.customcontent.CustomContentLib;
 import net.vadamdev.customcontent.api.items.CustomFood;
 import net.vadamdev.customcontent.api.items.CustomItem;
 import net.vadamdev.customcontent.api.items.EmptyItem;
-import net.vadamdev.customcontent.api.items.IInventoryTickable;
 import net.vadamdev.customcontent.api.items.armor.ArmorSet;
 import net.vadamdev.customcontent.api.items.armor.CustomArmorPart;
-import net.vadamdev.customcontent.internal.handlers.ITickableHandler;
 import net.vadamdev.customcontent.internal.utils.FileUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -22,16 +20,10 @@ public final class ItemsRegistry {
 
     private final CommonRegistry commonRegistry;
 
-    private final FileConfiguration itemsConfig;
-    private final FileConfiguration armorsConfig;
-
     public ItemsRegistry() {
         this.logger = CustomContentLib.instance.getLogger();
 
         this.commonRegistry = CustomContentLib.instance.getCommonRegistry();
-
-        this.itemsConfig = FileUtils.ITEMS.getConfig();
-        this.armorsConfig = FileUtils.ARMORS.getConfig();
     }
 
     public void registerCustomItem(CustomItem customItem) {
@@ -42,10 +34,7 @@ public final class ItemsRegistry {
 
         logger.info("Registration of " + registryName + " (Custom Item, Configurable: " + customItem.isConfigurable() + "))");
 
-        commonRegistry.register(customItem, itemsConfig);
-
-        if(customItem instanceof IInventoryTickable)
-            ITickableHandler.registerIInventoryTickableComponent((IInventoryTickable) customItem);
+        commonRegistry.register(customItem, FileUtils.ITEMS);
     }
 
     public void registerCustomFood(CustomFood customFood) {
@@ -56,10 +45,7 @@ public final class ItemsRegistry {
 
         logger.info("Registration of " + registryName + " (Custom Food, Configurable: " + customFood.isConfigurable() + "))");
 
-        commonRegistry.register(customFood, itemsConfig);
-
-        if(customFood instanceof IInventoryTickable)
-            ITickableHandler.registerIInventoryTickableComponent((IInventoryTickable) customFood);
+        commonRegistry.register(customFood, FileUtils.ITEMS);
     }
 
     public void registerCustomArmorPart(CustomArmorPart customArmorPart) {
@@ -70,11 +56,11 @@ public final class ItemsRegistry {
 
         logger.info("Registration of " + registryName + " (Custom Armor Part, Configurable: " + customArmorPart.isConfigurable() + "))");
 
-        commonRegistry.register(customArmorPart, armorsConfig);
+        commonRegistry.register(customArmorPart, FileUtils.ARMORS);
     }
 
     public void registerArmorSet(ArmorSet armorSet) {
-        ITickableHandler.registerITickableComponent(armorSet);
+        CustomContentLib.instance.getTickableManager().registerITickableComponent(armorSet);
     }
 
     public void registerEmptyItem(EmptyItem emptyItem) {
@@ -85,6 +71,6 @@ public final class ItemsRegistry {
 
         logger.info("Registering an empty item (" + registryName + ")");
 
-        commonRegistry.register(emptyItem, itemsConfig);
+        commonRegistry.register(emptyItem, FileUtils.ITEMS);
     }
 }

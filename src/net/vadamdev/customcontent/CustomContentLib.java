@@ -3,11 +3,9 @@ package net.vadamdev.customcontent;
 import net.vadamdev.customcontent.craftings.CraftListener;
 import net.vadamdev.customcontent.internal.BlocksRegistry;
 import net.vadamdev.customcontent.internal.CommonRegistry;
+import net.vadamdev.customcontent.internal.ITickableManager;
 import net.vadamdev.customcontent.internal.ItemsRegistry;
-import net.vadamdev.customcontent.internal.handlers.ArmorsHandler;
-import net.vadamdev.customcontent.internal.handlers.BlocksHandler;
-import net.vadamdev.customcontent.internal.handlers.ItemsHandler;
-import net.vadamdev.customcontent.internal.handlers.TileEntityHandler;
+import net.vadamdev.customcontent.internal.handlers.*;
 import net.vadamdev.customcontent.internal.utils.FileUtils;
 import net.vadamdev.viaapi.VIAPI;
 import net.vadamdev.viaapi.VIPlugin;
@@ -30,6 +28,9 @@ public class CustomContentLib extends VIPlugin {
     private ItemsRegistry itemsRegistry;
     private BlocksRegistry blocksRegistry;
 
+    private ITickableManager tickableManager;
+    private CustomTextureHandler customTextureHandler;
+
     private TileEntityHandler tileEntityHandler;
 
     private ItemsHandler itemsHandler;
@@ -47,6 +48,9 @@ public class CustomContentLib extends VIPlugin {
 
         commonRegistry = new CommonRegistry();
         itemsRegistry = new ItemsRegistry();
+
+        tickableManager = new ITickableManager();
+        customTextureHandler = new CustomTextureHandler();
 
         tileEntityHandler = new TileEntityHandler();
         blocksRegistry = new BlocksRegistry();
@@ -105,6 +109,14 @@ public class CustomContentLib extends VIPlugin {
 
     public BlocksRegistry getBlocksRegistry() {
         return blocksRegistry;
+    }
+
+    public CustomTextureHandler getCustomTextureHandler() {
+        return customTextureHandler;
+    }
+
+    public ITickableManager getTickableManager() {
+        return tickableManager;
     }
 
     public TileEntityHandler getTileEntityHandler() {

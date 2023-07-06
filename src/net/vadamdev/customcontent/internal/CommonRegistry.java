@@ -3,6 +3,7 @@ package net.vadamdev.customcontent.internal;
 import net.vadamdev.customcontent.api.IRegistrable;
 import net.vadamdev.customcontent.internal.utils.CustomContentSerializer;
 import net.vadamdev.customcontent.internal.exceptions.AlreadyRegisteredException;
+import net.vadamdev.customcontent.internal.utils.FileUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
@@ -24,7 +25,7 @@ public final class CommonRegistry {
         this.customItemstacks = new HashMap<>();
     }
 
-    public void register(IRegistrable registrable, FileConfiguration dataFile) {
+    public void register(IRegistrable registrable, FileUtils dataFile) {
         customItems.add(registrable);
         customItemstacks.put(registrable.getRegistryName(), getItemStackInConfiguration(registrable, dataFile));
     }
@@ -47,18 +48,24 @@ public final class CommonRegistry {
 
     protected boolean canRegister(String registryName) {
         if(isRegistered(registryName)) {
-            try { throw new AlreadyRegisteredException(registryName); }catch (AlreadyRegisteredException e) { e.printStackTrace(); }
+            try {
+                throw new AlreadyRegisteredException(registryName);
+            } catch (AlreadyRegisteredException e) {
+                e.printStackTrace();
+            }
+
             return false;
         }
 
         return true;
     }
 
-    private static ItemStack getItemStackInConfiguration(IRegistrable registrable, FileConfiguration dataFile) {
+    private static ItemStack getItemStackInConfiguration(IRegistrable registrable, FileUtils dataFile) {
         ItemStack itemStack = registrable.getItemStack();
+        FileConfiguration config = dataFile.getConfig();
 
-        if(registrable.isConfigurable() && dataFile.isSet(registrable.getRegistryName())) {
-            itemStack = CustomContentSerializer.unserializeItemStack(registrable.getItemStack(), registrable.getRegistryName(), dataFile);
+        if(registrable.isConfigurable() && config.isSet(registrable.getRegistryName())) {
+            itemStack = CustomContentSerializer.unserializeItemStack(registrable.getItemStack(), registrable.getRegistryName(), config);
         }else if(registrable.isConfigurable()) {
             CustomContentSerializer.serializeItemStack(registrable.getItemStack(), registrable.getRegistryName(), dataFile);
         }

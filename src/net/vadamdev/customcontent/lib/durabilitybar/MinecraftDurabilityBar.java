@@ -1,4 +1,4 @@
-package net.vadamdev.customcontent.api.items.durabilitybar;
+package net.vadamdev.customcontent.lib.durabilitybar;
 
 import net.vadamdev.customcontent.api.items.IDurabilityBar;
 import org.bukkit.inventory.ItemStack;

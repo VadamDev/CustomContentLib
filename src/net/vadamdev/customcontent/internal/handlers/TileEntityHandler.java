@@ -1,7 +1,7 @@
 package net.vadamdev.customcontent.internal.handlers;
 
 import net.vadamdev.customcontent.CustomContentLib;
-import net.vadamdev.customcontent.api.ITickable;
+import net.vadamdev.customcontent.api.tickable.ITickable;
 import net.vadamdev.customcontent.api.blocks.CustomBlock;
 import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
 import net.vadamdev.customcontent.api.blocks.ITileEntityProvider;
