@@ -1,6 +1,6 @@
 
 # Information
-CustomContentLib is an extension of the [VIAPI](https://github.com/VadamDev/VIAPI) which add the possibility to add new **items** and **blocks** to the game.
+CustomContentLib is a [VIAPI](https://github.com/VadamDev/VIAPI) extension that helps the creation of new items/blocks/etc for Minecraft 1.8
 #### The wiki is available [here](https://github.com/VadamDev/CustomContentLib/wiki)
 
 ## Contribute
