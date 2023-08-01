@@ -1,15 +1,20 @@
 package net.vadamdev.customcontent.api.items.armor;
 
-import net.vadamdev.customcontent.api.tickable.ITickable;
+import net.vadamdev.customcontent.annotations.TickableInfo;
+import net.vadamdev.customcontent.api.common.tickable.ITickable;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
 /**
+ * Represents an ArmorSet.
+ * <br>It can be used to add effects to the wearer if the armor set is complete
+ *
  * @author VadamDev
  * @since 27/03/2022
  */
+@TickableInfo(interval = 20)
 public abstract class ArmorSet implements ITickable {
     protected final CustomArmorPart[] pieces;
 
@@ -17,13 +22,8 @@ public abstract class ArmorSet implements ITickable {
         this.pieces = pieces;
     }
 
-    @Override
-    public boolean isTickAsync() {
-        return false;
-    }
-
     public boolean hasFullSet(Player player) {
-        EntityEquipment equipment = player.getEquipment();
+        final EntityEquipment equipment = player.getEquipment();
 
         boolean helmet = pieces[0] == null || (equipment.getHelmet() != null && isSimilar(equipment.getHelmet(), pieces[0]));
         boolean chestplate = pieces[1] == null || (equipment.getChestplate() != null && isSimilar(equipment.getChestplate(), pieces[1]));
@@ -34,6 +34,7 @@ public abstract class ArmorSet implements ITickable {
     }
 
     protected boolean isSimilar(ItemStack itemStack, CustomArmorPart armorPart) {
-        return NBTHelper.getStringInNBTTag(itemStack, "RegistryName") != null && NBTHelper.getStringInNBTTag(itemStack, "RegistryName").equals(armorPart.getRegistryName());
+        final String registryName = NBTHelper.getStringInNBTTag(itemStack, "RegistryName");
+        return registryName != null && registryName.equals(armorPart.getRegistryName());
     }
 }

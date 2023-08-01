@@ -1,6 +1,6 @@
-package net.vadamdev.customcontent;
+package net.vadamdev.customcontent.internal;
 
-import net.vadamdev.customcontent.internal.CommonRegistry;
+import net.vadamdev.customcontent.internal.registry.CommonRegistry;
 import net.vadamdev.viaapi.tools.commands.PermissionCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -23,7 +23,7 @@ public class CustomContentCommand extends PermissionCommand {
         super("customcontent");
         setAliases(Collections.singletonList("customcontentlib"));
 
-        commonRegistry = CustomContentLib.instance.getCommonRegistry();
+        commonRegistry = CustomContentPlugin.instance.getCommonRegistry();
     }
 
     @Override
@@ -32,7 +32,7 @@ public class CustomContentCommand extends PermissionCommand {
             Player player = (Player) sender;
 
             if(args.length == 2 && (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get"))) {
-                ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
+                final ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
 
                 if(item != null)
                     player.getInventory().addItem(item);
@@ -42,7 +42,7 @@ public class CustomContentCommand extends PermissionCommand {
                 return true;
             }else if(args.length == 3 && (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get"))) {
                 if(Bukkit.getPlayer(args[2]) == null) {
-                    ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
+                    final ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
                     if(item == null) {
                         player.sendMessage("§3CustomContentLib §f» §c" + args[1] + " doesn't exist !");
                         return true;
@@ -58,18 +58,18 @@ public class CustomContentCommand extends PermissionCommand {
                     player.getInventory().addItem(item);
                     return true;
                 }else {
-                    Player target = Bukkit.getPlayer(args[2]);
+                    final ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
 
-                    ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
-
-                    if(item != null) target.getInventory().addItem(item);
-                    else player.sendMessage("§3CustomContentLib §f» §c" + args[1] + " doesn't exist !");
+                    if(item != null)
+                        Bukkit.getPlayer(args[2]).getInventory().addItem(item);
+                    else
+                        player.sendMessage("§3CustomContentLib §f» §c" + args[1] + " doesn't exist !");
 
                     return true;
                 }
             }else if(args.length == 4 && (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get"))) {
                 if(Bukkit.getPlayer(args[2]) != null) {
-                    ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
+                    final ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
                     if (item == null) {
                         player.sendMessage("§3CustomContentLib §f» §c" + args[1] + " doesn't exist !");
                         return true;
@@ -84,19 +84,18 @@ public class CustomContentCommand extends PermissionCommand {
 
                     Bukkit.getPlayer(args[2]).getInventory().addItem(item);
                     return true;
-                }
+                }else
+                    player.sendMessage("§3CustomContentLib §f» §cThis player is invalid !");
             }
         }
 
         if(args.length == 3) {
             if(args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get")) {
                 if(Bukkit.getPlayer(args[2]) != null) {
-                    Player target = Bukkit.getPlayer(args[2]);
-
-                    ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
+                    final ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
 
                     if(item != null)
-                        target.getInventory().addItem(item);
+                        Bukkit.getPlayer(args[2]).getInventory().addItem(item);
                     else
                         sender.sendMessage("§3CustomContentLib §f» §c" + args[1] + " doesn't exist !");
                 }else
@@ -107,7 +106,7 @@ public class CustomContentCommand extends PermissionCommand {
         }else if(args.length == 4) {
             if(args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get")) {
                 if(Bukkit.getPlayer(args[2]) != null) {
-                    ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
+                    final ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
                     if(item == null) {
                         sender.sendMessage("§3CustomContentLib §f» §c" + args[1] + " doesn't exist !");
                         return true;

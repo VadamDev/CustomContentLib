@@ -23,14 +23,11 @@ public class SerializableByteArray implements ISerializableData {
     public String serialize() {
         StringBuilder strBuilder = new StringBuilder();
 
-        int i = 1;
-        for (byte b : data) {
-            strBuilder.append(b);
+        for (int i = 0; i < data.length; i++) {
+            strBuilder.append(data[i]);
 
-            if(i != data.length)
+            if(i + 1 != data.length)
                 strBuilder.append(":");
-
-            i++;
         }
 
         return strBuilder.toString();

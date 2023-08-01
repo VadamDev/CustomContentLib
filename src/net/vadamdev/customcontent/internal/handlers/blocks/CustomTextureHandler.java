@@ -1,4 +1,4 @@
-package net.vadamdev.customcontent.internal.handlers;
+package net.vadamdev.customcontent.internal.handlers.blocks;
 
 import net.minecraft.server.v1_8_R3.EntityArmorStand;
 import net.minecraft.server.v1_8_R3.Vector3f;
@@ -25,7 +25,7 @@ public class CustomTextureHandler {
     }
 
     public void addCustomTexture(BlockPos blockPos, String textureName, int yaw) {
-        RangePacketEntityHandler packetEntityHandler = new RangePacketEntityHandler(generateArmorStand(blockPos, textureName, yaw), 50, 20);
+        final RangePacketEntityHandler packetEntityHandler = new RangePacketEntityHandler(generateArmorStand(blockPos, textureName, yaw), 50, 20);
         packetEntityHandler.spawn();
 
         customTextures.put(blockPos, packetEntityHandler);
@@ -41,6 +41,7 @@ public class CustomTextureHandler {
 
     private EntityArmorStand generateArmorStand(BlockPos blockPos, String textureName, int yaw) {
         return new NMSArmorStandBuilder(new Location(blockPos.getWorld(), blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5))
+                .setAsMarker()
                 .lockSlot(LockType.ALL)
                 .setVisible(false)
                 .setBasePlate(false)

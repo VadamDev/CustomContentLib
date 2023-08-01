@@ -1,5 +1,6 @@
 package net.vadamdev.customcontent.api.items;
 
+import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -12,40 +13,52 @@ import java.util.List;
  */
 public interface IDurabilityBar {
     /**
-     * Create a text with the Durability and MaxDurability value
-     * @param durability Acutal durability of the item
+     * Create a formatted durability bar. The given placeholder will be replaced with the provided string
+     *
+     * @param durability Current durability of the item
      * @param maxDurability Max durability of the item
-     * @return The formatted text
+     * @return The formatted durability bar
      */
+    @Nullable
     String createDurabilityBar(int durability, int maxDurability);
 
     /**
-     * The text that will be the DurabilityBar
+     * Determines what text should be replaced with the durability bar in the item's lore
+     *
+     * @return The placeholder that will be replaced by the durability bar
      */
+    @Nullable
     String getPlaceholder();
 
     /**
-     * Method called by the DurabilityProvider class.
-     * You should theoretically not override it.
-     * @param itemStack
+     * Called by the {@link DurabilityProvider} each time the durability bar should be updated
+     *
+     * @param itemStack {@link ItemStack}
      * @param lore Default lore
-     * @param durability The durability
-     * @param maxDurability The max durability
+     * @param durability Current durability of the item
+     * @param maxDurability Max durability of the item
      */
     default void applyDurabilityBar(ItemStack itemStack, List<String> lore, int durability, int maxDurability) {
-        if(itemStack == null || !itemStack.hasItemMeta()) return;
+        if(itemStack == null || !itemStack.hasItemMeta())
+            return;
 
-        List<String> newLore = new ArrayList<>(lore);
+        final String placeholder = getPlaceholder();
+        final String durabilityBar = createDurabilityBar(durability, maxDurability);
 
-        for(int index = 0; index < newLore.size(); index++) {
-            if(newLore.get(index).contains(getPlaceholder())) {
-                newLore.set(index, newLore.get(index).replace(getPlaceholder(), createDurabilityBar(durability, maxDurability)));
-                break;
-            }
+        if(placeholder == null || durabilityBar == null)
+            return;
+
+        final List<String> loreCopy = new ArrayList<>(lore);
+        for (int i = 0; i < loreCopy.size(); i++) {
+            final String line = loreCopy.get(i);
+            if(!line.contains(placeholder))
+                continue;
+
+            loreCopy.set(i, line.replace(placeholder, durabilityBar));
         }
 
-        ItemMeta meta = itemStack.getItemMeta();
-        meta.setLore(newLore);
-        itemStack.setItemMeta(meta);
+        ItemMeta im = itemStack.getItemMeta();
+        im.setLore(lore);
+        itemStack.setItemMeta(im);
     }
 }

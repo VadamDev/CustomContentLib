@@ -1,13 +1,12 @@
-package net.vadamdev.customcontent.internal;
+package net.vadamdev.customcontent.internal.registry;
 
-import net.vadamdev.customcontent.CustomContentLib;
 import net.vadamdev.customcontent.api.items.CustomFood;
 import net.vadamdev.customcontent.api.items.CustomItem;
 import net.vadamdev.customcontent.api.items.EmptyItem;
 import net.vadamdev.customcontent.api.items.armor.ArmorSet;
 import net.vadamdev.customcontent.api.items.armor.CustomArmorPart;
+import net.vadamdev.customcontent.internal.CustomContentPlugin;
 import net.vadamdev.customcontent.internal.utils.FileUtils;
-import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.logging.Logger;
 
@@ -21,16 +20,14 @@ public final class ItemsRegistry {
     private final CommonRegistry commonRegistry;
 
     public ItemsRegistry() {
-        this.logger = CustomContentLib.instance.getLogger();
+        this.logger = CustomContentPlugin.instance.getLogger();
 
-        this.commonRegistry = CustomContentLib.instance.getCommonRegistry();
+        this.commonRegistry = CustomContentPlugin.instance.getCommonRegistry();
     }
 
     public void registerCustomItem(CustomItem customItem) {
-        String registryName = customItem.getRegistryName();
-
-        if(!commonRegistry.canRegister(registryName))
-            return;
+        final String registryName = customItem.getRegistryName();
+        commonRegistry.checkRegistry(registryName);
 
         logger.info("Registration of " + registryName + " (Custom Item, Configurable: " + customItem.isConfigurable() + "))");
 
@@ -38,10 +35,8 @@ public final class ItemsRegistry {
     }
 
     public void registerCustomFood(CustomFood customFood) {
-        String registryName = customFood.getRegistryName();
-
-        if(!commonRegistry.canRegister(registryName))
-            return;
+        final String registryName = customFood.getRegistryName();
+        commonRegistry.checkRegistry(registryName);
 
         logger.info("Registration of " + registryName + " (Custom Food, Configurable: " + customFood.isConfigurable() + "))");
 
@@ -49,25 +44,21 @@ public final class ItemsRegistry {
     }
 
     public void registerCustomArmorPart(CustomArmorPart customArmorPart) {
-        String registryName = customArmorPart.getRegistryName();
-
-        if(!commonRegistry.canRegister(registryName))
-            return;
+        final String registryName = customArmorPart.getRegistryName();
+        commonRegistry.checkRegistry(registryName);
 
         logger.info("Registration of " + registryName + " (Custom Armor Part, Configurable: " + customArmorPart.isConfigurable() + "))");
 
-        commonRegistry.register(customArmorPart, FileUtils.ARMORS);
+        commonRegistry.register(customArmorPart, FileUtils.ITEMS);
     }
 
     public void registerArmorSet(ArmorSet armorSet) {
-        CustomContentLib.instance.getTickableManager().registerITickableComponent(armorSet);
+        CustomContentPlugin.instance.getTickableManager().registerITickableComponent(armorSet);
     }
 
     public void registerEmptyItem(EmptyItem emptyItem) {
-        String registryName = emptyItem.getRegistryName();
-
-        if(!commonRegistry.canRegister(registryName))
-            return;
+        final String registryName = emptyItem.getRegistryName();
+        commonRegistry.checkRegistry(registryName);
 
         logger.info("Registering an empty item (" + registryName + ")");
 

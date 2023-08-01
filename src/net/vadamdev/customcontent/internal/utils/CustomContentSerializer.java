@@ -11,17 +11,21 @@ import org.bukkit.inventory.ItemStack;
  */
 public final class CustomContentSerializer {
     public static void serializeItemStack(ItemStack itemStack, String registryName, FileUtils configFile) {
-        FileConfiguration config = configFile.getConfig();
-        ConfigurationSection section = config.createSection(registryName);
+        if(!itemStack.hasItemMeta())
+            return;
 
-        section.set("name",  itemStack.getItemMeta().getDisplayName());
-        section.set("lore", itemStack.getItemMeta().getLore());
+        final FileConfiguration config = configFile.getConfig();
+
+        config.set(registryName + ".name",  itemStack.getItemMeta().getDisplayName());
+        config.set(registryName + ".lore", itemStack.getItemMeta().getLore());
 
         configFile.save(config);
     }
 
     public static ItemStack unserializeItemStack(ItemStack defaultItemStack, String registryName, FileConfiguration config) {
-        ConfigurationSection section = config.getConfigurationSection(registryName);
-        return new ItemBuilder(defaultItemStack).setName(section.getString("name")).setLore(section.getStringList("lore")).toItemStack();
+        final ConfigurationSection section = config.getConfigurationSection(registryName);
+
+        final String name = section.getString("name");
+        return new ItemBuilder(defaultItemStack).setName(name != null ? name : "").setLore(section.getStringList("lore")).toItemStack();
     }
 }

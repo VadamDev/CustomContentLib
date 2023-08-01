@@ -29,7 +29,7 @@ public class FileConfigurationDataSerializer implements IDataSerializer {
     @Override
     public void write(BlockPos blockPos, SerializableDataCompound dataCompound) {
         dataCompound.getMapCopy().forEach((key, data) -> {
-            String strBlockPos = blockPos.toSerializableString();
+            final String strBlockPos = blockPos.toSerializableString();
 
             configFile.set(strBlockPos + "." + key + "." + "data", data.serialize());
             configFile.set(strBlockPos + "." + key + "." + "type", data.getType().name());
@@ -46,12 +46,12 @@ public class FileConfigurationDataSerializer implements IDataSerializer {
 
     @Override
     public Map<BlockPos, SerializableDataCompound> readAll() {
-        Map<BlockPos, SerializableDataCompound> dataMap = new HashMap<>();
+        final Map<BlockPos, SerializableDataCompound> dataMap = new HashMap<>();
 
         for (String strBlockPos : configFile.getKeys(false)) {
-            SerializableDataCompound compound = new SerializableDataCompound();
+            final SerializableDataCompound compound = new SerializableDataCompound();
 
-            ConfigurationSection section = configFile.getConfigurationSection(strBlockPos);
+            final ConfigurationSection section = configFile.getConfigurationSection(strBlockPos);
             if(section != null) {
                 for (String sectionKey : section.getKeys(false)) {
                     ISerializableData.parseFrom(

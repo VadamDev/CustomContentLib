@@ -1,4 +1,7 @@
-customItems: true
-customArmors: true
-customBlocks: true
-customCraftings: true
+postWorldLoadTime: 5
+
+features:
+  customItems: true
+  customArmors: true
+  customBlocks: true
+  customCraftings: true

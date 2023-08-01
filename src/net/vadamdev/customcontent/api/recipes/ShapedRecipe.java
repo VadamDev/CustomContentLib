@@ -1,4 +1,4 @@
-package net.vadamdev.customcontent.craftings;
+package net.vadamdev.customcontent.api.recipes;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -6,23 +6,23 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Craft {
+public class ShapedRecipe {
 	private final String[] shape;
 	private final ItemStack result;
 	private final Map<String, ItemStack> ingredients;
 
-	public Craft(String[] shape, ItemStack result) {
+	public ShapedRecipe(String[] shape, ItemStack result) {
 		this.shape = shape;
 		this.result = result;
 		this.ingredients = new HashMap<>();
 	}
 
-	public Craft addIngredient(String shade, ItemStack item) {
+	public ShapedRecipe addIngredient(String shade, ItemStack item) {
 		this.ingredients.put(shade, item);
 		return this;
 	}
 
-	public Craft addIngredient(String shade, Material item) {
+	public ShapedRecipe addIngredient(String shade, Material item) {
 		this.ingredients.put(shade, new ItemStack(item));
 		return this;
 	}
@@ -40,14 +40,13 @@ public class Craft {
 	}
 
 	public ItemStack[] toArray() {
-		ItemStack[] items = new ItemStack[(shape.length * 3) + 1];
+		final ItemStack[] items = new ItemStack[(shape.length * 3) + 1];
 
 		int index = 1;
 		for (String shape : this.shape) {
-			String[] tmpShapes = shape.split("");
-			for (String currentShape : tmpShapes) {
-				items[index++] = ingredients.getOrDefault(currentShape, new ItemStack(Material.AIR, 0));
-			}
+			String[] tempShapes = shape.split("");
+			for (String currentShape : tempShapes)
+				items[index++] = ingredients.getOrDefault(currentShape, new ItemStack(Material.AIR));
 		}
 
 		return items;

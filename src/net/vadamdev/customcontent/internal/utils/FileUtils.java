@@ -1,6 +1,6 @@
 package net.vadamdev.customcontent.internal.utils;
 
-import net.vadamdev.customcontent.CustomContentLib;
+import net.vadamdev.customcontent.internal.CustomContentPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -10,7 +10,6 @@ import java.io.IOException;
 public enum FileUtils {
     CONFIG("config.yml"),
     ITEMS("items.yml"),
-    ARMORS("armors.yml"),
     BLOCKS("blocks.yml");
 
     private final String filename;
@@ -18,7 +17,7 @@ public enum FileUtils {
 
     FileUtils(String filename) {
         this.filename = filename;
-        this.dataForlder = CustomContentLib.instance.getDataFolder();
+        this.dataForlder = CustomContentPlugin.instance.getDataFolder();
     }
 
     public File getFile() {

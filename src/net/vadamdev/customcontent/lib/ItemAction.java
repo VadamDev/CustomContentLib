@@ -2,8 +2,11 @@ package net.vadamdev.customcontent.lib;
 
 import org.bukkit.event.block.Action;
 
+import javax.annotation.Nullable;
+
 /**
- * Spigot Action enum without PHYSICAL
+ * Spigot Action enum without PHYSICAL.
+ *
  * @author VadamDev
  * @since 22/12/2021
  */
@@ -13,6 +16,13 @@ public enum ItemAction {
     LEFT_CLICK_BLOCK,
     LEFT_CLICK_AIR;
 
+    /**
+     * Convert bukkit {@link Action Action} to an {@link ItemAction ItemAction}.
+     *
+     * @param action {@link Action Action}
+     * @return {@link ItemAction ItemAction}
+     */
+    @Nullable
     public static ItemAction of(Action action) {
         switch(action) {
             case RIGHT_CLICK_BLOCK:

@@ -3,6 +3,8 @@ package net.vadamdev.customcontent.api.items.armor;
 import org.bukkit.Material;
 
 /**
+ * Represents parts of an {@link ArmorSet}
+ *
  * @author VadamDev
  * @since 31/12/2021
  */

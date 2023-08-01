@@ -9,6 +9,8 @@ import org.bukkit.block.Block;
 import java.util.Objects;
 
 /**
+ * Represents the position of a block.
+ *
  * @author VadamDev
  * @since 01/09/2022
  */

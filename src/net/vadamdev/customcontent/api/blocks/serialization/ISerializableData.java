@@ -30,7 +30,7 @@ public interface ISerializableData {
     }
 
     default double getDouble() {
-        return 0.0;
+        return 0.0D;
     }
 
     default float getFloat() {
