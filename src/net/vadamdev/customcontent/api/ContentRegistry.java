@@ -1,7 +1,9 @@
 package net.vadamdev.customcontent.api;
 
+import net.minecraft.server.v1_8_R3.Entity;
 import net.vadamdev.customcontent.api.blocks.CustomBlock;
 import net.vadamdev.customcontent.api.common.tickable.AbstractTickableHandler;
+import net.vadamdev.customcontent.api.entities.CustomEntityContainer;
 import net.vadamdev.customcontent.api.items.CustomFood;
 import net.vadamdev.customcontent.api.items.CustomItem;
 import net.vadamdev.customcontent.api.items.EmptyItem;
@@ -26,6 +28,10 @@ public interface ContentRegistry {
     void registerCustomBlock(CustomBlock customBlock);
 
     void registerTickableHandler(AbstractTickableHandler tickableHandler);
+
+    void registerCustomEntity(CustomEntityContainer<?> customEntity);
+
+    int getEntityId(Class<? extends Entity> entityClass);
 
     boolean isRegistered(String registryName);
 }

@@ -1,8 +1,8 @@
 package net.vadamdev.customcontent.internal;
 
 import net.vadamdev.customcontent.annotations.TickableInfo;
-import net.vadamdev.customcontent.api.common.tickable.ITickable;
 import net.vadamdev.customcontent.api.common.tickable.AbstractTickableHandler;
+import net.vadamdev.customcontent.api.common.tickable.ITickable;
 import net.vadamdev.customcontent.lib.tickablehandler.BukkitTickableHandler;
 
 import java.lang.annotation.Annotation;

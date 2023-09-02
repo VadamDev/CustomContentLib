@@ -12,6 +12,7 @@ import net.vadamdev.customcontent.internal.impl.CustomContentAPIImpl;
 import net.vadamdev.customcontent.internal.impl.RecipeRegistryImpl;
 import net.vadamdev.customcontent.internal.registry.BlocksRegistry;
 import net.vadamdev.customcontent.internal.registry.CommonRegistry;
+import net.vadamdev.customcontent.internal.registry.EntitiesRegistry;
 import net.vadamdev.customcontent.internal.registry.ItemsRegistry;
 import net.vadamdev.customcontent.internal.utils.FileUtils;
 import net.vadamdev.viaapi.VIAPI;
@@ -33,6 +34,7 @@ public class CustomContentPlugin extends VIPlugin {
     private CommonRegistry commonRegistry;
     private ItemsRegistry itemsRegistry;
     private BlocksRegistry blocksRegistry;
+    private EntitiesRegistry entitiesRegistry;
 
     private ITickableManager tickableManager;
     private CustomTextureHandler customTextureHandler;
@@ -59,12 +61,13 @@ public class CustomContentPlugin extends VIPlugin {
         itemsRegistry = new ItemsRegistry();
         tileEntityHandler = new TileEntityHandler();
         blocksRegistry = new BlocksRegistry();
+        entitiesRegistry = new EntitiesRegistry();
 
         tickableManager = new ITickableManager();
         customTextureHandler = new CustomTextureHandler();
 
         //API Initialization
-        final ContentRegistryImpl contentRegistry = new ContentRegistryImpl(commonRegistry, itemsRegistry, blocksRegistry);
+        final ContentRegistryImpl contentRegistry = new ContentRegistryImpl(commonRegistry, itemsRegistry, blocksRegistry, entitiesRegistry);
         recipeRegistry = new RecipeRegistryImpl();
         customContentAPI = new CustomContentAPIImpl(contentRegistry, recipeRegistry);
 
@@ -81,6 +84,7 @@ public class CustomContentPlugin extends VIPlugin {
         CustomContentAPI.Provider.set(customContentAPI);
 
         VIAPI.getScheduler().runTaskLaterAsynchronously(this, r -> {
+            entitiesRegistry.complete();
             recipeRegistry.complete(getServer());
 
             blocksHandler.loadAll(blocksRegistry);
@@ -112,6 +116,10 @@ public class CustomContentPlugin extends VIPlugin {
 
     public CommonRegistry getCommonRegistry() {
         return commonRegistry;
+    }
+
+    public ItemsRegistry getItemsRegistry() {
+        return itemsRegistry;
     }
 
     public BlocksRegistry getBlocksRegistry() {

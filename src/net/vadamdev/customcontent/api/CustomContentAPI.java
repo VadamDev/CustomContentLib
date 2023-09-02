@@ -7,6 +7,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Optional;
@@ -40,12 +41,12 @@ public interface CustomContentAPI {
 
         private Provider() {}
 
-        @Nullable
+        @Nonnull
         public static CustomContentAPI get() {
             return api;
         }
 
-        public static void set(CustomContentAPI api) {
+        public static void set(@Nonnull CustomContentAPI api) {
             Provider.api = api;
         }
     }
