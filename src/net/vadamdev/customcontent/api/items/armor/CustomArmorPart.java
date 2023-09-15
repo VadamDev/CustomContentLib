@@ -6,8 +6,8 @@ import net.vadamdev.customcontent.api.items.IDurabilityBar;
 import net.vadamdev.customcontent.lib.durabilitybar.MinecraftDurabilityBar;
 import net.vadamdev.customcontent.lib.utils.DurabilityUtils;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
-import net.vadamdev.viaapi.tools.builders.ItemBuilder;
-import net.vadamdev.viaapi.tools.math.MathUtils;
+import net.vadamdev.viapi.tools.builders.ItemBuilder;
+import net.vadamdev.viapi.tools.math.MathUtils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -36,7 +36,7 @@ public abstract class CustomArmorPart implements IRegistrable, DurabilityProvide
         this.armorType = armorType;
         this.armorPart = armorPart;
 
-        this.itemStack = new ItemBuilder(armorType.get(armorPart)).setName(name).setLore(lore).toItemStack();
+        this.itemStack = ItemBuilder.item(armorType.get(armorPart)).setName(name).setLore(lore).build();
         this.itemStack = NBTHelper.setInNBTTag(itemStack, compound -> {
             compound.setString("RegistryName", getRegistryName());
             compound.setBoolean("CustomArmorPart", true);

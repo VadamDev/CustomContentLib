@@ -1,7 +1,7 @@
 package net.vadamdev.customcontent.internal;
 
 import net.vadamdev.customcontent.internal.registry.CommonRegistry;
-import net.vadamdev.viaapi.tools.commands.PermissionCommand;
+import net.vadamdev.viapi.tools.commands.PermissionCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,6 +21,7 @@ public class CustomContentCommand extends PermissionCommand {
 
     public CustomContentCommand() {
         super("customcontent");
+        setPermission("customcontentlib.admin");
         setAliases(Collections.singletonList("customcontentlib"));
 
         commonRegistry = CustomContentPlugin.instance.getCommonRegistry();
@@ -129,11 +130,6 @@ public class CustomContentCommand extends PermissionCommand {
 
         sender.sendMessage("§3CustomContentLib §f» §cInvalid arguments !");
         return false;
-    }
-
-    @Override
-    public String getGlobalPermission() {
-        return "customcontentlib.admin";
     }
 
     @Override

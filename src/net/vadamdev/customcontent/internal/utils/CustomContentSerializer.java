@@ -1,6 +1,6 @@
 package net.vadamdev.customcontent.internal.utils;
 
-import net.vadamdev.viaapi.tools.builders.ItemBuilder;
+import net.vadamdev.viapi.tools.builders.ItemBuilder;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -24,8 +24,10 @@ public final class CustomContentSerializer {
 
     public static ItemStack unserializeItemStack(ItemStack defaultItemStack, String registryName, FileConfiguration config) {
         final ConfigurationSection section = config.getConfigurationSection(registryName);
-
         final String name = section.getString("name");
-        return new ItemBuilder(defaultItemStack).setName(name != null ? name : "").setLore(section.getStringList("lore")).toItemStack();
+
+        return ItemBuilder.item(defaultItemStack)
+                .setName(name != null ? name : "")
+                .setLore(section.getStringList("lore")).build();
     }
 }

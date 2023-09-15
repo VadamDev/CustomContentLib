@@ -1,10 +1,9 @@
 package net.vadamdev.customcontent.api.items;
 
 import net.vadamdev.customcontent.api.entities.CustomEntityContainer;
-import net.vadamdev.customcontent.api.items.CustomItem;
 import net.vadamdev.customcontent.lib.ItemAction;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
-import net.vadamdev.viaapi.tools.builders.ItemBuilder;
+import net.vadamdev.viapi.tools.builders.ItemBuilder;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -23,7 +22,7 @@ public abstract class CustomSpawnEgg extends CustomItem {
     protected final CustomEntityContainer<?> container;
 
     public CustomSpawnEgg(CustomEntityContainer<?> container) {
-        this(new ItemBuilder(Material.MONSTER_EGG, 1, (short) container.getNMSEntityId()).setName("§rSpawn " + container.getName()).toItemStack(), container);
+        this(ItemBuilder.item(Material.MONSTER_EGG, 1, (short) container.getNMSEntityId()).setName("§rSpawn " + container.getName()).build(), container);
     }
 
     public CustomSpawnEgg(ItemStack itemStack, CustomEntityContainer<?> container) {

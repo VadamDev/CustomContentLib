@@ -15,9 +15,9 @@ import net.vadamdev.customcontent.internal.registry.CommonRegistry;
 import net.vadamdev.customcontent.internal.registry.EntitiesRegistry;
 import net.vadamdev.customcontent.internal.registry.ItemsRegistry;
 import net.vadamdev.customcontent.internal.utils.FileUtils;
-import net.vadamdev.viaapi.VIAPI;
-import net.vadamdev.viaapi.VIPlugin;
-import net.vadamdev.viaapi.startup.APIVersion;
+import net.vadamdev.viapi.APIVersion;
+import net.vadamdev.viapi.VIPlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Listener;
@@ -83,7 +83,7 @@ public class CustomContentPlugin extends VIPlugin {
 
         CustomContentAPI.Provider.set(customContentAPI);
 
-        VIAPI.getScheduler().runTaskLaterAsynchronously(this, r -> {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
             entitiesRegistry.complete();
             recipeRegistry.complete(getServer());
 
@@ -152,6 +152,6 @@ public class CustomContentPlugin extends VIPlugin {
 
     @Override
     public APIVersion getAPIVersion() {
-        return APIVersion.V2_4_17;
+        return APIVersion.V3_0_0;
     }
 }
