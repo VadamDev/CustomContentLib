@@ -2,7 +2,6 @@ package net.vadamdev.customcontent.internal.handlers.items;
 
 import net.vadamdev.customcontent.api.items.CustomFood;
 import net.vadamdev.customcontent.api.items.CustomItem;
-import net.vadamdev.customcontent.internal.CustomContentPlugin;
 import net.vadamdev.customcontent.internal.impl.CustomContentAPIImpl;
 import net.vadamdev.customcontent.internal.registry.CommonRegistry;
 import net.vadamdev.customcontent.lib.ItemAction;
@@ -22,33 +21,30 @@ import org.bukkit.inventory.ItemStack;
  * @since 22/08/2022
  */
 public class ItemsHandler implements Listener {
-    private final CustomContentAPIImpl customContentAPI;
+    public CustomContentAPIImpl customContentAPI;
 
     private final CommonRegistry commonRegistry;
 
-    public ItemsHandler() {
-        this.customContentAPI = CustomContentPlugin.instance.getCustomContentAPI();
-
-        this.commonRegistry = CustomContentPlugin.instance.getCommonRegistry();
+    public ItemsHandler(CommonRegistry commonRegistry) {
+        this.commonRegistry = commonRegistry;
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        ItemStack itemStack = event.getItem();
-
+        final ItemStack itemStack = event.getItem();
         if(itemStack == null)
             return;
 
         commonRegistry.getCustomItems().stream()
+                .filter(CustomItem.class::isInstance)
                 .filter(customItem -> customContentAPI.isCustomItem(itemStack, customItem.getRegistryName()))
-                .findFirst().ifPresent(registrable -> {
-                    boolean flag = false;
+                .findFirst().ifPresent(customItem -> {
+                    boolean flag;
 
-                    if(registrable instanceof CustomItem)
-                        flag = ((CustomItem) registrable).onClick(player, ItemAction.of(event.getAction()), event.getClickedBlock(), event.getBlockFace(), itemStack);
-                    else if(registrable instanceof CustomFood && ((CustomFood) registrable).isEdibleEvenWithFullHunger())
-                        flag = ((CustomFood) registrable).onEat(player, event.getItem());
+                    if(customItem instanceof CustomFood && ((CustomFood) customItem).isEdibleEvenWithFullHunger())
+                        flag = ((CustomFood) customItem).onEat(event.getPlayer(), itemStack);
+                    else
+                        flag = ((CustomItem) customItem).onClick(event.getPlayer(), ItemAction.of(event.getAction()), event.getClickedBlock(), event.getBlockFace(), itemStack);
 
                     if(flag)
                         event.setCancelled(true);
@@ -57,8 +53,8 @@ public class ItemsHandler implements Listener {
 
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
-        Player player = event.getPlayer();
-        ItemStack itemStack = player.getItemInHand();
+        final Player player = event.getPlayer();
+        final ItemStack itemStack = player.getItemInHand();
 
         if(itemStack == null)
             return;
@@ -77,8 +73,8 @@ public class ItemsHandler implements Listener {
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if(event.getDamager() instanceof Player) {
-            Player damager = (Player) event.getDamager();
-            ItemStack itemStack = damager.getItemInHand();
+            final Player damager = (Player) event.getDamager();
+            final ItemStack itemStack = damager.getItemInHand();
 
             if(itemStack == null)
                 return;
@@ -97,8 +93,8 @@ public class ItemsHandler implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        ItemStack itemStack = player.getItemInHand();
+        final Player player = event.getPlayer();
+        final ItemStack itemStack = player.getItemInHand();
 
         if(itemStack == null || itemStack.getType().equals(Material.AIR))
             return;
@@ -119,7 +115,7 @@ public class ItemsHandler implements Listener {
      */
     @EventHandler
     public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
-        ItemStack itemStack = event.getItem();
+        final ItemStack itemStack = event.getItem();
 
         commonRegistry.getCustomItems().stream()
                 .filter(CustomFood.class::isInstance)

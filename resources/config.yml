@@ -1,4 +1,9 @@
-postWorldLoadTime: 5
+general:
+  postWorldLoadTime: 3
+
+customTextures:
+  viewRadius: 6
+  updatePeriod: 20
 
 features:
   customItems: true

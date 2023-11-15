@@ -21,16 +21,19 @@ public final class CommonRegistry {
         this.customItemstacks = new HashMap<>();
     }
 
-    public void register(IRegistrable registrable, FileUtils dataFile) {
+    public void register(IRegistrable registrable) {
         Objects.requireNonNull(registrable.getItemStack(), "Itemstack cannot be null");
         Objects.requireNonNull(registrable.getRegistryName(), "RegistryName cannot be null !");
 
         customItems.add(registrable);
-        customItemstacks.put(registrable.getRegistryName(), getItemStackInConfiguration(registrable, dataFile));
+        customItemstacks.put(registrable.getRegistryName(), getItemStackInConfiguration(registrable));
     }
 
     public ItemStack getCustomItemAsItemStack(String registryName) {
-        return customItemstacks.get(registryName);
+        if(!customItemstacks.containsKey(registryName))
+            return null;
+
+        return customItemstacks.get(registryName).clone();
     }
 
     public boolean isRegistered(String registryName) {
@@ -52,14 +55,14 @@ public final class CommonRegistry {
         throw new UnsupportedOperationException(registryName + " is already registered !");
     }
 
-    private ItemStack getItemStackInConfiguration(IRegistrable registrable, FileUtils dataFile) {
-        final FileConfiguration config = dataFile.getConfig();
+    private ItemStack getItemStackInConfiguration(IRegistrable registrable) {
+        final FileConfiguration config = FileUtils.DESCRIPTIONS.getConfig();
 
         ItemStack itemStack = registrable.getItemStack();
         if(registrable.isConfigurable() && config.isSet(registrable.getRegistryName()))
             itemStack = CustomContentSerializer.unserializeItemStack(registrable.getItemStack(), registrable.getRegistryName(), config);
         else if(registrable.isConfigurable())
-            CustomContentSerializer.serializeItemStack(itemStack, registrable.getRegistryName(), dataFile);
+            CustomContentSerializer.serializeItemStack(itemStack, registrable.getRegistryName(), FileUtils.DESCRIPTIONS);
 
         return itemStack;
     }

@@ -3,6 +3,7 @@ package net.vadamdev.customcontent.api;
 import net.vadamdev.customcontent.api.blocks.CustomBlock;
 import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
 import net.vadamdev.customcontent.lib.BlockPos;
+import net.vadamdev.viapi.tools.enums.EnumDirection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -28,6 +29,10 @@ public interface CustomContentAPI {
 
     Optional<CustomTileEntity> getTileEntityAt(BlockPos blockPos);
     <T extends CustomTileEntity> Optional<T> findTileEntity(BlockPos blockPos, Class<T> clazz);
+
+    @Nullable
+    ItemStack getCustomTexture(BlockPos blockPos);
+    void updateCustomTexture(BlockPos blockPos, ItemStack itemStack, @Nullable EnumDirection direction);
 
     @Nullable
     ItemStack getCustomItemAsItemStack(String registryName);

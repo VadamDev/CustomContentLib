@@ -2,7 +2,7 @@ package net.vadamdev.customcontent.internal.handlers.blocks;
 
 import net.vadamdev.customcontent.api.blocks.CustomBlock;
 import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
-import net.vadamdev.customcontent.api.blocks.serialization.SerializableDataCompound;
+import net.vadamdev.customcontent.api.blocks.serialization.IDataSerializer;
 import net.vadamdev.customcontent.api.common.tickable.ITickable;
 import net.vadamdev.customcontent.lib.BlockPos;
 import net.vadamdev.viapi.tools.tuple.ImmutablePair;
@@ -59,7 +59,8 @@ public class TileEntityHandler {
             return;
 
         tileEntities.forEach((blockPos, tuple) -> {
-            tuple.getLeft().getDataSerializer().write(blockPos, tuple.getRight().save(new SerializableDataCompound()));
+            final IDataSerializer dataSerializer = tuple.getLeft().getDataSerializer();
+            dataSerializer.write(blockPos, tuple.getRight().save(dataSerializer.read(blockPos)));
         });
     }
 }

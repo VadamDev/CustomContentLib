@@ -40,7 +40,7 @@ public class BlockPos {
     }
 
     public Chunk getChunk() {
-        return world.getChunkAt(x, z);
+        return world.getChunkAt(toLocation());
     }
 
     public Block getBlock() {

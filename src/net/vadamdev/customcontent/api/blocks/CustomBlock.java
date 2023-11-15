@@ -39,6 +39,18 @@ public abstract class CustomBlock implements IRegistrable {
     }
 
     /**
+     * Called when a {@link Player} left click on the {@link CustomBlock}
+     *
+     * @param block Block involved in this action
+     * @param blockPos Position of the block involved in this action
+     * @param player Player that interacted with the block
+     * @return True if the {@link org.bukkit.event.player.PlayerInteractEvent PlayerInteractEvent} should be cancelled
+     */
+    public boolean tryBreak(Block block, BlockPos blockPos, Player player) {
+        return false;
+    }
+
+    /**
      * Called when the {@link CustomBlock} is placed
      *
      * @param block Block involved in this action

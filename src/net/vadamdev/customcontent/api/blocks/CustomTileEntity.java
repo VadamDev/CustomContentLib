@@ -14,8 +14,8 @@ import javax.annotation.Nonnull;
  * @since 01/09/2022
  */
 public class CustomTileEntity {
-    protected final BlockPos blockPos;
-    protected final World world;
+    public final BlockPos blockPos;
+    public final World world;
 
     public CustomTileEntity(BlockPos blockPos) {
         this.blockPos = blockPos;
@@ -41,9 +41,5 @@ public class CustomTileEntity {
      */
     public void load(SerializableDataCompound compound) {
 
-    }
-
-    public BlockPos getBlockPos() {
-        return blockPos;
     }
 }

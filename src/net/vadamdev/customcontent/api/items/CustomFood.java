@@ -1,11 +1,7 @@
 package net.vadamdev.customcontent.api.items;
 
-import net.vadamdev.customcontent.api.common.IRegistrable;
-import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
-import javax.annotation.Nonnull;
 
 /**
  * Represents a CCL's Food
@@ -13,11 +9,9 @@ import javax.annotation.Nonnull;
  * @author VadamDev
  * @since 16/01/2022
  */
-public abstract class CustomFood implements IRegistrable {
-    protected ItemStack itemStack;
-
+public abstract class CustomFood extends CustomItem {
     public CustomFood(ItemStack itemStack) {
-        this.itemStack = NBTHelper.setStringInNBTTag(itemStack, "RegistryName", getRegistryName());
+        super(itemStack);
     }
 
     /**
@@ -27,9 +21,7 @@ public abstract class CustomFood implements IRegistrable {
      * @param item {@link ItemStack}
      * @return True if the {@link org.bukkit.event.player.PlayerItemConsumeEvent PlayerItemConsumeEvent} should be cancelled
      */
-    public boolean onEat(Player player, ItemStack item) {
-        return false;
-    }
+    public abstract boolean onEat(Player player, ItemStack item);
 
     /**
      * Determines if the food is edible even if the player has full hunger
@@ -39,11 +31,5 @@ public abstract class CustomFood implements IRegistrable {
      */
     public boolean isEdibleEvenWithFullHunger() {
         return !itemStack.getType().isEdible();
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack getItemStack() {
-        return itemStack;
     }
 }

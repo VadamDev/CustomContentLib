@@ -3,8 +3,8 @@ package net.vadamdev.customcontent.internal;
 import net.vadamdev.customcontent.api.CustomContentAPI;
 import net.vadamdev.customcontent.internal.handlers.CraftHandler;
 import net.vadamdev.customcontent.internal.handlers.blocks.BlocksHandler;
-import net.vadamdev.customcontent.internal.handlers.blocks.CustomTextureHandler;
 import net.vadamdev.customcontent.internal.handlers.blocks.TileEntityHandler;
+import net.vadamdev.customcontent.internal.handlers.blocks.textures.CustomTextureHandler;
 import net.vadamdev.customcontent.internal.handlers.items.ArmorsHandler;
 import net.vadamdev.customcontent.internal.handlers.items.ItemsHandler;
 import net.vadamdev.customcontent.internal.impl.ContentRegistryImpl;
@@ -24,6 +24,7 @@ import org.bukkit.event.Listener;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * @author VadamDev
@@ -37,7 +38,7 @@ public class CustomContentPlugin extends VIPlugin {
     private EntitiesRegistry entitiesRegistry;
 
     private ITickableManager tickableManager;
-    private CustomTextureHandler customTextureHandler;
+    private CustomTextureHandler textureHandler;
 
     private TileEntityHandler tileEntityHandler;
 
@@ -54,41 +55,62 @@ public class CustomContentPlugin extends VIPlugin {
 
         instance = this;
 
+        final Logger logger = getLogger();
+        logger.info("Starting CustomContentLib...");
+
         for(FileUtils value : FileUtils.values())
             saveResource(value.getFilename());
 
+        final FileConfiguration config = FileUtils.CONFIG.getConfig();
+
         commonRegistry = new CommonRegistry();
-        itemsRegistry = new ItemsRegistry();
+        itemsRegistry = new ItemsRegistry(commonRegistry);
+        blocksRegistry = new BlocksRegistry(commonRegistry);
+
+        logger.info("-> Registries loaded");
+
         tileEntityHandler = new TileEntityHandler();
-        blocksRegistry = new BlocksRegistry();
         entitiesRegistry = new EntitiesRegistry();
 
         tickableManager = new ITickableManager();
-        customTextureHandler = new CustomTextureHandler();
+        textureHandler = new CustomTextureHandler(config.getConfigurationSection("customTextures"));
+
+        logger.info("-> Managers loaded");
+
+
+        itemsHandler = new ItemsHandler(commonRegistry);
+        armorsHandler = new ArmorsHandler(commonRegistry);
+        blocksHandler = new BlocksHandler(blocksRegistry, tileEntityHandler, textureHandler);
+
+        logger.info("-> Handlers loaded");
 
         //API Initialization
         final ContentRegistryImpl contentRegistry = new ContentRegistryImpl(commonRegistry, itemsRegistry, blocksRegistry, entitiesRegistry);
         recipeRegistry = new RecipeRegistryImpl();
-        customContentAPI = new CustomContentAPIImpl(contentRegistry, recipeRegistry);
+        customContentAPI = new CustomContentAPIImpl(contentRegistry, recipeRegistry, blocksHandler, textureHandler, tileEntityHandler);
 
-        itemsHandler = new ItemsHandler();
-        armorsHandler = new ArmorsHandler();
-        blocksHandler = new BlocksHandler();
-
-        final FileConfiguration config = FileUtils.CONFIG.getConfig();
-        final ConfigurationSection features = config.getConfigurationSection("features");
-
-        registerListeners(features);
-        registerCommand(new CustomContentCommand());
+        itemsHandler.customContentAPI = customContentAPI;
+        armorsHandler.customContentAPI = customContentAPI;
+        blocksHandler.customContentAPI = customContentAPI;
 
         CustomContentAPI.Provider.set(customContentAPI);
+        logger.info("-> API Loaded");
+
+        registerListeners(config.getConfigurationSection("features"));
+        registerCommand(new CustomContentCommand());
+
+        logger.info("Initialization completed !");
 
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
-            entitiesRegistry.complete();
+            logger.info("Loading post world features...");
+
+            entitiesRegistry.complete(logger);
             recipeRegistry.complete(getServer());
 
-            blocksHandler.loadAll(blocksRegistry);
-        }, config.getInt("postWorldLoadTime") * 20L);
+            blocksHandler.loadAll(blocksRegistry, logger);
+
+            logger.info("Post world features loading completed");
+        }, config.getInt("general.postWorldLoadTime") * 20L);
     }
 
     @Override
@@ -130,18 +152,6 @@ public class CustomContentPlugin extends VIPlugin {
         return tickableManager;
     }
 
-    public CustomTextureHandler getCustomTextureHandler() {
-        return customTextureHandler;
-    }
-
-    public TileEntityHandler getTileEntityHandler() {
-        return tileEntityHandler;
-    }
-
-    public BlocksHandler getBlocksHandler() {
-        return blocksHandler;
-    }
-
     public RecipeRegistryImpl getRecipeRegistry() {
         return recipeRegistry;
     }
@@ -152,6 +162,6 @@ public class CustomContentPlugin extends VIPlugin {
 
     @Override
     public APIVersion getAPIVersion() {
-        return APIVersion.V3_0_0;
+        return APIVersion.V3_0_1;
     }
 }

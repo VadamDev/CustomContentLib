@@ -6,7 +6,6 @@ import net.vadamdev.customcontent.api.items.EmptyItem;
 import net.vadamdev.customcontent.api.items.armor.ArmorSet;
 import net.vadamdev.customcontent.api.items.armor.CustomArmorPart;
 import net.vadamdev.customcontent.internal.CustomContentPlugin;
-import net.vadamdev.customcontent.internal.utils.FileUtils;
 
 import java.util.logging.Logger;
 
@@ -19,10 +18,10 @@ public final class ItemsRegistry {
 
     private final CommonRegistry commonRegistry;
 
-    public ItemsRegistry() {
+    public ItemsRegistry(CommonRegistry commonRegistry) {
         this.logger = CustomContentPlugin.instance.getLogger();
 
-        this.commonRegistry = CustomContentPlugin.instance.getCommonRegistry();
+        this.commonRegistry = commonRegistry;
     }
 
     public void registerCustomItem(CustomItem customItem) {
@@ -31,7 +30,7 @@ public final class ItemsRegistry {
 
         logger.info("Registration of " + registryName + " (Custom Item, Configurable: " + customItem.isConfigurable() + "))");
 
-        commonRegistry.register(customItem, FileUtils.ITEMS);
+        commonRegistry.register(customItem);
     }
 
     public void registerCustomFood(CustomFood customFood) {
@@ -40,7 +39,7 @@ public final class ItemsRegistry {
 
         logger.info("Registration of " + registryName + " (Custom Food, Configurable: " + customFood.isConfigurable() + "))");
 
-        commonRegistry.register(customFood, FileUtils.ITEMS);
+        commonRegistry.register(customFood);
     }
 
     public void registerCustomArmorPart(CustomArmorPart customArmorPart) {
@@ -49,7 +48,7 @@ public final class ItemsRegistry {
 
         logger.info("Registration of " + registryName + " (Custom Armor Part, Configurable: " + customArmorPart.isConfigurable() + "))");
 
-        commonRegistry.register(customArmorPart, FileUtils.ITEMS);
+        commonRegistry.register(customArmorPart);
     }
 
     public void registerArmorSet(ArmorSet armorSet) {
@@ -62,6 +61,6 @@ public final class ItemsRegistry {
 
         logger.info("Registering an empty item (" + registryName + ")");
 
-        commonRegistry.register(emptyItem, FileUtils.ITEMS);
+        commonRegistry.register(emptyItem);
     }
 }

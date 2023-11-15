@@ -1,12 +1,15 @@
 package net.vadamdev.customcontent.internal.handlers.blocks;
 
 import net.vadamdev.customcontent.api.blocks.*;
+import net.vadamdev.customcontent.api.blocks.serialization.SerializableDataCompound;
 import net.vadamdev.customcontent.api.common.tickable.ITickable;
 import net.vadamdev.customcontent.internal.CustomContentPlugin;
+import net.vadamdev.customcontent.internal.handlers.blocks.textures.CustomTextureHandler;
 import net.vadamdev.customcontent.internal.impl.CustomContentAPIImpl;
 import net.vadamdev.customcontent.internal.registry.BlocksRegistry;
 import net.vadamdev.customcontent.lib.BlockFlags;
 import net.vadamdev.customcontent.lib.BlockPos;
+import net.vadamdev.viapi.tools.enums.EnumDirection;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -23,13 +26,15 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 
 /**
  * @author VadamDev
  * @since 05/09/2022
  */
 public class BlocksHandler implements Listener {
-    private final CustomContentAPIImpl customContentAPI;
+    public CustomContentAPIImpl customContentAPI;
 
     private final BlocksRegistry blocksRegistry;
     private final TileEntityHandler tileEntityHandler;
@@ -37,14 +42,16 @@ public class BlocksHandler implements Listener {
 
     private final Map<BlockPos, CustomBlock> customBlocks;
 
-    public BlocksHandler() {
-        this.customContentAPI = CustomContentPlugin.instance.getCustomContentAPI();
+    private boolean loaded;
 
-        this.blocksRegistry = CustomContentPlugin.instance.getBlocksRegistry();
-        this.tileEntityHandler = CustomContentPlugin.instance.getTileEntityHandler();
-        this.customTextureHandler = CustomContentPlugin.instance.getCustomTextureHandler();
+    public BlocksHandler(BlocksRegistry blocksRegistry, TileEntityHandler tileEntityHandler, CustomTextureHandler customTextureHandler) {
+        this.blocksRegistry = blocksRegistry;
+        this.tileEntityHandler = tileEntityHandler;
+        this.customTextureHandler = customTextureHandler;
 
         this.customBlocks = new HashMap<>();
+
+        this.loaded = false;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -91,17 +98,24 @@ public class BlocksHandler implements Listener {
             });
         }
 
-        event.blockList().removeAll(toRemove);
+        if(!event.blockList().removeAll(toRemove))
+            event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if(!event.getAction().equals(Action.RIGHT_CLICK_BLOCK))
+        final Action action = event.getAction();
+        if(!action.equals(Action.LEFT_CLICK_BLOCK) && !action.equals(Action.RIGHT_CLICK_BLOCK))
             return;
 
         final BlockPos blockPos = new BlockPos(event.getClickedBlock());
         findCustomBlock(blockPos).ifPresent(customBlock -> {
-            boolean flag = customBlock.onInteract(event.getClickedBlock(), blockPos, event.getPlayer());
+            boolean flag;
+
+            if(action.equals(Action.RIGHT_CLICK_BLOCK))
+                flag = customBlock.onInteract(event.getClickedBlock(), blockPos, event.getPlayer());
+            else
+                flag = customBlock.tryBreak(event.getClickedBlock(), blockPos, event.getPlayer());
 
             if(flag)
                 event.setCancelled(true);
@@ -110,19 +124,26 @@ public class BlocksHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPistonExtend(BlockPistonExtendEvent event) {
-        if(event.getBlocks().stream().anyMatch(block -> findCustomBlock(new BlockPos(block)).isPresent())) {
+        if(event.getBlocks().stream().anyMatch(block -> findCustomBlock(new BlockPos(block)).isPresent()))
             event.setCancelled(true);
-        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPistonRetract(BlockPistonRetractEvent event) {
-        if(event.getBlocks().stream().anyMatch(block -> findCustomBlock(new BlockPos(block)).isPresent())) {
+        if(event.getBlocks().stream().anyMatch(block -> findCustomBlock(new BlockPos(block)).isPresent()))
             event.setCancelled(true);
-        }
     }
 
     public boolean placeCustomBlock(BlockPos blockPos, CustomBlock customBlock, boolean checkValidity, @Nullable Player player, @Nullable Cancellable event) {
+        if(!loaded) {
+            CustomContentPlugin.instance.getLogger().warning("Someone tried to place a block before CCL finished loading !");
+
+            if(event != null)
+                event.setCancelled(true);
+
+            return false;
+        }
+
         if(checkValidity && !customBlock.canPlace(blockPos, player)) {
             if(event != null)
                 event.setCancelled(true);
@@ -130,21 +151,27 @@ public class BlocksHandler implements Listener {
             return false;
         }
 
-        customBlock.getDataSerializer().write(blockPos);
+        final SerializableDataCompound compound = new SerializableDataCompound();
 
         if(customBlock instanceof ITileEntityProvider)
             tileEntityHandler.addTileEntity(blockPos, customBlock, ((ITileEntityProvider) customBlock).createTileEntity(blockPos));
 
-        if(customBlock instanceof ICustomTextureHolder) {
-            ICustomTextureHolder textureHolder = (ICustomTextureHolder) customBlock;
-            customTextureHandler.addCustomTexture(blockPos, textureHolder.getTextureName(), textureHolder.getBlockRotation(player));
-        }
-
         final Block block = blockPos.getBlock();
-        block.setType(customBlock.getBlockMaterial());
+
+        if(customBlock instanceof ICustomTextureHolder) {
+            final ICustomTextureHolder textureHolder = (ICustomTextureHolder) customBlock;
+            final EnumDirection direction = textureHolder.getBlockRotation(blockPos, player);
+
+            customTextureHandler.addCustomTexture(blockPos, textureHolder.createTextureIcon(textureHolder.getDefaultTexture()), direction);
+            compound.putString("direction", direction.name());
+
+            block.setType(Material.BARRIER);
+        }else
+            block.setType(customBlock.getBlockMaterial());
 
         customBlock.onPlace(block, blockPos, player);
 
+        customBlock.getDataSerializer().write(blockPos, compound);
         customBlocks.put(blockPos, customBlock);
 
         return true;
@@ -159,6 +186,11 @@ public class BlocksHandler implements Listener {
     }
 
     private boolean breakCustomBlock(BlockPos blockPos, CustomBlock customBlock, boolean checkValidity, boolean drop, @Nullable Entity entity) {
+        if(!loaded) {
+            CustomContentPlugin.instance.getLogger().warning("Someone tried to break a block before CCL finished loading !");
+            return false;
+        }
+
         if(checkValidity && !customBlock.canBreak(blockPos, entity))
             return false;
 
@@ -199,23 +231,36 @@ public class BlocksHandler implements Listener {
         return false;
     }
 
-    public void loadAll(BlocksRegistry blocksRegistry) {
+    public void loadAll(BlocksRegistry blocksRegistry, Logger logger) {
+        final long before = System.nanoTime();
+
+        final AtomicInteger i = new AtomicInteger();
+        final AtomicInteger j = new AtomicInteger();
         for(CustomBlock customBlock : blocksRegistry.getCustomBlocks()) {
             customBlock.getDataSerializer().readAll().forEach((blockPos, compound) -> {
                 customBlocks.put(blockPos, customBlock);
+
+                if(customBlock instanceof ICustomTextureHolder) {
+                    final ICustomTextureHolder textureHolder = (ICustomTextureHolder) customBlock;
+
+                    final EnumDirection direction = compound.containsKey("direction") ? EnumDirection.valueOf(compound.getString("direction")) : EnumDirection.SOUTH;
+                    customTextureHandler.addCustomTexture(blockPos, textureHolder.createTextureIcon(textureHolder.getDefaultTexture()), direction);
+                }
 
                 if(customBlock instanceof ITileEntityProvider) {
                     CustomTileEntity tileEntity = ((ITileEntityProvider) customBlock).createTileEntity(blockPos);
                     tileEntity.load(compound);
 
                     tileEntityHandler.addTileEntity(blockPos, customBlock, tileEntity);
+                    j.getAndIncrement();
                 }
 
-                if(customBlock instanceof ICustomTextureHolder) {
-                    final int rot = compound.containsKey("rotation") ? compound.getInt("rotation") : 0;
-                    customTextureHandler.addCustomTexture(blockPos, ((ICustomTextureHolder) customBlock).getTextureName(), rot);
-                }
+                i.getAndIncrement();
             });
         }
+
+        logger.info("-> Unserialized " + i.get() + " custom blocks and " + j.get() + " custom tile entities (Took: " + (System.nanoTime() - before) / 1000000D + " ms)");
+
+        loaded = true;
     }
 }

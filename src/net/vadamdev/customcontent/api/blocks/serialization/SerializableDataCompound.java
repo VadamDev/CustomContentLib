@@ -24,6 +24,10 @@ public final class SerializableDataCompound {
         this.data.put(key, new SerializableString(data));
     }
 
+    public void putBoolean(String key, boolean data) {
+        this.data.put(key, new SerializableBoolean(data));
+    }
+
     public void putLong(String key, long data) {
         this.data.put(key, new SerializableLong(data));
     }
@@ -61,47 +65,92 @@ public final class SerializableDataCompound {
      */
 
     public String getString(String key) {
-        requireGoodTypeAndNonNull(key, DataType.STRING);
+        if(!data.containsKey(key))
+            return null;
+
+        requireGoodType(key, DataType.STRING);
+
         return data.get(key).getString();
     }
 
+    public boolean getBoolean(String key) {
+        if(!data.containsKey(key))
+            return false;
+
+        requireGoodType(key, DataType.BOOLEAN);
+
+        return data.get(key).getBoolean();
+    }
+
     public long getLong(String key) {
-        requireGoodTypeAndNonNull(key, DataType.LONG);
+        if(!data.containsKey(key))
+            return 0;
+
+        requireGoodType(key, DataType.LONG);
+
         return data.get(key).getLong();
     }
 
     public int getInt(String key) {
-        requireGoodTypeAndNonNull(key, DataType.INT);
+        if(!data.containsKey(key))
+            return 0;
+
+        requireGoodType(key, DataType.INT);
+
         return data.get(key).getInt();
     }
 
     public short getShort(String key) {
-        requireGoodTypeAndNonNull(key, DataType.SHORT);
+        if(!data.containsKey(key))
+            return 0;
+
+        requireGoodType(key, DataType.SHORT);
+
         return data.get(key).getShort();
     }
 
     public byte getByte(String key) {
-        requireGoodTypeAndNonNull(key, DataType.BYTE);
+        if(!data.containsKey(key))
+            return 0;
+
+        requireGoodType(key, DataType.BYTE);
+
         return data.get(key).getByte();
     }
 
     public double getDouble(String key) {
-        requireGoodTypeAndNonNull(key, DataType.DOUBLE);
+        if(!data.containsKey(key))
+            return 0;
+
+        requireGoodType(key, DataType.DOUBLE);
+
         return data.get(key).getDouble();
     }
 
     public float getFloat(String key) {
-        requireGoodTypeAndNonNull(key, DataType.FLOAT);
+        if(!data.containsKey(key))
+            return 0;
+
+        requireGoodType(key, DataType.FLOAT);
+
         return data.get(key).getFloat();
     }
 
     public byte[] getByteArray(String key) {
-        requireGoodTypeAndNonNull(key, DataType.BYTE_ARRAY);
+        if(!data.containsKey(key))
+            return new byte[0];
+
+        requireGoodType(key, DataType.BYTE_ARRAY);
+
         return data.get(key).getByteArray();
     }
 
     public int[] getIntArray(String key) {
-        requireGoodTypeAndNonNull(key, DataType.INT_ARRAY);
+        if(!data.containsKey(key))
+            return new int[0];
+
+        requireGoodType(key, DataType.INT_ARRAY);
+
         return data.get(key).getIntArray();
     }
 
@@ -113,10 +162,7 @@ public final class SerializableDataCompound {
         return new HashMap<>(data);
     }
 
-    private void requireGoodTypeAndNonNull(String key, DataType type) {
-        if(!data.containsKey(key))
-            throw new NullPointerException();
-
+    private void requireGoodType(String key, DataType type) {
         if(!data.get(key).getType().equals(type))
             throw new UnsupportedOperationException("Provided data type is not the good type");
     }

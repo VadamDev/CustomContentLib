@@ -42,7 +42,7 @@ public class EntitiesRegistry {
             try {
                 registerEntity(container, retrieveEntityDataMaps(), retrieveRegisterMethod(), retrieveBiomeBases());
 
-                logger.warning("A custom entity was registered after CCL loading !");
+                logger.warning("A custom entity was registered after CCL loading ! You should increase \"postWorldLoadTime\" in the config.yml to avoid problems.");
             }catch(NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                 e.printStackTrace();
             }
@@ -53,14 +53,20 @@ public class EntitiesRegistry {
         return minecraftIds.get(entityClass);
     }
 
-    public void complete() {
+    public void complete(Logger logger) {
         try {
             final List<Map<?, ?>> dataMaps = retrieveEntityDataMaps();
             final Method registerMethod = retrieveRegisterMethod();
             final Map<BiomeBase, Map<EnumCreatureType, List<BiomeBase.BiomeMeta>>> biomeBases = retrieveBiomeBases();
 
-            for (CustomEntityContainer<?> container : containers)
+            int i = 0;
+            for (CustomEntityContainer<?> container : containers) {
                 registerEntity(container, dataMaps, registerMethod, biomeBases);
+                i++;
+            }
+
+            if(i != 0)
+                logger.info("-> Registered " + i + " of " + containers.size() + " custom entities");
         }catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }

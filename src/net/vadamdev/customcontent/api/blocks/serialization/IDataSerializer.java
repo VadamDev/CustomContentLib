@@ -2,6 +2,7 @@ package net.vadamdev.customcontent.api.blocks.serialization;
 
 import net.vadamdev.customcontent.lib.BlockPos;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -12,9 +13,32 @@ import java.util.Map;
  * @since 16/09/2022
  */
 public interface IDataSerializer {
-    void write(BlockPos blockPos, SerializableDataCompound dataCompound);
-    void write(BlockPos blockPos);
+    IDataSerializer EMPTY = new IDataSerializer() {
+        @Override
+        public void write(BlockPos blockPos, SerializableDataCompound dataCompound) {}
 
+        @Override
+        public SerializableDataCompound read(BlockPos blockPos) {
+            return new SerializableDataCompound();
+        }
+
+        @Override
+        public Map<BlockPos, SerializableDataCompound> readAll() {
+            return new HashMap<>();
+        }
+
+        @Override
+        public void remove(BlockPos blockPos) {}
+
+        @Override
+        public boolean contains(BlockPos blockPos) {
+            return false;
+        }
+    };
+
+    void write(BlockPos blockPos, SerializableDataCompound dataCompound);
+
+    SerializableDataCompound read(BlockPos blockPos);
     Map<BlockPos, SerializableDataCompound> readAll();
 
     void remove(BlockPos blockPos);

@@ -39,9 +39,21 @@ public class FileConfigurationDataSerializer implements IDataSerializer {
     }
 
     @Override
-    public void write(BlockPos blockPos) {
-        configFile.set(blockPos.toSerializableString(), "");
-        save();
+    public SerializableDataCompound read(BlockPos blockPos) {
+        ConfigurationSection section = configFile.getConfigurationSection(blockPos.toSerializableString());
+        SerializableDataCompound compound = new SerializableDataCompound();
+
+        if(section == null)
+            return compound;
+
+        for (String sectionKey : section.getKeys(false)) {
+            ISerializableData.parseFrom(
+                    DataType.valueOf(section.getString(sectionKey + ".type")),
+                    section.getString(sectionKey + ".data")
+            ).ifPresent(serializableData -> compound.put(sectionKey, serializableData));
+        }
+
+        return compound;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package net.vadamdev.customcontent.internal.handlers.items;
 
 import net.vadamdev.customcontent.api.items.armor.CustomArmorPart;
-import net.vadamdev.customcontent.internal.CustomContentPlugin;
 import net.vadamdev.customcontent.internal.impl.CustomContentAPIImpl;
 import net.vadamdev.customcontent.internal.registry.CommonRegistry;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
@@ -21,14 +20,12 @@ import org.bukkit.inventory.ItemStack;
  * @since 22/08/2022
  */
 public class ArmorsHandler implements Listener {
-    private final CustomContentAPIImpl customContentAPI;
+    public CustomContentAPIImpl customContentAPI;
 
     private final CommonRegistry commonRegistry;
 
-    public ArmorsHandler() {
-        this.customContentAPI = CustomContentPlugin.instance.getCustomContentAPI();
-
-        this.commonRegistry = CustomContentPlugin.instance.getCommonRegistry();
+    public ArmorsHandler(CommonRegistry commonRegistry) {
+        this.commonRegistry = commonRegistry;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

@@ -24,6 +24,9 @@ public final class CustomContentSerializer {
 
     public static ItemStack unserializeItemStack(ItemStack defaultItemStack, String registryName, FileConfiguration config) {
         final ConfigurationSection section = config.getConfigurationSection(registryName);
+        if(section == null)
+            return defaultItemStack;
+
         final String name = section.getString("name");
 
         return ItemBuilder.item(defaultItemStack)

@@ -1,7 +1,7 @@
 package net.vadamdev.customcontent.lib.tickablehandler;
 
-import net.vadamdev.customcontent.api.common.tickable.ITickable;
 import net.vadamdev.customcontent.api.common.tickable.AbstractTickableHandler;
+import net.vadamdev.customcontent.api.common.tickable.ITickable;
 import net.vadamdev.customcontent.internal.CustomContentPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 

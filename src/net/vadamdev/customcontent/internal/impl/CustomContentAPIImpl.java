@@ -5,12 +5,13 @@ import net.vadamdev.customcontent.api.CustomContentAPI;
 import net.vadamdev.customcontent.api.RecipeRegistry;
 import net.vadamdev.customcontent.api.blocks.CustomBlock;
 import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
-import net.vadamdev.customcontent.internal.CustomContentPlugin;
 import net.vadamdev.customcontent.internal.handlers.blocks.BlocksHandler;
 import net.vadamdev.customcontent.internal.handlers.blocks.TileEntityHandler;
+import net.vadamdev.customcontent.internal.handlers.blocks.textures.CustomTextureHandler;
 import net.vadamdev.customcontent.internal.registry.CommonRegistry;
 import net.vadamdev.customcontent.lib.BlockPos;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
+import net.vadamdev.viapi.tools.enums.EnumDirection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -30,16 +31,18 @@ public final class CustomContentAPIImpl implements CustomContentAPI {
     private final RecipeRegistryImpl recipeRegistry;
 
     private final BlocksHandler blocksHandler;
+    private final CustomTextureHandler textureHandler;
     private final TileEntityHandler tileEntityHandler;
 
-    public CustomContentAPIImpl(ContentRegistryImpl contentRegistry, RecipeRegistryImpl recipeRegistry) {
+    public CustomContentAPIImpl(ContentRegistryImpl contentRegistry, RecipeRegistryImpl recipeRegistry, BlocksHandler blocksHandler, CustomTextureHandler textureHandler, TileEntityHandler tileEntityHandler) {
         this.commonRegistry = contentRegistry.getCommonRegistry();
 
         this.contentRegistry = contentRegistry;
         this.recipeRegistry = recipeRegistry;
 
-        this.blocksHandler = CustomContentPlugin.instance.getBlocksHandler();
-        this.tileEntityHandler = CustomContentPlugin.instance.getTileEntityHandler();
+        this.blocksHandler = blocksHandler;
+        this.textureHandler = textureHandler;
+        this.tileEntityHandler = tileEntityHandler;
     }
 
     @Override
@@ -70,6 +73,17 @@ public final class CustomContentAPIImpl implements CustomContentAPI {
     @Override
     public <T extends CustomTileEntity> Optional<T> findTileEntity(BlockPos blockPos, Class<T> clazz) {
         return tileEntityHandler.findTileEntity(blockPos, clazz);
+    }
+
+    @Nullable
+    @Override
+    public ItemStack getCustomTexture(BlockPos blockPos) {
+        return textureHandler.getCustomTexture(blockPos);
+    }
+
+    @Override
+    public void updateCustomTexture(BlockPos blockPos, ItemStack itemStack, @Nullable EnumDirection direction) {
+        textureHandler.updateCustomTexture(blockPos, itemStack, direction);
     }
 
     @Override

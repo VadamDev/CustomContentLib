@@ -18,7 +18,7 @@ public class TickableTileEntityHandler {
 
     public void sumbit(CustomTileEntity tileEntity) {
         findExecutor(tileEntity.getClass())
-                .sumbit(tileEntity.getBlockPos(), (ITickable) tileEntity);
+                .sumbit(tileEntity.blockPos, (ITickable) tileEntity);
     }
 
     public void remove(BlockPos blockPos) {

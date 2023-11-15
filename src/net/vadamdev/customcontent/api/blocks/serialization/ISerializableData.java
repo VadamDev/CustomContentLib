@@ -13,6 +13,10 @@ public interface ISerializableData {
         return null;
     }
 
+    default boolean getBoolean() {
+        return false;
+    }
+
     default long getLong() {
         return 0;
     }
@@ -54,6 +58,9 @@ public interface ISerializableData {
         switch(type) {
             case STRING:
                 serializableData = new SerializableString(data);
+                break;
+            case BOOLEAN:
+                serializableData = new SerializableBoolean(Boolean.parseBoolean(data));
                 break;
             case LONG:
                 serializableData = new SerializableLong(Long.parseLong(data));

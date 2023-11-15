@@ -7,5 +7,5 @@ package net.vadamdev.customcontent.api.blocks.serialization;
  * @since 23/09/2022
  */
 public enum DataType {
-    STRING, LONG, INT, SHORT, BYTE, DOUBLE, FLOAT, BYTE_ARRAY, INT_ARRAY;
+    STRING, BOOLEAN, LONG, INT, SHORT, BYTE, DOUBLE, FLOAT, BYTE_ARRAY, INT_ARRAY;
 }

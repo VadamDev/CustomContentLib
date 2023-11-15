@@ -9,8 +9,7 @@ import java.io.IOException;
 
 public enum FileUtils {
     CONFIG("config.yml"),
-    ITEMS("items.yml"),
-    BLOCKS("blocks.yml");
+    DESCRIPTIONS("descriptions.yml");
 
     private final String filename;
     private final File dataForlder;

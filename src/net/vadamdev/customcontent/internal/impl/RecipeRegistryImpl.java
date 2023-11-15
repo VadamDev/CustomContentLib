@@ -68,7 +68,9 @@ public final class RecipeRegistryImpl implements RecipeRegistry {
                 recipeIterator.remove();
         }
 
-        CustomContentPlugin.instance.getLogger().info("Removed " + toRemove.size() + " vanilla recipes !");
+        if(!toRemove.isEmpty())
+            CustomContentPlugin.instance.getLogger().info("-> Removed " + toRemove.size() + " recipes !");
+
         toRemove.clear();
     }
 
@@ -87,6 +89,7 @@ public final class RecipeRegistryImpl implements RecipeRegistry {
             server.addRecipe(recipe);
         });
 
-        CustomContentPlugin.instance.getLogger().info("Added " + customCraftings.size() + " custom recipes !");
+        if(!customCraftings.isEmpty())
+            CustomContentPlugin.instance.getLogger().info("-> Added " + customCraftings.size() + " custom recipes !");
     }
 }
