@@ -1,7 +1,18 @@
 
 # Information
-CustomContentLib is a [VIAPI](https://github.com/VadamDev/VIAPI) extension that helps the creation of new items/blocks/etc for Minecraft 1.8
-#### The wiki is available [here](https://github.com/VadamDev/CustomContentLib/wiki)
+CustomContentLib is a library that helps the creation of custom blocks and items for Minecraft 1.8
+
+It support (non-exhaustive list) :
+- Custom Items (Basic Items, Foods, Tools, Weapons, Armors, Armor Sets)
+- Custom Blocks (with custom textures)
+- Custom Tile Entities
+- And more !
+
+**The wiki is available [here](https://github.com/VadamDev/CustomContentLib/wiki)**
+
+# Dependencies
+CustomContentLib depends on the [VIAPI](https://github.com/VadamDev/VIAPI). It's a huge API for making the spigot plugin development easier.
+You can download it [here](https://github.com/VadamDev/VIAPI/releases)
 
 ## Contribute
 You're all welcome to contribute, just make a PR !
