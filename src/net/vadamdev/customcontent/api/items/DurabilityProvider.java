@@ -109,7 +109,7 @@ public interface DurabilityProvider {
     default ItemStack decreaseDurability(ItemStack itemStack, @Nullable Player player) {
         int newDurability = getDurability(itemStack) - 1;
 
-        if(player != null && newDurability <= 1) {
+        if(player != null && newDurability < 1) {
             getBreakAction().accept(player, itemStack);
             return null;
         }
@@ -137,7 +137,7 @@ public interface DurabilityProvider {
     default void checkDurability(Player player, ItemStack itemStack) {
         final int durability = getDurability(itemStack);
 
-        if(durability <= 1)
+        if(durability < 1)
             getBreakAction().accept(player, itemStack);
         else if(durability > getMaxDurability())
             setDurability(itemStack, getMaxDurability());

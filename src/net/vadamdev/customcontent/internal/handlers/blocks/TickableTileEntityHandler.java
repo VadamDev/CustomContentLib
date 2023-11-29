@@ -5,7 +5,6 @@ import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
 import net.vadamdev.customcontent.api.common.tickable.ITickable;
 import net.vadamdev.customcontent.lib.BlockPos;
 
-import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +17,7 @@ public class TickableTileEntityHandler {
 
     public void sumbit(CustomTileEntity tileEntity) {
         findExecutor(tileEntity.getClass())
-                .sumbit(tileEntity.blockPos, (ITickable) tileEntity);
+                .submit(tileEntity.blockPos, (ITickable) tileEntity);
     }
 
     public void remove(BlockPos blockPos) {
@@ -40,14 +39,10 @@ public class TickableTileEntityHandler {
             int interval = 1;
             boolean async = false;
 
-            for (Annotation annotation : clazz.getAnnotations()) {
-                if(annotation instanceof TickableInfo) {
-                    final TickableInfo tickableInfo = (TickableInfo) annotation;
-                    interval = tickableInfo.interval();
-                    async = tickableInfo.async();
-
-                    break;
-                }
+            final TickableInfo info = clazz.getAnnotation(TickableInfo.class);
+            if(info != null) {
+                interval = info.interval();
+                async = info.async();
             }
 
             return new TickableExecutor(interval, async);

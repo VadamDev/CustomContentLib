@@ -10,6 +10,7 @@ import net.vadamdev.customcontent.internal.handlers.items.ItemsHandler;
 import net.vadamdev.customcontent.internal.impl.ContentRegistryImpl;
 import net.vadamdev.customcontent.internal.impl.CustomContentAPIImpl;
 import net.vadamdev.customcontent.internal.impl.RecipeRegistryImpl;
+import net.vadamdev.customcontent.internal.integration.Integrations;
 import net.vadamdev.customcontent.internal.registry.BlocksRegistry;
 import net.vadamdev.customcontent.internal.registry.CommonRegistry;
 import net.vadamdev.customcontent.internal.registry.EntitiesRegistry;
@@ -58,6 +59,8 @@ public class CustomContentPlugin extends VIPlugin {
         final Logger logger = getLogger();
         logger.info("Starting CustomContentLib...");
 
+        final long before = System.currentTimeMillis();
+
         for(FileUtils value : FileUtils.values())
             saveResource(value.getFilename());
 
@@ -99,7 +102,9 @@ public class CustomContentPlugin extends VIPlugin {
         registerListeners(config.getConfigurationSection("features"));
         registerCommand(new CustomContentCommand());
 
-        logger.info("Initialization completed !");
+        Integrations.loadAll(this, config.getConfigurationSection("integrations"));
+
+        logger.info("Initialization complete ! (Took: " + (System.currentTimeMillis() - before) + " ms)");
 
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
             logger.info("Loading post world features...");
@@ -130,7 +135,7 @@ public class CustomContentPlugin extends VIPlugin {
         if(features.getBoolean("customBlocks"))
             listeners.add(blocksHandler);
 
-        if(features.getBoolean("customCraftings"))
+        if(features.getBoolean("customRecipes"))
             listeners.add(new CraftHandler());
 
         listeners.forEach(this::registerListener);
@@ -154,6 +159,10 @@ public class CustomContentPlugin extends VIPlugin {
 
     public RecipeRegistryImpl getRecipeRegistry() {
         return recipeRegistry;
+    }
+
+    public BlocksHandler getBlocksHandler() {
+        return blocksHandler;
     }
 
     public CustomContentAPIImpl getCustomContentAPI() {

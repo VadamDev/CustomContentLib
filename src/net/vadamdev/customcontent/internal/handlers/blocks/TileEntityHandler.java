@@ -17,7 +17,7 @@ import java.util.Optional;
  * @since 21/09/2022
  */
 public class TileEntityHandler {
-    private final Map<BlockPos, Pair<CustomBlock, CustomTileEntity>> tileEntities;
+    private final Map<BlockPos, Pair<IDataSerializer, CustomTileEntity>> tileEntities;
     private final TickableTileEntityHandler tickableHandler;
 
     public TileEntityHandler() {
@@ -29,7 +29,7 @@ public class TileEntityHandler {
         if(tileEntity instanceof ITickable)
             tickableHandler.sumbit(tileEntity);
 
-        tileEntities.put(blockPos, new ImmutablePair<>(customBlock, tileEntity));
+        tileEntities.put(blockPos, new ImmutablePair<>(customBlock.getDataSerializer(), tileEntity));
     }
 
     public void removeTileEntity(BlockPos blockPos, boolean tickable) {
@@ -59,7 +59,7 @@ public class TileEntityHandler {
             return;
 
         tileEntities.forEach((blockPos, tuple) -> {
-            final IDataSerializer dataSerializer = tuple.getLeft().getDataSerializer();
+            final IDataSerializer dataSerializer = tuple.getLeft();
             dataSerializer.write(blockPos, tuple.getRight().save(dataSerializer.read(blockPos)));
         });
     }

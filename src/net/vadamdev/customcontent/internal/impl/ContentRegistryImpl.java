@@ -3,9 +3,9 @@ package net.vadamdev.customcontent.internal.impl;
 import net.minecraft.server.v1_8_R3.Entity;
 import net.vadamdev.customcontent.api.ContentRegistry;
 import net.vadamdev.customcontent.api.blocks.CustomBlock;
+import net.vadamdev.customcontent.api.common.IRegistrable;
 import net.vadamdev.customcontent.api.common.tickable.AbstractTickableHandler;
 import net.vadamdev.customcontent.api.entities.CustomEntityContainer;
-import net.vadamdev.customcontent.api.items.CustomFood;
 import net.vadamdev.customcontent.api.items.CustomItem;
 import net.vadamdev.customcontent.api.items.EmptyItem;
 import net.vadamdev.customcontent.api.items.armor.ArmorSet;
@@ -34,38 +34,20 @@ public final class ContentRegistryImpl implements ContentRegistry {
     }
 
     @Override
-    public void registerEmptyItem(EmptyItem emptyItem) {
-        itemsRegistry.registerEmptyItem(emptyItem);
-    }
-
-    @Override
-    public void registerCustomItem(CustomItem customItem) {
-        itemsRegistry.registerCustomItem(customItem);
-    }
-
-    @Override
-    public void registerCustomFood(CustomFood customFood) {
-        itemsRegistry.registerCustomFood(customFood);
-    }
-
-    @Override
-    public void registerCustomArmorPart(CustomArmorPart customArmorPart) {
-        itemsRegistry.registerCustomArmorPart(customArmorPart);
+    public void register(IRegistrable registrable) {
+        if(registrable instanceof CustomItem)
+            itemsRegistry.registerCustomItem((CustomItem) registrable);
+        else if(registrable instanceof CustomArmorPart)
+            itemsRegistry.registerCustomArmorPart((CustomArmorPart) registrable);
+        else if(registrable instanceof EmptyItem)
+            itemsRegistry.registerEmptyItem((EmptyItem) registrable);
+        else if(registrable instanceof CustomBlock)
+            blocksRegistry.registerCustomBlock((CustomBlock) registrable);
     }
 
     @Override
     public void registerArmorSet(ArmorSet armorSet) {
         itemsRegistry.registerArmorSet(armorSet);
-    }
-
-    @Override
-    public void registerCustomBlock(CustomBlock customBlock) {
-        blocksRegistry.registerCustomBlock(customBlock);
-    }
-
-    @Override
-    public void registerTickableHandler(AbstractTickableHandler tickableHandler) {
-        CustomContentPlugin.instance.getTickableManager().registerTickableHandler(tickableHandler);
     }
 
     @Override
@@ -76,6 +58,11 @@ public final class ContentRegistryImpl implements ContentRegistry {
     @Override
     public int getEntityId(Class<? extends Entity> entityClass) {
         return entitiesRegistry.getEntityId(entityClass);
+    }
+
+    @Override
+    public void registerTickableHandler(AbstractTickableHandler tickableHandler) {
+        CustomContentPlugin.instance.getTickableManager().registerTickableHandler(tickableHandler);
     }
 
     @Override

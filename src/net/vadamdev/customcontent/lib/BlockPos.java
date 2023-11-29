@@ -26,21 +26,15 @@ public class BlockPos {
     }
 
     public BlockPos(Location location) {
-        this.world = location.getWorld();
-        this.x = location.getBlockX();
-        this.y = location.getBlockY();
-        this.z = location.getBlockZ();
+        this(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 
     public BlockPos(Block block) {
-        this.world = block.getWorld();
-        this.x = block.getX();
-        this.y = block.getY();
-        this.z = block.getZ();
+        this(block.getWorld(), block.getX(), block.getY(), block.getZ());
     }
 
     public Chunk getChunk() {
-        return world.getChunkAt(toLocation());
+        return world.getChunkAt(x >> 4, z >> 4);
     }
 
     public Block getBlock() {
@@ -63,17 +57,16 @@ public class BlockPos {
         return z;
     }
 
+    public ChunkPos toChunkPos() {
+        return new ChunkPos(world, x >> 4, z >> 4);
+    }
+
     public Location toLocation() {
         return new Location(world, x, y, z);
     }
 
     public String toSerializableString() {
         return world.getName() + ":" + x + ":" + y + ":" + z;
-    }
-
-    public static BlockPos fromSerializableString(String s) {
-        String[] split = s.split(":");
-        return new BlockPos(Bukkit.getWorld(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]), Integer.parseInt(split[3]));
     }
 
     @Override
@@ -87,5 +80,10 @@ public class BlockPos {
     @Override
     public int hashCode() {
         return Objects.hash(world, x, y, z);
+    }
+
+    public static BlockPos fromSerializableString(String s) {
+        String[] split = s.split(":");
+        return new BlockPos(Bukkit.getWorld(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]), Integer.parseInt(split[3]));
     }
 }

@@ -1,13 +1,8 @@
 package net.vadamdev.customcontent.internal.handlers.blocks.textures;
 
-import net.minecraft.server.v1_8_R3.EntityArmorStand;
-import net.minecraft.server.v1_8_R3.Vector3f;
 import net.vadamdev.customcontent.lib.BlockPos;
-import net.vadamdev.viapi.tools.builders.ArmorStandBuilder;
-import net.vadamdev.viapi.tools.builders.ArmorStandLocker;
+import net.vadamdev.customcontent.lib.ChunkPos;
 import net.vadamdev.viapi.tools.enums.EnumDirection;
-import net.vadamdev.viapi.tools.packet.entities.GenericPacketEntity;
-import org.bukkit.Chunk;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +15,7 @@ import java.util.Map;
  * @since 05/07/2023
  */
 public class CustomTextureHandler {
-    private final Map<Chunk, ChunkyPacketEntityHandler> customTextures;
+    private final Map<ChunkPos, ChunkyPacketEntityHandler> customTextures;
 
     private final int viewRadius, updatePeriod;
 
@@ -31,23 +26,23 @@ public class CustomTextureHandler {
         this.updatePeriod = section.getInt("updatePeriod");
     }
 
-    public void addCustomTexture(BlockPos blockPos, ItemStack itemStack, EnumDirection direction) {
-        final Chunk chunk = blockPos.getChunk();
+    public void addCustomTexture(BlockPos blockPos, ItemStack icon, EnumDirection direction) {
+        final ChunkPos chunkPos = blockPos.toChunkPos();
 
-        final ChunkyPacketEntityHandler entityHandler = customTextures.computeIfAbsent(chunk, k -> new ChunkyPacketEntityHandler(chunk, viewRadius, updatePeriod));
-        entityHandler.addEntity(blockPos, new GenericPacketEntity(generateArmorStand(blockPos, itemStack, formatDirection(direction))), CraftItemStack.asNMSCopy(itemStack));
+        final ChunkyPacketEntityHandler entityHandler = customTextures.computeIfAbsent(chunkPos, k -> new ChunkyPacketEntityHandler(chunkPos, viewRadius, updatePeriod));
+        entityHandler.addEntity(blockPos, new PacketCustomTexture(blockPos.toLocation().add(0.5, 0, 0.5), formatDirection(direction), icon));
         entityHandler.spawn();
     }
 
-    public void updateCustomTexture(BlockPos blockPos, ItemStack itemStack, EnumDirection direction) {
-        final Chunk chunk = blockPos.getChunk();
+    public void updateCustomTexture(BlockPos blockPos, ItemStack icon, EnumDirection direction) {
+        final ChunkPos chunkPos = new ChunkPos(blockPos.getChunk());
 
-        if(!customTextures.containsKey(chunk))
-            addCustomTexture(blockPos, itemStack, direction == null ? EnumDirection.SOUTH : direction);
+        if(!customTextures.containsKey(chunkPos))
+            addCustomTexture(blockPos, icon, direction == null ? EnumDirection.SOUTH : direction);
         else {
-            final ChunkyPacketEntityHandler handler = customTextures.get(chunk);
+            final ChunkyPacketEntityHandler handler = customTextures.get(chunkPos);
 
-            handler.setItemInHand(blockPos, CraftItemStack.asNMSCopy(itemStack));
+            handler.updateIcon(blockPos, CraftItemStack.asNMSCopy(icon));
 
             if(direction != null)
                 handler.updateRotation(blockPos, formatDirection(direction));
@@ -55,46 +50,28 @@ public class CustomTextureHandler {
     }
 
     public ItemStack getCustomTexture(BlockPos blockPos) {
-        final Chunk chunk = blockPos.getChunk();
-
-        if(!customTextures.containsKey(chunk))
+        final ChunkPos chunkPos = blockPos.toChunkPos();
+        if(!customTextures.containsKey(chunkPos))
             return null;
 
-        return CraftItemStack.asBukkitCopy(customTextures.get(chunk).getItemInHand(blockPos));
+        return CraftItemStack.asBukkitCopy(customTextures.get(chunkPos).getIcon(blockPos));
     }
 
     public void removeCustomTexture(BlockPos blockPos) {
-        final Chunk chunk = blockPos.getChunk();
-        if(!customTextures.containsKey(chunk))
+        final ChunkPos chunkPos = blockPos.toChunkPos();
+        if(!customTextures.containsKey(chunkPos))
             return;
 
-        if(customTextures.get(chunk).removeEntity(blockPos))
-            customTextures.remove(chunk);
+        if(customTextures.get(chunkPos).removeEntity(blockPos))
+            customTextures.remove(chunkPos);
     }
 
     private float formatDirection(EnumDirection direction) {
         switch(direction) {
-            case NORTH:
-                return 180f;
-            case EAST:
-                return -90f;
-            case WEST:
-                return 90f;
+            case NORTH: case EAST: case SOUTH: case WEST:
+                return direction.getYaw();
             default:
                 return 0f;
         }
-    }
-
-    private EntityArmorStand generateArmorStand(BlockPos blockPos, ItemStack icon, float yaw) {
-        return ArmorStandBuilder.nms(blockPos.toLocation().add(0.5, 0, 0.5))
-                .setAsMarker()
-                .setArms(true)
-                .setVisible(false)
-                .setBasePlate(false)
-                .setRightArmPose(new Vector3f(0, 0, 0))
-                .lockSlot(new ArmorStandLocker().lockAll())
-                .setRotation(yaw, 0)
-                .setItemInHand(icon)
-                .build();
     }
 }

@@ -2,10 +2,11 @@ package net.vadamdev.customcontent.internal;
 
 import net.vadamdev.customcontent.annotations.TickableInfo;
 import net.vadamdev.customcontent.api.common.tickable.AbstractTickableHandler;
+import net.vadamdev.customcontent.api.common.tickable.IInventoryTickable;
 import net.vadamdev.customcontent.api.common.tickable.ITickable;
+import net.vadamdev.customcontent.api.items.armor.ArmorSet;
 import net.vadamdev.customcontent.lib.tickablehandler.BukkitTickableHandler;
 
-import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -27,16 +28,13 @@ public final class ITickableManager {
         boolean async = false;
         String id = "Bukkit";
 
-        for(Annotation annotation : tickable.getClass().getAnnotations()) {
-            if(annotation instanceof TickableInfo) {
-                final TickableInfo tickableInfo = (TickableInfo) annotation;
-                interval = tickableInfo.interval();
-                async = tickableInfo.async();
-                id = tickableInfo.handlerId();
-
-                break;
-            }
-        }
+        final TickableInfo info = tickable.getClass().getAnnotation(TickableInfo.class);
+        if(info != null) {
+            interval = info.interval();
+            async = info.async();
+            id = info.handlerId();
+        }else if(tickable instanceof ArmorSet || tickable instanceof IInventoryTickable)
+            interval = 20;
 
         if(!handlers.containsKey(id))
             throw new NullPointerException("Specified handler (" + id + ") does not exist !");

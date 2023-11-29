@@ -13,6 +13,10 @@ import java.util.Map;
  * @since 16/09/2022
  */
 public interface IDataSerializer {
+    /**
+     * An empty {@link IDataSerializer}
+     * <br>It can be used as a placeholder or for debugging purposes
+     */
     IDataSerializer EMPTY = new IDataSerializer() {
         @Override
         public void write(BlockPos blockPos, SerializableDataCompound dataCompound) {}

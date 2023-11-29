@@ -1,15 +1,11 @@
 package net.vadamdev.customcontent.internal.handlers.blocks.textures;
 
 import net.minecraft.server.v1_8_R3.ItemStack;
+import net.vadamdev.customcontent.internal.CustomContentPlugin;
 import net.vadamdev.customcontent.lib.BlockPos;
-import net.vadamdev.viapi.internal.VIAPIPlugin;
-import net.vadamdev.viapi.tools.packet.IEquipmentHolder;
-import net.vadamdev.viapi.tools.packet.IPacketEntity;
-import net.vadamdev.viapi.tools.packet.handler.IPacketEntityHandler;
-import net.vadamdev.viapi.tools.tuple.MutablePair;
+import net.vadamdev.customcontent.lib.ChunkPos;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -23,32 +19,31 @@ import java.util.stream.Collectors;
  * @author VadamDev
  * @since 18/09/2023
  */
-public class ChunkyPacketEntityHandler implements IPacketEntityHandler {
-    private final Map<BlockPos, MutablePair<IPacketEntity, ItemStack>> packetEntities;
-    private final Chunk chunk;
-    private int viewRadius;
-    private final int period;
+public class ChunkyPacketEntityHandler {
+    private final Map<BlockPos, PacketCustomTexture> packetEntities;
+    private final int chunkX, chunkZ, viewRadius, period;
 
     private final Set<Player> viewers;
 
     private Updater updater;
 
-    public ChunkyPacketEntityHandler(Chunk chunk, int viewRadius, int period) {
+    public ChunkyPacketEntityHandler(ChunkPos chunkPos, int viewRadius, int period) {
         this.packetEntities = new HashMap<>();
-        this.chunk = chunk;
+        this.chunkX = chunkPos.getX();
+        this.chunkZ = chunkPos.getZ();
         this.viewRadius = viewRadius * viewRadius;
         this.period = period;
 
         this.viewers = new HashSet<>();
     }
 
-    public void addEntity(BlockPos blockPos, IPacketEntity packetEntity, ItemStack itemStack) {
-        packetEntity.spawn(viewers);
-        packetEntities.put(blockPos, new MutablePair<>(packetEntity, itemStack));
+    public void addEntity(BlockPos blockPos, PacketCustomTexture customTexture) {
+        customTexture.spawn(viewers);
+        packetEntities.put(blockPos, customTexture);
     }
 
     public boolean removeEntity(BlockPos blockPos) {
-        packetEntities.get(blockPos).getLeft().delete(viewers);
+        packetEntities.get(blockPos).delete(viewers);
         packetEntities.remove(blockPos);
 
         if(packetEntities.isEmpty()) {
@@ -59,87 +54,56 @@ public class ChunkyPacketEntityHandler implements IPacketEntityHandler {
         return false;
     }
 
-    public ItemStack getItemInHand(BlockPos blockPos) {
-        return packetEntities.containsKey(blockPos) ? packetEntities.get(blockPos).getRight() : null;
+    public ItemStack getIcon(BlockPos blockPos) {
+        return packetEntities.containsKey(blockPos) ? packetEntities.get(blockPos).getIcon() : null;
     }
 
-    public void setItemInHand(BlockPos blockPos, ItemStack itemStack) {
+    public void updateIcon(BlockPos blockPos, ItemStack itemStack) {
         if(!packetEntities.containsKey(blockPos))
             return;
 
-        final MutablePair<IPacketEntity, ItemStack> pair = packetEntities.get(blockPos);
-
-        if(pair.getLeft() instanceof IEquipmentHolder) {
-            final IEquipmentHolder equipmentHolder = (IEquipmentHolder) pair.getLeft();
-            equipmentHolder.updateLocalEquipment(0, itemStack);
-            equipmentHolder.updateEquipment(0, itemStack, viewers);
-        }
-
-        pair.setRight(itemStack);
+        packetEntities.get(blockPos).updateIcon(itemStack, viewers);
     }
 
     public void updateRotation(BlockPos blockPos, float yaw) {
         if(!packetEntities.containsKey(blockPos))
             return;
 
-        final IPacketEntity packetEntity = packetEntities.get(blockPos).getLeft();
-
-        final Location location = packetEntity.getLocalLocation();
-        location.setYaw(yaw);
-
-        packetEntity.teleportLocal(location);
-        packetEntity.teleport(location, viewers);
+        packetEntities.get(blockPos).updateRotation(yaw, viewers);
     }
 
-    @Override
     public void spawn() {
         updater = new Updater(period);
     }
 
-    @Override
     public void delete() {
         updater.cancel();
         updater = null;
 
         if(!viewers.isEmpty()) {
-            final Set<Player> toRemove = viewers.parallelStream()
+            final Set<Player> toRemove = viewers.stream()
                     .filter(Player::isOnline)
                     .collect(Collectors.toSet());
 
             if(!toRemove.isEmpty())
-                packetEntities.forEach((blockPos, packetEntity) -> packetEntity.getLeft().delete(toRemove));
+                packetEntities.forEach((blockPos, packetEntity) -> packetEntity.delete(toRemove));
 
             viewers.clear();
         }
     }
 
-    @Override
     public boolean isViewing(Player player) {
         return viewers.contains(player);
     }
 
-    @Override
-    public Set<Player> getViewers() {
-        return viewers;
-    }
-
-    @Override
-    public Location getLocation() {
-        return null;
-    }
-
-    public void setViewRadius(int viewRadius) {
-        this.viewRadius = viewRadius * viewRadius;
-    }
-
     private class Updater extends BukkitRunnable {
-        private final Set<Player> toAdd, toRemove;
+        private final Set<Player> toSpawn, toDelete;
 
-        public Updater(int period) {
-            this.toAdd = new HashSet<>();
-            this.toRemove = new HashSet<>();
+        private Updater(int period) {
+            this.toSpawn = new HashSet<>();
+            this.toDelete = new HashSet<>();
 
-            runTaskTimerAsynchronously(VIAPIPlugin.instance, 0, period);
+            runTaskTimerAsynchronously(CustomContentPlugin.instance, 0, period);
         }
 
         @Override
@@ -150,29 +114,31 @@ public class ChunkyPacketEntityHandler implements IPacketEntityHandler {
                 if(isViewing(player)) {
                     if(!player.isOnline())
                         viewers.remove(player);
-                    else if(!closeEnough)
-                        toRemove.add(player);
-                }else if(closeEnough)
-                    toAdd.add(player);
+                    else if(!closeEnough) {
+                        viewers.remove(player);
+                        toDelete.add(player);
+                    }
+                }else if(closeEnough) {
+                    viewers.add(player);
+                    toSpawn.add(player);
+                }
             }
 
-            if(!toRemove.isEmpty()) {
-                viewers.removeAll(toRemove);
-                packetEntities.forEach((blockPos, packetEntity) -> packetEntity.getLeft().delete(toRemove));
-                toRemove.clear();
+            if(!toSpawn.isEmpty()) {
+                packetEntities.values().forEach(packetEntity -> packetEntity.spawn(toSpawn));
+                toSpawn.clear();
             }
 
-            if(!toAdd.isEmpty()) {
-                viewers.addAll(toAdd);
-                packetEntities.forEach((blockPos, packetEntity) -> packetEntity.getLeft().spawn(toAdd));
-                toAdd.clear();
+            if(!toDelete.isEmpty()) {
+                packetEntities.values().forEach(packetEntity -> packetEntity.delete(toDelete));
+                toDelete.clear();
             }
         }
 
         private boolean isCloseEnough(Player player) {
             final Chunk playerChunk = player.getLocation().getChunk();
-            final int xDir = chunk.getX() - playerChunk.getX();
-            final int zDir = chunk.getZ() - playerChunk.getZ();
+            final int xDir = chunkX - playerChunk.getX();
+            final int zDir = chunkZ - playerChunk.getZ();
 
             return xDir * xDir + zDir * zDir <= viewRadius;
         }

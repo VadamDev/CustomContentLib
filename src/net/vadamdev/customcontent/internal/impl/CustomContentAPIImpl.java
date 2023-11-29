@@ -56,13 +56,13 @@ public final class CustomContentAPIImpl implements CustomContentAPI {
     }
 
     @Override
-    public void placeCustomBlock(BlockPos blockPos, CustomBlock customBlock, boolean checkValidity, @Nullable Player player) {
-        blocksHandler.placeCustomBlock(blockPos, customBlock, checkValidity, player, null);
+    public boolean placeCustomBlock(BlockPos blockPos, CustomBlock customBlock, boolean checkValidity, @Nullable Player player) {
+        return blocksHandler.placeCustomBlock(blockPos, customBlock, checkValidity, player, null);
     }
 
     @Override
-    public void breakCustomBlock(BlockPos blockPos, boolean checkValidity, boolean drop, @Nullable Entity entity) {
-        blocksHandler.breakCustomBlock(blockPos, checkValidity, drop, entity);
+    public boolean breakCustomBlock(BlockPos blockPos, boolean checkValidity, boolean drop, @Nullable Entity entity) {
+        return blocksHandler.breakCustomBlock(blockPos, checkValidity, drop, entity);
     }
 
     @Override

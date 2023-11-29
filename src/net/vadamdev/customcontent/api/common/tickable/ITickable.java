@@ -9,7 +9,6 @@ import net.vadamdev.customcontent.annotations.TickableInfo;
  * @author VadamDev
  * @since 18/01/2022
  */
-@TickableInfo
 public interface ITickable {
     void tick();
 }

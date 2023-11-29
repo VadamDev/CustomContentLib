@@ -41,7 +41,7 @@ public class CraftHandler implements Listener {
 			if(!equals(craftMatrix, shapedRecipe.toArray())) {
 				craftingInventory.setResult(new ItemStack(Material.AIR));
 			}
-		}else if(recipeRegistry.getVanillaRecipes().parallelStream().anyMatch(recipe -> recipe.getResult().isSimilar(currentResult))) {
+		}else if(recipeRegistry.getVanillaRecipes().stream().anyMatch(recipe -> recipe.getResult().isSimilar(currentResult))) {
 			for (ItemStack item : craftMatrix) {
 				if(item == null || item.getType().equals(Material.AIR))
 					continue;

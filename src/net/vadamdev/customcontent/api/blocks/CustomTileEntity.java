@@ -2,7 +2,6 @@ package net.vadamdev.customcontent.api.blocks;
 
 import net.vadamdev.customcontent.api.blocks.serialization.SerializableDataCompound;
 import net.vadamdev.customcontent.lib.BlockPos;
-import org.bukkit.World;
 
 import javax.annotation.Nonnull;
 
@@ -15,11 +14,9 @@ import javax.annotation.Nonnull;
  */
 public class CustomTileEntity {
     public final BlockPos blockPos;
-    public final World world;
 
     public CustomTileEntity(BlockPos blockPos) {
         this.blockPos = blockPos;
-        this.world = this.blockPos.getWorld();
     }
 
     /**

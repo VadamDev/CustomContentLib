@@ -58,7 +58,7 @@ public interface IDurabilityBar {
         }
 
         ItemMeta im = itemStack.getItemMeta();
-        im.setLore(lore);
+        im.setLore(loreCopy);
         itemStack.setItemMeta(im);
     }
 }

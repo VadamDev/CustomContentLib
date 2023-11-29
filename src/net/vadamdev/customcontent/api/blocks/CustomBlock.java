@@ -92,8 +92,10 @@ public abstract class CustomBlock implements IRegistrable {
 
     /**
      * Return the {@link IDataSerializer} used to serialize block position and the {@link CustomTileEntity} data if exists
-     * @see IDataSerializer
+     * <br><br>
+     * You NEED to store the DataSerializer in a (static?) field because this will be called for EACH serialization
      *
+     * @see IDataSerializer
      * @return A new {@link IDataSerializer} instance
      */
     @Nonnull

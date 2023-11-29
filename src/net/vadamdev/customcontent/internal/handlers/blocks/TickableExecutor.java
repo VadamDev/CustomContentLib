@@ -28,7 +28,7 @@ public class TickableExecutor {
         }
     }
 
-    public void sumbit(BlockPos blockPos, ITickable tickable) {
+    public void submit(BlockPos blockPos, ITickable tickable) {
         tickableMap.put(blockPos, tickable);
     }
 

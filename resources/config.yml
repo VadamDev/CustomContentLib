@@ -1,12 +1,20 @@
 general:
+  #Determines how many seconds CCL will wait before considering the server finished loading. If you have a warning in the console or registry issues, try increasing this value
   postWorldLoadTime: 3
 
 customTextures:
+  #View radius of custom textures in chunks
   viewRadius: 6
+  #Update period of custom textures in ticks
   updatePeriod: 20
 
+integrations:
+  #Enable WorldEdit integration for custom blocks (Experimental and very inconsistent with FastAsyncWorldEdit)
+  worldEdit: false
+
+#Debugging tool, you can disable here every listener independently
 features:
   customItems: true
   customArmors: true
   customBlocks: true
-  customCraftings: true
+  customRecipes: true

@@ -1,7 +1,6 @@
 package net.vadamdev.customcontent.internal.registry;
 
 import net.vadamdev.customcontent.api.blocks.CustomBlock;
-import net.vadamdev.customcontent.internal.utils.FileUtils;
 
 import java.util.HashSet;
 import java.util.Objects;

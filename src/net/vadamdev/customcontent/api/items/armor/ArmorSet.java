@@ -1,6 +1,5 @@
 package net.vadamdev.customcontent.api.items.armor;
 
-import net.vadamdev.customcontent.annotations.TickableInfo;
 import net.vadamdev.customcontent.api.common.tickable.ITickable;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import org.bukkit.entity.Player;
@@ -10,11 +9,11 @@ import org.bukkit.inventory.ItemStack;
 /**
  * Represents an ArmorSet.
  * <br>It can be used to add effects to the wearer if the armor set is complete
- *
+ * <br><br>
+ * By default, ArmorSet will have a period of 20 ticks
  * @author VadamDev
  * @since 27/03/2022
  */
-@TickableInfo(interval = 20)
 public abstract class ArmorSet implements ITickable {
     protected final CustomArmorPart[] pieces;
 

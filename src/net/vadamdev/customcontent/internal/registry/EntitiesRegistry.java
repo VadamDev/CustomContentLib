@@ -50,7 +50,7 @@ public class EntitiesRegistry {
     }
 
     public int getEntityId(Class<? extends Entity> entityClass) {
-        return minecraftIds.get(entityClass);
+        return minecraftIds.getOrDefault(entityClass, -1);
     }
 
     public void complete(Logger logger) {

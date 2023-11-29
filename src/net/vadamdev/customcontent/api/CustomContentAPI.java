@@ -24,8 +24,8 @@ public interface CustomContentAPI {
     ContentRegistry getContentRegistry();
     RecipeRegistry getRecipeRegistry();
 
-    void placeCustomBlock(BlockPos blockPos, CustomBlock customBlock, boolean checkValidity, @Nullable Player player);
-    void breakCustomBlock(BlockPos blockPos, boolean checkValidity, boolean drop, @Nullable Entity entity);
+    boolean placeCustomBlock(BlockPos blockPos, CustomBlock customBlock, boolean checkValidity, @Nullable Player player);
+    boolean breakCustomBlock(BlockPos blockPos, boolean checkValidity, boolean drop, @Nullable Entity entity);
 
     Optional<CustomTileEntity> getTileEntityAt(BlockPos blockPos);
     <T extends CustomTileEntity> Optional<T> findTileEntity(BlockPos blockPos, Class<T> clazz);

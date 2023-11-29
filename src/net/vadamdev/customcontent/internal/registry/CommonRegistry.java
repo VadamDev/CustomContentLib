@@ -1,6 +1,8 @@
 package net.vadamdev.customcontent.internal.registry;
 
 import net.vadamdev.customcontent.api.common.IRegistrable;
+import net.vadamdev.customcontent.api.common.tickable.ITickable;
+import net.vadamdev.customcontent.internal.CustomContentPlugin;
 import net.vadamdev.customcontent.internal.utils.CustomContentSerializer;
 import net.vadamdev.customcontent.internal.utils.FileUtils;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -27,6 +29,9 @@ public final class CommonRegistry {
 
         customItems.add(registrable);
         customItemstacks.put(registrable.getRegistryName(), getItemStackInConfiguration(registrable));
+
+        if(registrable instanceof ITickable)
+            CustomContentPlugin.instance.getTickableManager().registerITickableComponent((ITickable) registrable);
     }
 
     public ItemStack getCustomItemAsItemStack(String registryName) {

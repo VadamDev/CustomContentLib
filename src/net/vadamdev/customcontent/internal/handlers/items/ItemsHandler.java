@@ -5,7 +5,6 @@ import net.vadamdev.customcontent.api.items.CustomItem;
 import net.vadamdev.customcontent.internal.impl.CustomContentAPIImpl;
 import net.vadamdev.customcontent.internal.registry.CommonRegistry;
 import net.vadamdev.customcontent.lib.ItemAction;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,7 +31,7 @@ public class ItemsHandler implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         final ItemStack itemStack = event.getItem();
-        if(itemStack == null)
+        if(itemStack == null || !itemStack.hasItemMeta())
             return;
 
         commonRegistry.getCustomItems().stream()
@@ -56,7 +55,7 @@ public class ItemsHandler implements Listener {
         final Player player = event.getPlayer();
         final ItemStack itemStack = player.getItemInHand();
 
-        if(itemStack == null)
+        if(itemStack == null || !itemStack.hasItemMeta())
             return;
 
         commonRegistry.getCustomItems().stream()
@@ -76,7 +75,7 @@ public class ItemsHandler implements Listener {
             final Player damager = (Player) event.getDamager();
             final ItemStack itemStack = damager.getItemInHand();
 
-            if(itemStack == null)
+            if(itemStack == null || !itemStack.hasItemMeta())
                 return;
 
             commonRegistry.getCustomItems().stream()
@@ -96,7 +95,7 @@ public class ItemsHandler implements Listener {
         final Player player = event.getPlayer();
         final ItemStack itemStack = player.getItemInHand();
 
-        if(itemStack == null || itemStack.getType().equals(Material.AIR))
+        if(itemStack == null || !itemStack.hasItemMeta())
             return;
 
         commonRegistry.getCustomItems().stream()

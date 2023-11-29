@@ -57,7 +57,7 @@ public class BlocksHandler implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
         final ItemStack itemStack = event.getItemInHand();
-        if(itemStack == null)
+        if(itemStack == null || !itemStack.hasItemMeta())
             return;
 
         blocksRegistry.getCustomBlocks().stream()
@@ -83,23 +83,21 @@ public class BlocksHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockExplode(EntityExplodeEvent event) {
-        Set<Block> toRemove = new HashSet<>();
+        final Set<Block> toRemove = new HashSet<>();
         for (Block block : event.blockList()) {
             final BlockPos blockPos = new BlockPos(block);
 
             findCustomBlock(blockPos).ifPresent(customBlock -> {
-                if(customBlock instanceof IBlockFlagHolder && hasBlockFlag((IBlockFlagHolder) customBlock, BlockFlags.TNT_RESISTANT, BlockFlags.UNBREAKABLE)) {
-                    toRemove.add(block);
+                toRemove.add(block);
+
+                if(customBlock instanceof IBlockFlagHolder && hasBlockFlag((IBlockFlagHolder) customBlock, BlockFlags.TNT_RESISTANT, BlockFlags.UNBREAKABLE))
                     return;
-                }
 
                 breakCustomBlock(blockPos, customBlock, true, true, event.getEntity());
-                toRemove.add(block);
             });
         }
 
-        if(!event.blockList().removeAll(toRemove))
-            event.setCancelled(true);
+        event.blockList().removeAll(toRemove);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -110,12 +108,18 @@ public class BlocksHandler implements Listener {
 
         final BlockPos blockPos = new BlockPos(event.getClickedBlock());
         findCustomBlock(blockPos).ifPresent(customBlock -> {
+            final Player player = event.getPlayer();
+
             boolean flag;
 
             if(action.equals(Action.RIGHT_CLICK_BLOCK))
-                flag = customBlock.onInteract(event.getClickedBlock(), blockPos, event.getPlayer());
-            else
-                flag = customBlock.tryBreak(event.getClickedBlock(), blockPos, event.getPlayer());
+                flag = customBlock.onInteract(event.getClickedBlock(), blockPos, player);
+            else {
+                flag = customBlock.tryBreak(event.getClickedBlock(), blockPos, player);
+
+                if(!flag && player.getGameMode().equals(GameMode.SURVIVAL))
+                    breakCustomBlock(blockPos, customBlock, true, true, player);
+            }
 
             if(flag)
                 event.setCancelled(true);
@@ -160,7 +164,7 @@ public class BlocksHandler implements Listener {
 
         if(customBlock instanceof ICustomTextureHolder) {
             final ICustomTextureHolder textureHolder = (ICustomTextureHolder) customBlock;
-            final EnumDirection direction = textureHolder.getBlockRotation(blockPos, player);
+            final EnumDirection direction = player != null ? textureHolder.getBlockRotation(blockPos, player) : EnumDirection.SOUTH;
 
             customTextureHandler.addCustomTexture(blockPos, textureHolder.createTextureIcon(textureHolder.getDefaultTexture()), direction);
             compound.putString("direction", direction.name());
@@ -194,7 +198,7 @@ public class BlocksHandler implements Listener {
         if(checkValidity && !customBlock.canBreak(blockPos, entity))
             return false;
 
-        CustomTileEntity tileEntity = tileEntityHandler.getTileEntityAt(blockPos).orElse(null);
+        final CustomTileEntity tileEntity = tileEntityHandler.getTileEntityAt(blockPos).orElse(null);
 
         customBlock.onBreak(blockPos, tileEntity, entity);
 
@@ -232,7 +236,7 @@ public class BlocksHandler implements Listener {
     }
 
     public void loadAll(BlocksRegistry blocksRegistry, Logger logger) {
-        final long before = System.nanoTime();
+        final long before = System.currentTimeMillis();
 
         final AtomicInteger i = new AtomicInteger();
         final AtomicInteger j = new AtomicInteger();
@@ -259,7 +263,7 @@ public class BlocksHandler implements Listener {
             });
         }
 
-        logger.info("-> Unserialized " + i.get() + " custom blocks and " + j.get() + " custom tile entities (Took: " + (System.nanoTime() - before) / 1000000D + " ms)");
+        logger.info("-> Unserialized " + i.get() + " custom blocks and " + j.get() + " custom tile entities (Took: " + (System.currentTimeMillis() - before) + " ms)");
 
         loaded = true;
     }
