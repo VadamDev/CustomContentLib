@@ -171,6 +171,6 @@ public class CustomContentPlugin extends VIPlugin {
 
     @Override
     public APIVersion getAPIVersion() {
-        return APIVersion.V3_0_1;
+        return APIVersion.V3_1_0;
     }
 }

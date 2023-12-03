@@ -26,7 +26,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 /**
@@ -236,12 +235,16 @@ public class BlocksHandler implements Listener {
     }
 
     public void loadAll(BlocksRegistry blocksRegistry, Logger logger) {
+        logger.info("-> Unserializing custom blocks (This might take a long time!)");
+
         final long before = System.currentTimeMillis();
 
-        final AtomicInteger i = new AtomicInteger();
-        final AtomicInteger j = new AtomicInteger();
+        int i = 0, j = 0;
         for(CustomBlock customBlock : blocksRegistry.getCustomBlocks()) {
-            customBlock.getDataSerializer().readAll().forEach((blockPos, compound) -> {
+            for(Map.Entry<BlockPos, SerializableDataCompound> entry : customBlock.getDataSerializer().readAll().entrySet()) {
+                final BlockPos blockPos = entry.getKey();
+                final SerializableDataCompound compound = entry.getValue();
+
                 customBlocks.put(blockPos, customBlock);
 
                 if(customBlock instanceof ICustomTextureHolder) {
@@ -256,14 +259,14 @@ public class BlocksHandler implements Listener {
                     tileEntity.load(compound);
 
                     tileEntityHandler.addTileEntity(blockPos, customBlock, tileEntity);
-                    j.getAndIncrement();
+                    j++;
                 }
 
-                i.getAndIncrement();
-            });
+                i++;
+            }
         }
 
-        logger.info("-> Unserialized " + i.get() + " custom blocks and " + j.get() + " custom tile entities (Took: " + (System.currentTimeMillis() - before) + " ms)");
+        logger.info("-> Unserialized " + i + " custom blocks and " + j + " custom tile entities (Took: " + (System.currentTimeMillis() - before) + " ms)");
 
         loaded = true;
     }

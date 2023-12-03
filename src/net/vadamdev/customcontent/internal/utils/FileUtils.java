@@ -12,15 +12,15 @@ public enum FileUtils {
     DESCRIPTIONS("descriptions.yml");
 
     private final String filename;
-    private final File dataForlder;
+    private final File dataFolder;
 
     FileUtils(String filename) {
         this.filename = filename;
-        this.dataForlder = CustomContentPlugin.instance.getDataFolder();
+        this.dataFolder = CustomContentPlugin.instance.getDataFolder();
     }
 
     public File getFile() {
-        return new File(dataForlder,filename);
+        return new File(dataFolder,filename);
     }
 
     public FileConfiguration getConfig(){
