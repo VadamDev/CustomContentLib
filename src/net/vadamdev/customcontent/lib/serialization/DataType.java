@@ -1,4 +1,4 @@
-package net.vadamdev.customcontent.api.blocks.serialization;
+package net.vadamdev.customcontent.lib.serialization;
 
 /**
  * Represents a supported type of data for the {@link SerializableDataCompound}
@@ -7,5 +7,5 @@ package net.vadamdev.customcontent.api.blocks.serialization;
  * @since 23/09/2022
  */
 public enum DataType {
-    STRING, BOOLEAN, LONG, INT, SHORT, BYTE, DOUBLE, FLOAT, BYTE_ARRAY, INT_ARRAY;
+    BOOLEAN, BYTE, DOUBLE, FLOAT, INT, LONG, SHORT, STRING, BYTE_ARRAY, INT_ARRAY
 }

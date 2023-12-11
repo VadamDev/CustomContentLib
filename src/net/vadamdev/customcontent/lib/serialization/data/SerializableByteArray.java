@@ -1,21 +1,20 @@
-package net.vadamdev.customcontent.api.blocks.serialization.primitive;
+package net.vadamdev.customcontent.lib.serialization.data;
 
-import net.vadamdev.customcontent.api.blocks.serialization.DataType;
-import net.vadamdev.customcontent.api.blocks.serialization.ISerializableData;
+import net.vadamdev.customcontent.lib.serialization.DataType;
 
 /**
  * @author VadamDev
  * @since 20/09/2022
  */
-public class SerializableIntArray implements ISerializableData {
-    private final int[] data;
+public class SerializableByteArray implements ISerializableData {
+    private final byte[] data;
 
-    public SerializableIntArray(int[] data) {
+    public SerializableByteArray(byte[] data) {
         this.data = data;
     }
 
     @Override
-    public int[] getIntArray() {
+    public byte[] getAsByteArray() {
         return data;
     }
 
@@ -35,6 +34,6 @@ public class SerializableIntArray implements ISerializableData {
 
     @Override
     public DataType getType() {
-        return DataType.INT_ARRAY;
+        return DataType.BYTE_ARRAY;
     }
 }

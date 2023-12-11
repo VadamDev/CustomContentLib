@@ -1,7 +1,7 @@
 package net.vadamdev.customcontent.api.blocks;
 
-import net.vadamdev.customcontent.api.blocks.serialization.SerializableDataCompound;
 import net.vadamdev.customcontent.lib.BlockPos;
+import net.vadamdev.customcontent.lib.serialization.SerializableDataCompound;
 
 import javax.annotation.Nonnull;
 

@@ -120,7 +120,7 @@ public class CustomContentPlugin extends VIPlugin {
 
     @Override
     public void onDisable() {
-        tileEntityHandler.saveAll();
+        tileEntityHandler.saveAll(getLogger());
     }
 
     private void registerListeners(ConfigurationSection features) {

@@ -5,6 +5,8 @@ import net.vadamdev.customcontent.internal.integration.worldedit.WorldEditIntegr
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.PluginManager;
 
+import java.util.logging.Logger;
+
 /**
  * @author VadamDev
  * @since 28/11/2023
@@ -21,6 +23,9 @@ public enum Integrations {
     public static void loadAll(CustomContentPlugin plugin, ConfigurationSection section) {
         final PluginManager pluginManager = plugin.getServer().getPluginManager();
 
+        final Logger logger = plugin.getLogger();
+        logger.info("-> Loading Integrations...");
+
         int loaded = 0, skipped = 0;
         for(Integrations integrations : values()) {
             final IIntegration integration = integrations.integration;
@@ -34,6 +39,6 @@ public enum Integrations {
             loaded++;
         }
 
-        plugin.getLogger().info("-> Loaded " + loaded + " integrations (" + loaded + "/" + (loaded + skipped) + ")");
+        logger.info("-> Loaded " + loaded + " integrations (" + loaded + "/" + (loaded + skipped) + ")");
     }
 }

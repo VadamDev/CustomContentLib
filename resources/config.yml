@@ -9,7 +9,7 @@ customTextures:
   updatePeriod: 20
 
 integrations:
-  #Enable WorldEdit integration for custom blocks (Experimental and very inconsistent with FastAsyncWorldEdit)
+  #Enable WorldEdit integration for custom blocks (Very slow with FastAsyncWorldEdit)
   worldEdit: false
 
 #Debugging tool, you can disable here every listener independently

@@ -1,7 +1,6 @@
-package net.vadamdev.customcontent.api.blocks.serialization.primitive;
+package net.vadamdev.customcontent.lib.serialization.data;
 
-import net.vadamdev.customcontent.api.blocks.serialization.DataType;
-import net.vadamdev.customcontent.api.blocks.serialization.ISerializableData;
+import net.vadamdev.customcontent.lib.serialization.DataType;
 
 /**
  * @author VadamDev
@@ -15,7 +14,7 @@ public class SerializableLong implements ISerializableData {
     }
 
     @Override
-    public long getLong() {
+    public long getAsLong() {
         return data;
     }
 

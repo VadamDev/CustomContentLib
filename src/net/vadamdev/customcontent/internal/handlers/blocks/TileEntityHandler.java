@@ -1,6 +1,5 @@
 package net.vadamdev.customcontent.internal.handlers.blocks;
 
-import net.vadamdev.customcontent.api.blocks.CustomBlock;
 import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
 import net.vadamdev.customcontent.api.blocks.serialization.IDataSerializer;
 import net.vadamdev.customcontent.api.common.tickable.ITickable;
@@ -8,16 +7,15 @@ import net.vadamdev.customcontent.lib.BlockPos;
 import net.vadamdev.viapi.tools.tuple.ImmutablePair;
 import net.vadamdev.viapi.tools.tuple.Pair;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @author VadamDev
  * @since 21/09/2022
  */
 public class TileEntityHandler {
-    private final Map<BlockPos, Pair<CustomBlock, CustomTileEntity>> tileEntities;
+    private final Map<BlockPos, Pair<IDataSerializer, CustomTileEntity>> tileEntities;
     private final TickableTileEntityHandler tickableHandler;
 
     public TileEntityHandler() {
@@ -25,11 +23,11 @@ public class TileEntityHandler {
         this.tickableHandler = new TickableTileEntityHandler();
     }
 
-    public void addTileEntity(BlockPos blockPos, CustomBlock customBlock, CustomTileEntity tileEntity) {
+    public void addTileEntity(BlockPos blockPos, IDataSerializer dataSerializer, CustomTileEntity tileEntity) {
         if(tileEntity instanceof ITickable)
             tickableHandler.sumbit(tileEntity);
 
-        tileEntities.put(blockPos, new ImmutablePair<>(customBlock, tileEntity));
+        tileEntities.put(blockPos, new ImmutablePair<>(dataSerializer, tileEntity));
     }
 
     public void removeTileEntity(BlockPos blockPos, boolean tickable) {
@@ -54,13 +52,28 @@ public class TileEntityHandler {
         return (Optional<T>) Optional.of(tileEntity);
     }
 
-    public void saveAll() {
+    public void saveAll(Logger logger) {
         if(tileEntities.isEmpty())
             return;
 
-        tileEntities.forEach((blockPos, tuple) -> {
-            final IDataSerializer dataSerializer = tuple.getLeft().getDataSerializer();
-            dataSerializer.write(blockPos, tuple.getRight().save(dataSerializer.read(blockPos)));
-        });
+        final long before = System.currentTimeMillis();
+
+        Map<IDataSerializer, Set<Pair<BlockPos, CustomTileEntity>>> data = new HashMap<>();
+        tileEntities.forEach((blockPos, tuple) ->
+                data.computeIfAbsent(tuple.getLeft(), k -> new HashSet<>()).add(new ImmutablePair<>(blockPos, tuple.getRight())));
+
+        int saved = 0;
+        for(Map.Entry<IDataSerializer, Set<Pair<BlockPos, CustomTileEntity>>> entry : data.entrySet()) {
+            final IDataSerializer dataSerializer = entry.getKey();
+
+            for (Pair<BlockPos, CustomTileEntity> pair : entry.getValue()) {
+                dataSerializer.write(pair.getLeft(), pair.getRight().save(dataSerializer.read(pair.getLeft())));
+                saved++;
+            }
+
+            dataSerializer.save(true);
+        }
+
+        logger.info("-> Saved " + saved + " Custom Tile Entities (Took: " + (System.currentTimeMillis() - before) + " ms)");
     }
 }

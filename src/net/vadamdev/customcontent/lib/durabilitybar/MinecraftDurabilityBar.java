@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 
 /**
- * This durability bar use the default minecraft durability bar as display.
+ * This durability bar uses the default minecraft durability bar as display.
  *
  * @author VadamDev
  * @since 23/02/22

@@ -1,10 +1,9 @@
 package net.vadamdev.customcontent.lib.dataserializer;
 
-import net.vadamdev.customcontent.api.blocks.serialization.DataType;
-import net.vadamdev.customcontent.api.blocks.serialization.IDataSerializer;
-import net.vadamdev.customcontent.api.blocks.serialization.ISerializableData;
-import net.vadamdev.customcontent.api.blocks.serialization.SerializableDataCompound;
 import net.vadamdev.customcontent.lib.BlockPos;
+import net.vadamdev.customcontent.lib.serialization.DataType;
+import net.vadamdev.customcontent.lib.serialization.SerializableDataCompound;
+import net.vadamdev.customcontent.lib.serialization.data.ISerializableData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -14,43 +13,59 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * A {@link net.vadamdev.customcontent.api.blocks.serialization.IDataSerializer IDataSerializer} implementation that save data to a {@link FileConfiguration}
+ *
  * @author VadamDev
- * @since 20/09/2022
+ * @since 06/12/2023
  */
-public class FileConfigurationDataSerializer implements IDataSerializer {
+public class FileConfigurationDataSerializer extends AbstractDataSerializer {
     private final FileConfiguration configFile;
-    private final File dataFile;
+    private final File file;
 
-    public FileConfigurationDataSerializer(FileConfiguration configFile, File dataFile) {
+    public FileConfigurationDataSerializer(FileConfiguration configFile, File file, long delay) {
+        super(delay);
+
         this.configFile = configFile;
-        this.dataFile = dataFile;
+        this.file = file;
+    }
+
+    public FileConfigurationDataSerializer(FileConfiguration configFile, File file) {
+        this(configFile, file, 3000);
     }
 
     @Override
     public void write(BlockPos blockPos, SerializableDataCompound dataCompound) {
-        dataCompound.getMapCopy().forEach((key, data) -> {
-            final String strBlockPos = blockPos.toSerializableString();
+        final String strBlockPos = blockPos.toSerializableString();
+
+        for(Map.Entry<String, ISerializableData> entry : dataCompound.getMapCopy().entrySet()) {
+            final String key = entry.getKey();
+            final ISerializableData data = entry.getValue();
 
             configFile.set(strBlockPos + "." + key + "." + "data", data.serialize());
             configFile.set(strBlockPos + "." + key + "." + "type", data.getType().name());
-        });
+        }
+    }
 
-        save();
+    @Override
+    public void remove(BlockPos blockPos) {
+        if(!contains(blockPos))
+            return;
+
+        configFile.set(blockPos.toSerializableString(), null);
     }
 
     @Override
     public SerializableDataCompound read(BlockPos blockPos) {
-        ConfigurationSection section = configFile.getConfigurationSection(blockPos.toSerializableString());
-        SerializableDataCompound compound = new SerializableDataCompound();
-
-        if(section == null)
+        final SerializableDataCompound compound = new SerializableDataCompound();
+        if(!contains(blockPos))
             return compound;
 
-        for (String sectionKey : section.getKeys(false)) {
-            ISerializableData.parseFrom(
-                    DataType.valueOf(section.getString(sectionKey + ".type")),
-                    section.getString(sectionKey + ".data")
-            ).ifPresent(serializableData -> compound.put(sectionKey, serializableData));
+        final ConfigurationSection section = configFile.getConfigurationSection(blockPos.toSerializableString());
+        for (String key : section.getKeys(false)) {
+            final ISerializableData serializableData = ISerializableData.parseFrom(DataType.valueOf(section.getString(key + ".type")), section.getString(key + ".data"));
+
+            if(serializableData != null)
+                compound.put(key, serializableData);
         }
 
         return compound;
@@ -65,11 +80,11 @@ public class FileConfigurationDataSerializer implements IDataSerializer {
 
             final ConfigurationSection section = configFile.getConfigurationSection(strBlockPos);
             if(section != null) {
-                for (String sectionKey : section.getKeys(false)) {
-                    ISerializableData.parseFrom(
-                            DataType.valueOf(section.getString(sectionKey + ".type")),
-                            section.getString(sectionKey + ".data")
-                    ).ifPresent(serializableData -> compound.put(sectionKey, serializableData));
+                for (String key : section.getKeys(false)) {
+                    final ISerializableData serializableData = ISerializableData.parseFrom(DataType.valueOf(section.getString(key + ".type")), section.getString(key + ".data"));
+
+                    if(serializableData != null)
+                        compound.put(key, serializableData);
                 }
             }
 
@@ -80,23 +95,14 @@ public class FileConfigurationDataSerializer implements IDataSerializer {
     }
 
     @Override
-    public void remove(BlockPos blockPos) {
-        if(!contains(blockPos))
-            return;
-
-        configFile.set(blockPos.toSerializableString(), null);
-
-        save();
-    }
-
-    @Override
     public boolean contains(BlockPos blockPos) {
         return configFile.isSet(blockPos.toSerializableString());
     }
 
-    private void save() {
+    @Override
+    protected void save() {
         try {
-            configFile.save(dataFile);
+            configFile.save(file);
         } catch (IOException e) {
             e.printStackTrace();
         }

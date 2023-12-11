@@ -6,26 +6,27 @@ import net.vadamdev.customcontent.internal.handlers.blocks.BlocksHandler;
 import net.vadamdev.customcontent.internal.registry.BlocksRegistry;
 import net.vadamdev.customcontent.lib.BlockPos;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * @author VadamDev
  * @since 28/11/2023
  */
 public class WECustomBlockDelegate extends AbstractCustomBlockDelegate {
-    private final BlocksHandler blocksHandler;
-
     public WECustomBlockDelegate(EditSessionEvent event, BlocksRegistry blocksRegistry, BlocksHandler blocksHandler) {
-        super(event, blocksRegistry);
-
-        this.blocksHandler = blocksHandler;
+        super(event, blocksRegistry, blocksHandler);
     }
 
     @Override
-    protected void placeCustomBlock(BlockPos blockPos, CustomBlock customBlock) {
-        blocksHandler.placeCustomBlock(blockPos, customBlock, false, null, null);
-    }
+    protected CompletableFuture<Boolean> processBlockSet(BlockPos blockPos, CustomBlock customBlock) {
+        breakCustomBlock(blockPos);
 
-    @Override
-    protected void breakCustomBlock(BlockPos blockPos) {
-        blocksHandler.breakCustomBlock(blockPos, false, false, null);
+        boolean result = false;
+        if(customBlock != null) {
+            placeCustomBlock(blockPos, customBlock);
+            result = true;
+        }
+
+        return CompletableFuture.completedFuture(result);
     }
 }

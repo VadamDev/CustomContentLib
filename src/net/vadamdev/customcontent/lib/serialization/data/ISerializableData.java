@@ -1,75 +1,21 @@
-package net.vadamdev.customcontent.api.blocks.serialization;
+package net.vadamdev.customcontent.lib.serialization.data;
 
-import net.vadamdev.customcontent.api.blocks.serialization.primitive.*;
+import net.vadamdev.customcontent.lib.serialization.DataType;
 
-import java.util.Optional;
+import javax.annotation.Nullable;
 
 /**
  * @author VadamDev
  * @since 20/09/2022
  */
 public interface ISerializableData {
-    default String getString() {
-        return null;
-    }
-
-    default boolean getBoolean() {
-        return false;
-    }
-
-    default long getLong() {
-        return 0;
-    }
-
-    default int getInt() {
-        return 0;
-    }
-
-    default short getShort() {
-        return 0;
-    }
-
-    default byte getByte() {
-        return 0;
-    }
-
-    default double getDouble() {
-        return 0.0D;
-    }
-
-    default float getFloat() {
-        return 0.0f;
-    }
-
-    default byte[] getByteArray() {
-        return new byte[0];
-    }
-
-    default int[] getIntArray() {
-        return new int[0];
-    }
-
-    String serialize();
-    DataType getType();
-
-    static Optional<ISerializableData> parseFrom(DataType type, String data) {
+    @Nullable
+    static ISerializableData parseFrom(DataType type, String data) {
         ISerializableData serializableData = null;
 
         switch(type) {
-            case STRING:
-                serializableData = new SerializableString(data);
-                break;
             case BOOLEAN:
                 serializableData = new SerializableBoolean(Boolean.parseBoolean(data));
-                break;
-            case LONG:
-                serializableData = new SerializableLong(Long.parseLong(data));
-                break;
-            case INT:
-                serializableData = new SerializableInt(Integer.parseInt(data));
-                break;
-            case SHORT:
-                serializableData = new SerializableShort(Short.parseShort(data));
                 break;
             case BYTE:
                 serializableData = new SerializableByte(Byte.parseByte(data));
@@ -79,6 +25,18 @@ public interface ISerializableData {
                 break;
             case FLOAT:
                 serializableData = new SerializableFloat(Float.parseFloat(data));
+                break;
+            case INT:
+                serializableData = new SerializableInt(Integer.parseInt(data));
+                break;
+            case LONG:
+                serializableData = new SerializableLong(Long.parseLong(data));
+                break;
+            case SHORT:
+                serializableData = new SerializableShort(Short.parseShort(data));
+                break;
+            case STRING:
+                serializableData = new SerializableString(data);
                 break;
             case INT_ARRAY:
                 String[] split = data.split(":");
@@ -104,6 +62,49 @@ public interface ISerializableData {
                 break;
         }
 
-        return Optional.ofNullable(serializableData);
+        return serializableData;
+    }
+
+    String serialize();
+    DataType getType();
+
+    default String getAsString() {
+        return null;
+    }
+
+    default boolean getAsBoolean() {
+        return false;
+    }
+
+    default long getAsLong() {
+        return 0;
+    }
+
+    default int getAsInt() {
+        return 0;
+    }
+
+    default short getAsShort() {
+        return 0;
+    }
+
+    default byte getAsByte() {
+        return 0;
+    }
+
+    default double getAsDouble() {
+        return 0.0D;
+    }
+
+    default float getAsFloat() {
+        return 0.0f;
+    }
+
+    default byte[] getAsByteArray() {
+        return new byte[0];
+    }
+
+    default int[] getAsIntArray() {
+        return new int[0];
     }
 }

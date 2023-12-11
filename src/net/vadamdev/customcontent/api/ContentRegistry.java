@@ -64,7 +64,7 @@ public interface ContentRegistry {
     boolean isRegistered(String registryName);
 
     /*
-      Deprecated, going be removed soon !
+      Deprecated, going be removed soon!
      */
 
     @Deprecated

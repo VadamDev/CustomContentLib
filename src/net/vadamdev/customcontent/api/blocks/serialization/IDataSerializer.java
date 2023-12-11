@@ -1,13 +1,14 @@
 package net.vadamdev.customcontent.api.blocks.serialization;
 
 import net.vadamdev.customcontent.lib.BlockPos;
+import net.vadamdev.customcontent.lib.serialization.SerializableDataCompound;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Represents a serializer used for {@link net.vadamdev.customcontent.api.blocks.CustomBlock CustomBlock} and {@link net.vadamdev.customcontent.api.blocks.CustomTileEntity CustomTileEntity} serialization
- * <br>See {@link net.vadamdev.customcontent.lib.dataserializer.FileConfigurationDataSerializer FileConfigurationDataSerializer} for implementation example
+ * <br>See {@link net.vadamdev.customcontent.lib.dataserializer.FileConfigurationDataSerializer FileConfigurationDataSerializer} or {@link net.vadamdev.customcontent.lib.dataserializer.JsonDataSerializer JsonDataSerializer} for implementation example
  *
  * @author VadamDev
  * @since 16/09/2022
@@ -38,14 +39,18 @@ public interface IDataSerializer {
         public boolean contains(BlockPos blockPos) {
             return false;
         }
+
+        @Override
+        public void save(boolean force) {}
     };
 
     void write(BlockPos blockPos, SerializableDataCompound dataCompound);
+    void remove(BlockPos blockPos);
 
     SerializableDataCompound read(BlockPos blockPos);
     Map<BlockPos, SerializableDataCompound> readAll();
 
-    void remove(BlockPos blockPos);
-
     boolean contains(BlockPos blockPos);
+
+    void save(boolean force);
 }

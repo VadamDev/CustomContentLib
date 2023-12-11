@@ -1,5 +1,6 @@
 package net.vadamdev.customcontent.internal.handlers.blocks.textures;
 
+import io.netty.util.internal.ConcurrentSet;
 import net.minecraft.server.v1_8_R3.ItemStack;
 import net.vadamdev.customcontent.internal.CustomContentPlugin;
 import net.vadamdev.customcontent.lib.BlockPos;
@@ -9,10 +10,10 @@ import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -28,13 +29,13 @@ public class ChunkyPacketEntityHandler {
     private Updater updater;
 
     public ChunkyPacketEntityHandler(ChunkPos chunkPos, int viewRadius, int period) {
-        this.packetEntities = new HashMap<>();
+        this.packetEntities = new ConcurrentHashMap<>();
         this.chunkX = chunkPos.getX();
         this.chunkZ = chunkPos.getZ();
         this.viewRadius = viewRadius * viewRadius;
         this.period = period;
 
-        this.viewers = new HashSet<>();
+        this.viewers = new ConcurrentSet<>();
     }
 
     public void addEntity(BlockPos blockPos, PacketCustomTexture customTexture) {

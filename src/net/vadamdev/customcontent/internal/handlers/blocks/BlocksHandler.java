@@ -1,7 +1,7 @@
 package net.vadamdev.customcontent.internal.handlers.blocks;
 
 import net.vadamdev.customcontent.api.blocks.*;
-import net.vadamdev.customcontent.api.blocks.serialization.SerializableDataCompound;
+import net.vadamdev.customcontent.api.blocks.serialization.IDataSerializer;
 import net.vadamdev.customcontent.api.common.tickable.ITickable;
 import net.vadamdev.customcontent.internal.CustomContentPlugin;
 import net.vadamdev.customcontent.internal.handlers.blocks.textures.CustomTextureHandler;
@@ -9,6 +9,7 @@ import net.vadamdev.customcontent.internal.impl.CustomContentAPIImpl;
 import net.vadamdev.customcontent.internal.registry.BlocksRegistry;
 import net.vadamdev.customcontent.lib.BlockFlags;
 import net.vadamdev.customcontent.lib.BlockPos;
+import net.vadamdev.customcontent.lib.serialization.SerializableDataCompound;
 import net.vadamdev.viapi.tools.enums.EnumDirection;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -155,9 +156,10 @@ public class BlocksHandler implements Listener {
         }
 
         final SerializableDataCompound compound = new SerializableDataCompound();
+        final IDataSerializer dataSerializer = customBlock.getDataSerializer();
 
         if(customBlock instanceof ITileEntityProvider)
-            tileEntityHandler.addTileEntity(blockPos, customBlock, ((ITileEntityProvider) customBlock).createTileEntity(blockPos));
+            tileEntityHandler.addTileEntity(blockPos, dataSerializer, ((ITileEntityProvider) customBlock).createTileEntity(blockPos));
 
         final Block block = blockPos.getBlock();
 
@@ -174,7 +176,9 @@ public class BlocksHandler implements Listener {
 
         customBlock.onPlace(block, blockPos, player);
 
-        customBlock.getDataSerializer().write(blockPos, compound);
+        dataSerializer.write(blockPos, compound);
+        dataSerializer.save(false);
+
         customBlocks.put(blockPos, customBlock);
 
         return true;
@@ -207,8 +211,9 @@ public class BlocksHandler implements Listener {
         if(customBlock instanceof ICustomTextureHolder)
             customTextureHandler.removeCustomTexture(blockPos);
 
-        if(customBlock.getDataSerializer().contains(blockPos))
-            customBlock.getDataSerializer().remove(blockPos);
+        final IDataSerializer dataSerializer = customBlock.getDataSerializer();
+        dataSerializer.remove(blockPos);
+        dataSerializer.save(false);
 
         customBlocks.remove(blockPos);
 
@@ -221,7 +226,7 @@ public class BlocksHandler implements Listener {
         return true;
     }
 
-    private Optional<CustomBlock> findCustomBlock(BlockPos blockPos) {
+    public Optional<CustomBlock> findCustomBlock(BlockPos blockPos) {
         return Optional.ofNullable(customBlocks.get(blockPos));
     }
 
@@ -235,8 +240,6 @@ public class BlocksHandler implements Listener {
     }
 
     public void loadAll(BlocksRegistry blocksRegistry, Logger logger) {
-        logger.info("-> Unserializing custom blocks (This might take a long time!)");
-
         final long before = System.currentTimeMillis();
 
         int i = 0, j = 0;
@@ -258,7 +261,7 @@ public class BlocksHandler implements Listener {
                     CustomTileEntity tileEntity = ((ITileEntityProvider) customBlock).createTileEntity(blockPos);
                     tileEntity.load(compound);
 
-                    tileEntityHandler.addTileEntity(blockPos, customBlock, tileEntity);
+                    tileEntityHandler.addTileEntity(blockPos, customBlock.getDataSerializer(), tileEntity);
                     j++;
                 }
 
