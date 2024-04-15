@@ -19,7 +19,7 @@ public abstract class CustomFood extends CustomItem {
      *
      * @param player {@link Player} who ate the {@link CustomFood}
      * @param item {@link ItemStack}
-     * @return True if the {@link org.bukkit.event.player.PlayerItemConsumeEvent PlayerItemConsumeEvent} should be cancelled
+     * @return True if the {@link org.bukkit.event.player.PlayerItemConsumeEvent PlayerItemConsumeEvent} should be canceled
      */
     public abstract boolean onEat(Player player, ItemStack item);
 

@@ -24,6 +24,10 @@ public class ChunkPos {
         this(chunk.getWorld(), chunk.getX(), chunk.getZ());
     }
 
+    public boolean isLoaded() {
+        return world.isChunkLoaded(x, z);
+    }
+
     public Chunk getChunk() {
         return world.getChunkAt(x, z);
     }

@@ -1,15 +1,14 @@
-package net.vadamdev.customcontent.internal.handlers.blocks;
+package net.vadamdev.customcontent.internal.handlers.blocks.tileentity;
 
 import net.vadamdev.customcontent.api.common.tickable.ITickable;
 import net.vadamdev.customcontent.internal.CustomContentPlugin;
 import net.vadamdev.customcontent.lib.BlockPos;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class TickableExecutor {
@@ -17,7 +16,7 @@ public class TickableExecutor {
     private final BukkitRunnable updater;
 
     public TickableExecutor(int interval, boolean async) {
-        this.tickableMap = new HashMap<>();
+        this.tickableMap = new ConcurrentHashMap<>();
 
         if(async) {
             this.updater = createAsyncUpdater();
@@ -28,7 +27,7 @@ public class TickableExecutor {
         }
     }
 
-    public void submit(BlockPos blockPos, ITickable tickable) {
+    public void register(BlockPos blockPos, ITickable tickable) {
         tickableMap.put(blockPos, tickable);
     }
 
@@ -58,7 +57,7 @@ public class TickableExecutor {
         return new BukkitRunnable() {
             @Override
             public void run() {
-                CompletableFuture<Stream<Map.Entry<BlockPos, ITickable>>> future = new CompletableFuture<>();
+                final CompletableFuture<Stream<Map.Entry<BlockPos, ITickable>>> future = new CompletableFuture<>();
                 future.whenComplete((stream, throwable) -> stream.forEach(entry -> entry.getValue().tick()));
 
                 Bukkit.getScheduler().runTask(CustomContentPlugin.instance, () -> future.complete(filterCache()));
@@ -67,9 +66,6 @@ public class TickableExecutor {
     }
 
     private Stream<Map.Entry<BlockPos, ITickable>> filterCache() {
-        return tickableMap.entrySet().stream().filter(entry -> {
-            final Chunk chunk = entry.getKey().getChunk();
-            return chunk.getWorld().isChunkLoaded(chunk);
-        });
+        return tickableMap.entrySet().stream().filter(entry -> entry.getKey().isChunkLoaded());
     }
 }

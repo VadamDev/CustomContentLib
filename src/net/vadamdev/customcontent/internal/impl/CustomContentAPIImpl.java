@@ -2,16 +2,17 @@ package net.vadamdev.customcontent.internal.impl;
 
 import net.vadamdev.customcontent.api.ContentRegistry;
 import net.vadamdev.customcontent.api.CustomContentAPI;
+import net.vadamdev.customcontent.api.ModelFactory;
 import net.vadamdev.customcontent.api.RecipeRegistry;
 import net.vadamdev.customcontent.api.blocks.CustomBlock;
 import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
+import net.vadamdev.customcontent.api.blocks.texture.WorldTexture;
 import net.vadamdev.customcontent.internal.handlers.blocks.BlocksHandler;
-import net.vadamdev.customcontent.internal.handlers.blocks.TileEntityHandler;
 import net.vadamdev.customcontent.internal.handlers.blocks.textures.CustomTextureHandler;
+import net.vadamdev.customcontent.internal.handlers.blocks.tileentity.TileEntityHandler;
 import net.vadamdev.customcontent.internal.registry.CommonRegistry;
 import net.vadamdev.customcontent.lib.BlockPos;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
-import net.vadamdev.viapi.tools.enums.EnumDirection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -24,7 +25,7 @@ import java.util.Optional;
  * @author VadamDev
  * @since 08/07/2023
  */
-public final class CustomContentAPIImpl implements CustomContentAPI {
+public class CustomContentAPIImpl implements CustomContentAPI {
     private final CommonRegistry commonRegistry;
 
     private final ContentRegistryImpl contentRegistry;
@@ -34,7 +35,9 @@ public final class CustomContentAPIImpl implements CustomContentAPI {
     private final CustomTextureHandler textureHandler;
     private final TileEntityHandler tileEntityHandler;
 
-    public CustomContentAPIImpl(ContentRegistryImpl contentRegistry, RecipeRegistryImpl recipeRegistry, BlocksHandler blocksHandler, CustomTextureHandler textureHandler, TileEntityHandler tileEntityHandler) {
+    private final ModelFactoryImpl modelFactory;
+
+    public CustomContentAPIImpl(ContentRegistryImpl contentRegistry, RecipeRegistryImpl recipeRegistry, BlocksHandler blocksHandler, CustomTextureHandler textureHandler, TileEntityHandler tileEntityHandler, ModelFactoryImpl modelFactory) {
         this.commonRegistry = contentRegistry.getCommonRegistry();
 
         this.contentRegistry = contentRegistry;
@@ -43,6 +46,8 @@ public final class CustomContentAPIImpl implements CustomContentAPI {
         this.blocksHandler = blocksHandler;
         this.textureHandler = textureHandler;
         this.tileEntityHandler = tileEntityHandler;
+
+        this.modelFactory = modelFactory;
     }
 
     @Override
@@ -53,6 +58,11 @@ public final class CustomContentAPIImpl implements CustomContentAPI {
     @Override
     public RecipeRegistry getRecipeRegistry() {
         return recipeRegistry;
+    }
+
+    @Override
+    public ModelFactory getModelFactory() {
+        return modelFactory;
     }
 
     @Override
@@ -75,15 +85,14 @@ public final class CustomContentAPIImpl implements CustomContentAPI {
         return tileEntityHandler.findTileEntity(blockPos, clazz);
     }
 
-    @Nullable
     @Override
-    public ItemStack getCustomTexture(BlockPos blockPos) {
-        return textureHandler.getCustomTexture(blockPos);
+    public Optional<WorldTexture> getWorldTexture(BlockPos blockPos) {
+        return Optional.ofNullable(textureHandler.getCustomTexture(blockPos));
     }
 
     @Override
-    public void updateCustomTexture(BlockPos blockPos, ItemStack itemStack, @Nullable EnumDirection direction) {
-        textureHandler.updateCustomTexture(blockPos, itemStack, direction);
+    public void applyTextureChanges(BlockPos blockPos, boolean texture, boolean direction) {
+        textureHandler.applyTextureChanges(blockPos, texture, direction);
     }
 
     @Override
@@ -93,11 +102,7 @@ public final class CustomContentAPIImpl implements CustomContentAPI {
 
     @Override
     public boolean isCustomItem(ItemStack itemStack, String registryName) {
-        String theoreticalRegistryName = NBTHelper.getStringInNBTTag(itemStack, "RegistryName");
-        if(theoreticalRegistryName == null)
-            return false;
-
-        return commonRegistry.isRegistered(registryName) && theoreticalRegistryName.equals(registryName);
+        return commonRegistry.isRegistered(registryName) && NBTHelper.getStringInNBTTag(itemStack, "RegistryName").equals(registryName);
     }
 
     @Override

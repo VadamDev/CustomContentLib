@@ -76,9 +76,9 @@ public interface DurabilityProvider {
      * @return A copy of the provided {@link ItemStack} with default durability in it
      */
     default ItemStack setDefaultDurability(ItemStack itemStack) {
-        ItemStack newItemStack = NBTHelper.setInNBTTag(itemStack, compound -> {
-            compound.setInt("Durability", getDefaultDurability());
-            compound.setInt("MaxDurability", getMaxDurability());
+        final ItemStack newItemStack = NBTHelper.setInNBTTag(itemStack, tag -> {
+            tag.setInt("Durability", getDefaultDurability());
+            tag.setInt("MaxDurability", getMaxDurability());
         });
 
         updateDurabilityBar(newItemStack, itemStack.getItemMeta().getLore());
@@ -107,7 +107,7 @@ public interface DurabilityProvider {
      */
     @Nullable
     default ItemStack decreaseDurability(ItemStack itemStack, @Nullable Player player) {
-        int newDurability = getDurability(itemStack) - 1;
+        final int newDurability = getDurability(itemStack) - 1;
 
         if(player != null && newDurability < 1) {
             getBreakAction().accept(player, itemStack);

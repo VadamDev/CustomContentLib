@@ -112,6 +112,24 @@ public abstract class CustomArmorPart implements IRegistrable, DurabilityProvide
         }
     }
 
+    /**
+     * Get the armor material, its basically what armor is made of.
+     * <P>By default, it returns the registry split in alf (iron_chestplate -> iron)
+     *
+     * @return The armor material (i.g: iron)
+     */
+    public String getArmorMaterial() {
+        return getRegistryName().split("_")[0];
+    }
+
+    public ArmorType getArmorType() {
+        return armorType;
+    }
+
+    public ArmorPart getArmorPart() {
+        return armorPart;
+    }
+
     @Nullable
     public ItemStack getRepairMaterial() {
         final Material repairMaterial = armorType.toBukkitMaterial();
@@ -124,15 +142,15 @@ public abstract class CustomArmorPart implements IRegistrable, DurabilityProvide
         return new MinecraftDurabilityBar();
     }
 
-    @Nullable
-    @Override
-    public List<String> getDefaultLore() {
-        return defaultLore;
-    }
-
     @Nonnull
     @Override
     public ItemStack getItemStack() {
         return itemStack;
+    }
+
+    @Nullable
+    @Override
+    public List<String> getDefaultLore() {
+        return defaultLore;
     }
 }

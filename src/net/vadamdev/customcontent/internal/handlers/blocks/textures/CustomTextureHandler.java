@@ -1,60 +1,59 @@
 package net.vadamdev.customcontent.internal.handlers.blocks.textures;
 
+import net.vadamdev.customcontent.api.blocks.texture.AbstractWorldTexture;
+import net.vadamdev.customcontent.api.blocks.texture.IBlockTextureAccessor;
+import net.vadamdev.customcontent.api.blocks.texture.ICustomTextureHolder;
 import net.vadamdev.customcontent.lib.BlockPos;
 import net.vadamdev.customcontent.lib.ChunkPos;
-import net.vadamdev.viapi.tools.enums.EnumDirection;
+import net.vadamdev.customcontent.lib.blocks.BlockDirection;
+import net.vadamdev.customcontent.lib.serialization.SerializableDataCompound;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
+import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author VadamDev
  * @since 05/07/2023
  */
 public class CustomTextureHandler {
+    protected static int VIEW_RADIUS_SQUARED = 0;
+    protected static int UPDATE_PERIOD = 0;
+    protected static boolean OCCLUDING_CHECK_DISABLED = false;
+
     private final Map<ChunkPos, ChunkyPacketEntityHandler> customTextures;
 
-    private final int viewRadius, updatePeriod;
-
     public CustomTextureHandler(ConfigurationSection section) {
-        this.customTextures = new HashMap<>();
+        this.customTextures = new ConcurrentHashMap<>();
 
-        this.viewRadius = section.getInt("viewRadius");
-        this.updatePeriod = section.getInt("updatePeriod");
+        final int viewRadius = section.getInt("viewRadius");
+
+        VIEW_RADIUS_SQUARED = viewRadius * viewRadius;
+        UPDATE_PERIOD = section.getInt("updatePeriod");
+        OCCLUDING_CHECK_DISABLED = !section.getBoolean("occluding");
     }
 
-    public void addCustomTexture(BlockPos blockPos, ItemStack icon, EnumDirection direction) {
+    public void createCustomTexture(BlockPos blockPos, ICustomTextureHolder textureHolder, BlockDirection direction, @Nullable SerializableDataCompound compound) {
+        final AbstractWorldTexture worldTexture = createWorldTexture(blockPos, textureHolder, direction);
+        if(worldTexture == null)
+            return;
+
+        if(compound != null)
+            compound.putString("direction", worldTexture.getDirection().name());
+
         final ChunkPos chunkPos = blockPos.toChunkPos();
-
-        final ChunkyPacketEntityHandler entityHandler = customTextures.computeIfAbsent(chunkPos, k -> new ChunkyPacketEntityHandler(chunkPos, viewRadius, updatePeriod));
-        entityHandler.addEntity(blockPos, new PacketCustomTexture(blockPos.toLocation().add(0.5, 0, 0.5), formatDirection(direction), icon));
-        entityHandler.spawn();
+        customTextures.computeIfAbsent(chunkPos, k -> new ChunkyPacketEntityHandler(chunkPos))
+                .createTexture(blockPos, worldTexture);
     }
 
-    public void updateCustomTexture(BlockPos blockPos, ItemStack icon, EnumDirection direction) {
-        final ChunkPos chunkPos = new ChunkPos(blockPos.getChunk());
-
-        if(!customTextures.containsKey(chunkPos))
-            addCustomTexture(blockPos, icon, direction == null ? EnumDirection.SOUTH : direction);
-        else {
-            final ChunkyPacketEntityHandler handler = customTextures.get(chunkPos);
-
-            handler.updateIcon(blockPos, CraftItemStack.asNMSCopy(icon));
-
-            if(direction != null)
-                handler.updateRotation(blockPos, formatDirection(direction));
-        }
-    }
-
-    public ItemStack getCustomTexture(BlockPos blockPos) {
+    public void applyTextureChanges(BlockPos blockPos, boolean texture, boolean direction) {
         final ChunkPos chunkPos = blockPos.toChunkPos();
         if(!customTextures.containsKey(chunkPos))
-            return null;
+            return;
 
-        return CraftItemStack.asBukkitCopy(customTextures.get(chunkPos).getIcon(blockPos));
+        customTextures.get(chunkPos).applyTextureChanges(blockPos, texture, direction);
     }
 
     public void removeCustomTexture(BlockPos blockPos) {
@@ -62,16 +61,27 @@ public class CustomTextureHandler {
         if(!customTextures.containsKey(chunkPos))
             return;
 
-        if(customTextures.get(chunkPos).removeEntity(blockPos))
+        if(customTextures.get(chunkPos).removeTexture(blockPos))
             customTextures.remove(chunkPos);
     }
 
-    private float formatDirection(EnumDirection direction) {
-        switch(direction) {
-            case NORTH: case EAST: case SOUTH: case WEST:
-                return direction.getYaw();
-            default:
-                return 0f;
-        }
+    public AbstractWorldTexture getCustomTexture(BlockPos blockPos) {
+        final ChunkPos chunkPos = blockPos.toChunkPos();
+        if(!customTextures.containsKey(chunkPos))
+            return null;
+
+        return customTextures.get(chunkPos).getTexture(blockPos);
+    }
+
+    private AbstractWorldTexture createWorldTexture(BlockPos blockPos, ICustomTextureHolder textureHolder, BlockDirection direction) {
+        final IBlockTextureAccessor accessor = textureHolder.getDefaultTexture();
+        if(accessor == null)
+            return null;
+
+        final ItemStack texture = accessor.getTexture();
+        if(texture == null)
+            return null;
+
+        return textureHolder.createWorldTexture(blockPos, direction, accessor);
     }
 }

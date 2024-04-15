@@ -9,9 +9,9 @@ import net.minecraft.server.v1_8_R3.BiomeBase;
 public final class BiomeConstants {
     private BiomeConstants() {}
 
-    public static final BiomeBase[] NETHER = new BiomeBase[] { BiomeBase.HELL };
+    public static final BiomeBase[] END = new BiomeBase[] { BiomeBase.SKY };
 
-    public static final BiomeBase[] OVERWORLD = new BiomeBase[] {
+    public static final BiomeBase[] OVERWORLD_ALL = new BiomeBase[] {
             BiomeBase.OCEAN,
             BiomeBase.PLAINS,
             BiomeBase.DESERT,
@@ -52,5 +52,5 @@ public final class BiomeConstants {
             BiomeBase.MESA_PLATEAU
     };
 
-    public static final BiomeBase[] END = new BiomeBase[] { BiomeBase.SKY };
+    public static final BiomeBase[] NETHER = new BiomeBase[] { BiomeBase.HELL };
 }

@@ -38,14 +38,14 @@ public class ItemsHandler implements Listener {
                 .filter(CustomItem.class::isInstance)
                 .filter(customItem -> customContentAPI.isCustomItem(itemStack, customItem.getRegistryName()))
                 .findFirst().ifPresent(customItem -> {
-                    boolean flag;
+                    boolean shouldCancel;
 
                     if(customItem instanceof CustomFood && ((CustomFood) customItem).isEdibleEvenWithFullHunger())
-                        flag = ((CustomFood) customItem).onEat(event.getPlayer(), itemStack);
+                        shouldCancel = ((CustomFood) customItem).onEat(event.getPlayer(), itemStack);
                     else
-                        flag = ((CustomItem) customItem).onClick(event.getPlayer(), ItemAction.of(event.getAction()), event.getClickedBlock(), event.getBlockFace(), itemStack);
+                        shouldCancel = ((CustomItem) customItem).onClick(event.getPlayer(), ItemAction.of(event.getAction()), event.getClickedBlock(), event.getBlockFace(), itemStack);
 
-                    if(flag)
+                    if(shouldCancel)
                         event.setCancelled(true);
                 });
     }
@@ -62,9 +62,9 @@ public class ItemsHandler implements Listener {
                 .filter(CustomItem.class::isInstance)
                 .filter(customItem -> customContentAPI.isCustomItem(itemStack, customItem.getRegistryName()))
                 .findFirst().ifPresent(customItem -> {
-                    boolean flag = ((CustomItem) customItem).onEntityClick(player, event.getRightClicked(), itemStack);
+                    boolean shouldCancel = ((CustomItem) customItem).onEntityClick(player, event.getRightClicked(), itemStack);
 
-                    if(flag)
+                    if(shouldCancel)
                         event.setCancelled(true);
                 });
     }
@@ -82,9 +82,9 @@ public class ItemsHandler implements Listener {
                     .filter(CustomItem.class::isInstance)
                     .filter(customItem -> customContentAPI.isCustomItem(itemStack, customItem.getRegistryName()))
                     .findFirst().ifPresent(customItem -> {
-                        boolean flag = ((CustomItem) customItem).hurtEntity(damager, event.getEntity(), itemStack);
+                        boolean shouldCancel = ((CustomItem) customItem).hurtEntity(damager, event.getEntity(), itemStack);
 
-                        if(flag)
+                        if(shouldCancel)
                             event.setCancelled(true);
                     });
         }
@@ -102,9 +102,9 @@ public class ItemsHandler implements Listener {
                 .filter(CustomItem.class::isInstance)
                 .filter(customItem -> customContentAPI.isCustomItem(itemStack, customItem.getRegistryName()))
                 .findFirst().ifPresent(customItem -> {
-                    boolean flag = ((CustomItem) customItem).mineBlock(player, event.getBlock(), event.getExpToDrop(), itemStack);
+                    boolean shouldCancel = ((CustomItem) customItem).mineBlock(player, event.getBlock(), event.getExpToDrop(), itemStack);
 
-                    if(flag)
+                    if(shouldCancel)
                         event.setCancelled(true);
                 });
     }
@@ -120,9 +120,9 @@ public class ItemsHandler implements Listener {
                 .filter(CustomFood.class::isInstance)
                 .filter(customItem -> customContentAPI.isCustomItem(itemStack, customItem.getRegistryName()))
                 .findFirst().ifPresent(customItem -> {
-                    boolean flag = ((CustomFood) customItem).onEat(event.getPlayer(), itemStack);
+                    boolean shouldCancel = ((CustomFood) customItem).onEat(event.getPlayer(), itemStack);
 
-                    if(flag)
+                    if(shouldCancel)
                         event.setCancelled(true);
                 });
     }

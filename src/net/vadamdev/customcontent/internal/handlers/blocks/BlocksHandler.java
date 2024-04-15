@@ -1,16 +1,21 @@
 package net.vadamdev.customcontent.internal.handlers.blocks;
 
-import net.vadamdev.customcontent.api.blocks.*;
+import net.vadamdev.customcontent.api.blocks.CustomBlock;
+import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
+import net.vadamdev.customcontent.api.blocks.IBlockFlagHolder;
+import net.vadamdev.customcontent.api.blocks.ITileEntityProvider;
 import net.vadamdev.customcontent.api.blocks.serialization.IDataSerializer;
+import net.vadamdev.customcontent.api.blocks.texture.ICustomTextureHolder;
 import net.vadamdev.customcontent.api.common.tickable.ITickable;
 import net.vadamdev.customcontent.internal.CustomContentPlugin;
 import net.vadamdev.customcontent.internal.handlers.blocks.textures.CustomTextureHandler;
+import net.vadamdev.customcontent.internal.handlers.blocks.tileentity.TileEntityHandler;
 import net.vadamdev.customcontent.internal.impl.CustomContentAPIImpl;
 import net.vadamdev.customcontent.internal.registry.BlocksRegistry;
-import net.vadamdev.customcontent.lib.BlockFlags;
 import net.vadamdev.customcontent.lib.BlockPos;
+import net.vadamdev.customcontent.lib.blocks.BlockDirection;
+import net.vadamdev.customcontent.lib.blocks.BlockFlags;
 import net.vadamdev.customcontent.lib.serialization.SerializableDataCompound;
-import net.vadamdev.viapi.tools.enums.EnumDirection;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -26,7 +31,11 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
@@ -49,7 +58,7 @@ public class BlocksHandler implements Listener {
         this.tileEntityHandler = tileEntityHandler;
         this.customTextureHandler = customTextureHandler;
 
-        this.customBlocks = new HashMap<>();
+        this.customBlocks = new ConcurrentHashMap<>();
 
         this.loaded = false;
     }
@@ -97,7 +106,8 @@ public class BlocksHandler implements Listener {
             });
         }
 
-        event.blockList().removeAll(toRemove);
+        if(!toRemove.isEmpty())
+            event.blockList().removeAll(toRemove);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -110,18 +120,18 @@ public class BlocksHandler implements Listener {
         findCustomBlock(blockPos).ifPresent(customBlock -> {
             final Player player = event.getPlayer();
 
-            boolean flag;
+            boolean shouldCancel;
 
             if(action.equals(Action.RIGHT_CLICK_BLOCK))
-                flag = customBlock.onInteract(event.getClickedBlock(), blockPos, player);
+                shouldCancel = customBlock.onInteract(event.getClickedBlock(), blockPos, player);
             else {
-                flag = customBlock.tryBreak(event.getClickedBlock(), blockPos, player);
+                shouldCancel = customBlock.tryBreak(event.getClickedBlock(), blockPos, player);
 
-                if(!flag && player.getGameMode().equals(GameMode.SURVIVAL))
+                if(!shouldCancel && player.getGameMode().equals(GameMode.SURVIVAL))
                     breakCustomBlock(blockPos, customBlock, true, true, player);
             }
 
-            if(flag)
+            if(shouldCancel)
                 event.setCancelled(true);
         });
     }
@@ -138,7 +148,7 @@ public class BlocksHandler implements Listener {
             event.setCancelled(true);
     }
 
-    public boolean placeCustomBlock(BlockPos blockPos, CustomBlock customBlock, boolean checkValidity, @Nullable Player player, @Nullable Cancellable event) {
+    public synchronized boolean placeCustomBlock(BlockPos blockPos, CustomBlock customBlock, boolean checkValidity, @Nullable Player player, @Nullable Cancellable event) {
         if(!loaded) {
             CustomContentPlugin.instance.getLogger().warning("Someone tried to place a block before CCL finished loading !");
 
@@ -156,23 +166,25 @@ public class BlocksHandler implements Listener {
         }
 
         final SerializableDataCompound compound = new SerializableDataCompound();
-        final IDataSerializer dataSerializer = customBlock.getDataSerializer();
-
-        if(customBlock instanceof ITileEntityProvider)
-            tileEntityHandler.addTileEntity(blockPos, dataSerializer, ((ITileEntityProvider) customBlock).createTileEntity(blockPos));
-
         final Block block = blockPos.getBlock();
 
         if(customBlock instanceof ICustomTextureHolder) {
             final ICustomTextureHolder textureHolder = (ICustomTextureHolder) customBlock;
-            final EnumDirection direction = player != null ? textureHolder.getBlockRotation(blockPos, player) : EnumDirection.SOUTH;
 
-            customTextureHandler.addCustomTexture(blockPos, textureHolder.createTextureIcon(textureHolder.getDefaultTexture()), direction);
-            compound.putString("direction", direction.name());
+            customTextureHandler.createCustomTexture(
+                    blockPos,
+                    textureHolder,
+                    player != null ? textureHolder.getBlockDirection(blockPos, player) : BlockDirection.SOUTH,
+                    compound
+            );
 
             block.setType(Material.BARRIER);
         }else
             block.setType(customBlock.getBlockMaterial());
+
+        final IDataSerializer dataSerializer = customBlock.getDataSerializer();
+        if(customBlock instanceof ITileEntityProvider)
+            tileEntityHandler.addTileEntity(blockPos, dataSerializer, ((ITileEntityProvider) customBlock).createTileEntity(blockPos));
 
         customBlock.onPlace(block, blockPos, player);
 
@@ -184,7 +196,7 @@ public class BlocksHandler implements Listener {
         return true;
     }
 
-    public boolean breakCustomBlock(BlockPos blockPos, boolean checkValidity, boolean drop, @Nullable Entity entity) {
+    public synchronized boolean breakCustomBlock(BlockPos blockPos, boolean checkValidity, boolean drop, @Nullable Entity entity) {
         final CustomBlock customBlock = findCustomBlock(blockPos).orElse(null);
         if(customBlock == null)
             return false;
@@ -192,7 +204,7 @@ public class BlocksHandler implements Listener {
         return breakCustomBlock(blockPos, customBlock, checkValidity, drop, entity);
     }
 
-    private boolean breakCustomBlock(BlockPos blockPos, CustomBlock customBlock, boolean checkValidity, boolean drop, @Nullable Entity entity) {
+    private synchronized boolean breakCustomBlock(BlockPos blockPos, CustomBlock customBlock, boolean checkValidity, boolean drop, @Nullable Entity entity) {
         if(!loaded) {
             CustomContentPlugin.instance.getLogger().warning("Someone tried to break a block before CCL finished loading !");
             return false;
@@ -231,8 +243,8 @@ public class BlocksHandler implements Listener {
     }
 
     private boolean hasBlockFlag(IBlockFlagHolder blockFlagOwner, BlockFlags... flags) {
-        for (BlockFlags flag1 : blockFlagOwner.getFlags()) for (BlockFlags flag2 : flags) {
-            if(flag1.equals(flag2))
+        for (BlockFlags a : blockFlagOwner.getFlags()) for (BlockFlags b : flags) {
+            if(a.equals(b))
                 return true;
         }
 
@@ -251,14 +263,16 @@ public class BlocksHandler implements Listener {
                 customBlocks.put(blockPos, customBlock);
 
                 if(customBlock instanceof ICustomTextureHolder) {
-                    final ICustomTextureHolder textureHolder = (ICustomTextureHolder) customBlock;
-
-                    final EnumDirection direction = compound.containsKey("direction") ? EnumDirection.valueOf(compound.getString("direction")) : EnumDirection.SOUTH;
-                    customTextureHandler.addCustomTexture(blockPos, textureHolder.createTextureIcon(textureHolder.getDefaultTexture()), direction);
+                    customTextureHandler.createCustomTexture(
+                            blockPos,
+                            (ICustomTextureHolder) customBlock,
+                            compound.containsKey("direction") ? BlockDirection.valueOf(compound.getString("direction")) : BlockDirection.SOUTH,
+                            null
+                    );
                 }
 
                 if(customBlock instanceof ITileEntityProvider) {
-                    CustomTileEntity tileEntity = ((ITileEntityProvider) customBlock).createTileEntity(blockPos);
+                    final CustomTileEntity tileEntity = ((ITileEntityProvider) customBlock).createTileEntity(blockPos);
                     tileEntity.load(compound);
 
                     tileEntityHandler.addTileEntity(blockPos, customBlock.getDataSerializer(), tileEntity);

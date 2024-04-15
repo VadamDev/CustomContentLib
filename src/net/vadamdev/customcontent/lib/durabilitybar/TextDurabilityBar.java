@@ -16,7 +16,7 @@ public class TextDurabilityBar implements IDurabilityBar {
 
     @Override
     public String createDurabilityBar(int durability, int maxDurability) {
-        return text.replace("%durability%", durability+"").replace("%max_durability%", maxDurability+"");
+        return text.replace("%durability%", String.valueOf(durability)).replace("%max_durability%", String.valueOf(maxDurability));
     }
 
     @Override

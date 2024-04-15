@@ -41,8 +41,8 @@ public class FileConfigurationDataSerializer extends AbstractDataSerializer {
             final String key = entry.getKey();
             final ISerializableData data = entry.getValue();
 
-            configFile.set(strBlockPos + "." + key + "." + "data", data.serialize());
             configFile.set(strBlockPos + "." + key + "." + "type", data.getType().name());
+            configFile.set(strBlockPos + "." + key + "." + "data", data.serialize());
         }
     }
 

@@ -34,16 +34,17 @@ public abstract class CustomSpawnEgg extends CustomItem {
 
     @Override
     public boolean onClick(Player player, ItemAction action, @Nullable Block block, @Nullable BlockFace blockFace, ItemStack item) {
-        if(action.equals(ItemAction.RIGHT_CLICK_BLOCK)) {
-            if(!player.getGameMode().equals(GameMode.CREATIVE)) {
-                if (player.getItemInHand().getAmount() == 1)
-                    player.getEquipment().setItemInHand(null);
-                else
-                    player.getItemInHand().setAmount(player.getItemInHand().getAmount() - 1);
-            }
+        if(!action.equals(ItemAction.RIGHT_CLICK_BLOCK))
+            return false;
 
-            container.spawn(block.getRelative(blockFace).getLocation().clone().add(0.5, 0, 0.5), CreatureSpawnEvent.SpawnReason.SPAWNER_EGG);
+        if(!player.getGameMode().equals(GameMode.CREATIVE)) {
+            if (player.getItemInHand().getAmount() == 1)
+                player.getEquipment().setItemInHand(null);
+            else
+                player.getItemInHand().setAmount(player.getItemInHand().getAmount() - 1);
         }
+
+        container.spawn(block.getRelative(blockFace).getLocation().clone().add(0.5, 0, 0.5), CreatureSpawnEvent.SpawnReason.SPAWNER_EGG);
 
         return true;
     }

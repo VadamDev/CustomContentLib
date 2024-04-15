@@ -35,7 +35,7 @@ public class ArmorsHandler implements Listener {
 
         final Player player = (Player) event.getEntity();
         for (ItemStack itemStack : player.getEquipment().getArmorContents()) {
-            if(itemStack == null || itemStack.getType().equals(Material.AIR))
+            if(itemStack == null || itemStack.getType().equals(Material.AIR) || !itemStack.hasItemMeta())
                 continue;
 
             commonRegistry.getCustomItems().stream()

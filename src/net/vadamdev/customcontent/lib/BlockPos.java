@@ -5,6 +5,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.util.Vector;
 
 import java.util.Objects;
 
@@ -25,16 +26,24 @@ public class BlockPos {
         this.z = z;
     }
 
-    public BlockPos(Location location) {
-        this(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
-    }
-
     public BlockPos(Block block) {
         this(block.getWorld(), block.getX(), block.getY(), block.getZ());
     }
 
+    public BlockPos(Location location) {
+        this(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    }
+
+    public BlockPos(World world, Vector vector) {
+        this(world, (int) vector.getX(), (int) vector.getY(), (int) vector.getZ());
+    }
+
     public Chunk getChunk() {
         return world.getChunkAt(x >> 4, z >> 4);
+    }
+
+    public boolean isChunkLoaded() {
+        return world.isChunkLoaded(x >> 4, z >> 4);
     }
 
     public Block getBlock() {
@@ -63,6 +72,10 @@ public class BlockPos {
 
     public Location toLocation() {
         return new Location(world, x, y, z);
+    }
+
+    public Vector toVector() {
+        return new Vector(x, y, z);
     }
 
     public String toSerializableString() {

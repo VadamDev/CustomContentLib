@@ -3,12 +3,13 @@ package net.vadamdev.customcontent.internal;
 import net.vadamdev.customcontent.api.CustomContentAPI;
 import net.vadamdev.customcontent.internal.handlers.CraftHandler;
 import net.vadamdev.customcontent.internal.handlers.blocks.BlocksHandler;
-import net.vadamdev.customcontent.internal.handlers.blocks.TileEntityHandler;
 import net.vadamdev.customcontent.internal.handlers.blocks.textures.CustomTextureHandler;
+import net.vadamdev.customcontent.internal.handlers.blocks.tileentity.TileEntityHandler;
 import net.vadamdev.customcontent.internal.handlers.items.ArmorsHandler;
 import net.vadamdev.customcontent.internal.handlers.items.ItemsHandler;
 import net.vadamdev.customcontent.internal.impl.ContentRegistryImpl;
 import net.vadamdev.customcontent.internal.impl.CustomContentAPIImpl;
+import net.vadamdev.customcontent.internal.impl.ModelFactoryImpl;
 import net.vadamdev.customcontent.internal.impl.RecipeRegistryImpl;
 import net.vadamdev.customcontent.internal.integration.Integrations;
 import net.vadamdev.customcontent.internal.registry.BlocksRegistry;
@@ -37,6 +38,8 @@ public class CustomContentPlugin extends VIPlugin {
     private ItemsRegistry itemsRegistry;
     private BlocksRegistry blocksRegistry;
     private EntitiesRegistry entitiesRegistry;
+
+    private ModelFactoryImpl modelFactory;
 
     private ITickableManager tickableManager;
     private CustomTextureHandler textureHandler;
@@ -72,6 +75,8 @@ public class CustomContentPlugin extends VIPlugin {
 
         logger.info("-> Registries loaded");
 
+        modelFactory = new ModelFactoryImpl(getDataFolder());
+
         tileEntityHandler = new TileEntityHandler();
         entitiesRegistry = new EntitiesRegistry();
 
@@ -79,8 +84,7 @@ public class CustomContentPlugin extends VIPlugin {
         textureHandler = new CustomTextureHandler(config.getConfigurationSection("customTextures"));
 
         logger.info("-> Managers loaded");
-
-
+        
         itemsHandler = new ItemsHandler(commonRegistry);
         armorsHandler = new ArmorsHandler(commonRegistry);
         blocksHandler = new BlocksHandler(blocksRegistry, tileEntityHandler, textureHandler);
@@ -90,7 +94,7 @@ public class CustomContentPlugin extends VIPlugin {
         //API Initialization
         final ContentRegistryImpl contentRegistry = new ContentRegistryImpl(commonRegistry, itemsRegistry, blocksRegistry, entitiesRegistry);
         recipeRegistry = new RecipeRegistryImpl();
-        customContentAPI = new CustomContentAPIImpl(contentRegistry, recipeRegistry, blocksHandler, textureHandler, tileEntityHandler);
+        customContentAPI = new CustomContentAPIImpl(contentRegistry, recipeRegistry, blocksHandler, textureHandler, tileEntityHandler, modelFactory);
 
         itemsHandler.customContentAPI = customContentAPI;
         armorsHandler.customContentAPI = customContentAPI;
@@ -108,6 +112,9 @@ public class CustomContentPlugin extends VIPlugin {
 
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
             logger.info("Loading post world features...");
+
+            //TODO: remove debug
+            modelFactory.bakeModels();
 
             entitiesRegistry.complete(logger);
             recipeRegistry.complete(getServer());
@@ -157,8 +164,16 @@ public class CustomContentPlugin extends VIPlugin {
         return tickableManager;
     }
 
+    public CustomTextureHandler getTextureHandler() {
+        return textureHandler;
+    }
+
     public RecipeRegistryImpl getRecipeRegistry() {
         return recipeRegistry;
+    }
+
+    public ModelFactoryImpl getModelFactory() {
+        return modelFactory;
     }
 
     public BlocksHandler getBlocksHandler() {

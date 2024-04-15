@@ -30,7 +30,7 @@ public class CustomContentCommand extends PermissionCommand {
     @Override
     public boolean executePermissionCommand(CommandSender sender, String label, String[] args) {
         if(sender instanceof Player) {
-            Player player = (Player) sender;
+            final Player player = (Player) sender;
 
             if(args.length == 2 && (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get"))) {
                 final ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
