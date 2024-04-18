@@ -1,17 +1,15 @@
 package net.vadamdev.customcontent.lib.dataserializer;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import net.vadamdev.customcontent.lib.BlockPos;
 import net.vadamdev.customcontent.lib.serialization.DataType;
 import net.vadamdev.customcontent.lib.serialization.SerializableDataCompound;
 import net.vadamdev.customcontent.lib.serialization.data.ISerializableData;
+import net.vadamdev.customcontent.lib.utils.JSONUtils;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +20,6 @@ import java.util.Map;
  * @since 08/12/2023
  */
 public class JsonDataSerializer extends AbstractDataSerializer {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-
     private final File file;
 
     private final JSONObject jsonObject;
@@ -32,7 +28,15 @@ public class JsonDataSerializer extends AbstractDataSerializer {
         super(delay);
 
         this.file = file;
-        this.jsonObject = parseFile(file);
+
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = JSONUtils.readFile(file, JSONObject.class);
+        }catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
+        this.jsonObject = jsonObject;
     }
 
     @Override
@@ -113,32 +117,9 @@ public class JsonDataSerializer extends AbstractDataSerializer {
     @Override
     protected void save() {
         try {
-            final BufferedWriter writter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8));
-            writter.write(GSON.toJson(jsonObject));
-            writter.close();
+            JSONUtils.saveJSONAwareToFile(jsonObject, file);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    private static JSONObject parseFile(File file) {
-        try {
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
-            final StringBuilder jsonString = new StringBuilder();
-
-            String line;
-            while((line = reader.readLine()) != null)
-                jsonString.append(line);
-
-            reader.close();
-
-            if(jsonString.toString().isEmpty())
-                return new JSONObject();
-
-            return (JSONObject) new JSONParser().parse(jsonString.toString());
-        }catch (IOException | ParseException e) {
-            e.printStackTrace();
-            return new JSONObject();
         }
     }
 }

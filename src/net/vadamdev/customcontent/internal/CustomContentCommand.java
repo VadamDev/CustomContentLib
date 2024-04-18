@@ -1,5 +1,6 @@
 package net.vadamdev.customcontent.internal;
 
+import net.vadamdev.customcontent.api.CustomContentAPI;
 import net.vadamdev.customcontent.internal.registry.CommonRegistry;
 import net.vadamdev.viapi.tools.commands.PermissionCommand;
 import org.bukkit.Bukkit;
@@ -32,15 +33,25 @@ public class CustomContentCommand extends PermissionCommand {
         if(sender instanceof Player) {
             final Player player = (Player) sender;
 
-            if(args.length == 2 && (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get"))) {
-                final ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
+            if(args.length == 2) {
+                if(args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get")) {
+                    final ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
 
-                if(item != null)
-                    player.getInventory().addItem(item);
-                else
-                    player.sendMessage("§3CustomContentLib §f» §c" + args[1] + " doesn't exist !");
+                    if(item != null)
+                        player.getInventory().addItem(item);
+                    else
+                        player.sendMessage("§3CustomContentLib §f» §c" + args[1] + " doesn't exist !");
 
-                return true;
+                    return true;
+                }else if(args[0].equalsIgnoreCase("resources")) {
+                    if(args[1].equalsIgnoreCase("zip")) {
+                        player.sendMessage("§3CustomContentLib §f» §7Started resourcepack creation... See console for more informations");
+                        CustomContentAPI.get().getModelFactory().bakeModels();
+                        player.sendMessage("§3CustomContentLib §f» §aResourcepack created !");
+
+                        return true;
+                    }
+                }
             }else if(args.length == 3 && (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get"))) {
                 if(Bukkit.getPlayer(args[2]) == null) {
                     final ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
@@ -135,11 +146,15 @@ public class CustomContentCommand extends PermissionCommand {
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
         if(args.length == 1) {
-            return Stream.of("get", "give").filter(s -> StringUtil.startsWithIgnoreCase(s, args[0])).collect(Collectors.toList());
-        }else if(args.length == 2 && (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get"))) {
-            return commonRegistry.getCustomItemstacks().keySet().parallelStream()
-                    .filter(registryName -> StringUtil.startsWithIgnoreCase(registryName, args[1]))
-                    .collect(Collectors.toList());
+            return Stream.of("get", "give", "resources").filter(s -> StringUtil.startsWithIgnoreCase(s, args[0])).collect(Collectors.toList());
+        }else if(args.length == 2) {
+            if(args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get")) {
+                return commonRegistry.getCustomItemstacks().keySet().parallelStream()
+                        .filter(registryName -> StringUtil.startsWithIgnoreCase(registryName, args[1]))
+                        .collect(Collectors.toList());
+            }else if(args[0].equalsIgnoreCase("resources")) {
+                return Collections.singletonList("zip");
+            }
         }
 
         return super.tabComplete(sender, alias, args);

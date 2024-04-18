@@ -1,5 +1,7 @@
 package net.vadamdev.customcontent.api.resourcepack;
 
+import net.vadamdev.customcontent.annotations.Experimental;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -9,6 +11,7 @@ import java.io.IOException;
  * @author VadamDev
  * @since 11/02/2024
  */
+@Experimental
 public interface Model {
     String MCPATCHER_DIR = "assets/minecraft/mcpatcher/cit";
     String ITEMS_DIR = MCPATCHER_DIR + "/items";

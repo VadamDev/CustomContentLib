@@ -113,9 +113,6 @@ public class CustomContentPlugin extends VIPlugin {
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
             logger.info("Loading post world features...");
 
-            //TODO: remove debug
-            modelFactory.bakeModels();
-
             entitiesRegistry.complete(logger);
             recipeRegistry.complete(getServer());
 

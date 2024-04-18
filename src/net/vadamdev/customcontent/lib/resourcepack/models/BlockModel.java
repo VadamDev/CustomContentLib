@@ -4,6 +4,7 @@ import net.vadamdev.customcontent.api.blocks.CustomBlock;
 import net.vadamdev.customcontent.api.blocks.texture.IBlockTextureAccessor;
 import net.vadamdev.customcontent.api.resourcepack.RegistrableModel;
 import net.vadamdev.customcontent.lib.resourcepack.MCPatcher;
+import net.vadamdev.customcontent.lib.utils.ModelsUtils;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import net.vadamdev.viapi.tools.builders.ItemBuilder;
 import org.apache.commons.io.FileUtils;
@@ -26,23 +27,13 @@ public class BlockModel implements RegistrableModel, IBlockTextureAccessor {
     private final CustomBlock customBlock;
     private final String registryName;
 
-    private final File blockTexture, blockModel;
-    private File blockMCPatcher;
+    private final File blockTexture;
+    private File blockModel, blockMCPatcher;
 
-    private final File itemBlockTexture, itemBlockModel;
-    private File itemBlockMCPatcher;
+    private final File itemBlockTexture;
+    private File itemBlockModel, itemBlockMCPatcher;
 
     private final ItemStack icon;
-
-    /*
-       custom_block.png = texture
-       custom_block.json = model (optional -> auto generated)
-       custom_block.properties = mcpatcher (optional -> auto generated)
-
-       custom_block_item.png = texture (optional)
-       custom_block_item.json = model (optional -> auto generated)
-       custom_block_item.properties = mcpatcher (optional -> auto generated)
-     */
 
     public BlockModel(CustomBlock customBlock, File blockTexture, File blockModel, File blockMCPatcher, File itemBlockTexture, File itemBlockModel, File itemBlockMCPatcher) {
         this.customBlock = customBlock;
@@ -61,43 +52,46 @@ public class BlockModel implements RegistrableModel, IBlockTextureAccessor {
 
     @Override
     public void make(File packRootDir) throws IOException {
+        if(blockTexture == null && blockModel == null)
+            throw new IOException(""); //TODO: fill
+
         /*
            Block
          */
 
         if(blockTexture != null)
             FileUtils.copyFile(blockTexture, new File(packRootDir, createPath(blockTexture)));
-        else {
-            //TODO: create default block texture
-        }
 
         if(blockModel != null)
             FileUtils.copyFile(blockModel, new File(packRootDir, createPath(blockModel)));
-        else {
-            //TODO: create default block model
-        }
+        else
+            blockModel = ModelsUtils.generateBlockModel(registryName, new File(packRootDir, createPath(blockTexture, registryName + ".json")));
 
         if(blockMCPatcher != null)
             FileUtils.copyFile(blockMCPatcher, new File(packRootDir, createPath(blockMCPatcher)));
         else
-            blockMCPatcher = createBlockMCPatcherFile(new File(packRootDir, createPath(blockTexture).replace(blockTexture.getName(), "") + registryName + ".properties"));
+            blockMCPatcher = createBlockMCPatcherFile(new File(packRootDir, createPath(blockModel, registryName + ".properties")));
 
         /*
            Item Block
          */
 
-        if(itemBlockTexture != null) {
+        if(itemBlockTexture != null)
+            FileUtils.copyFile(itemBlockTexture, new File(packRootDir, createPath(itemBlockTexture)));
 
-        }
-
-        if(itemBlockModel != null) {
-
+        if(itemBlockModel != null)
+            FileUtils.copyFile(itemBlockModel, new File(packRootDir, createPath(itemBlockModel)));
+        else {
+            if(itemBlockTexture == null)
+                itemBlockModel = ModelsUtils.generateItemBlockModel(registryName, new File(packRootDir, createPath(blockModel, registryName + "_item.json")));
+            else
+                itemBlockModel = ModelsUtils.generate2DItemBlockModel(registryName, new File(packRootDir, createPath(blockModel, registryName + "_item.json")));
         }
 
         if(itemBlockMCPatcher != null)
             FileUtils.copyFile(itemBlockMCPatcher, new File(packRootDir, createPath(itemBlockMCPatcher)));
         else
-            itemBlockMCPatcher = createItemBlockMCPatcherFile(new File(packRootDir, createPath(itemBlockTexture).replace(itemBlockTexture.getName(), "") + registryName + "_item.properties"));
+            itemBlockMCPatcher = createItemBlockMCPatcherFile(new File(packRootDir, createPath(blockModel, registryName + "_item.properties")));
     }
 
     protected File createBlockMCPatcherFile(File file) throws IOException {
@@ -112,6 +106,10 @@ public class BlockModel implements RegistrableModel, IBlockTextureAccessor {
                 .model(FilenameUtils.removeExtension(itemBlockModel.getName()))
                 .registryName(registryName)
                 .createFile(file);
+    }
+
+    protected String createPath(File file, String name) {
+        return createPath(file).replace(file.getName(), "") + name;
     }
 
     protected String createPath(File file) {

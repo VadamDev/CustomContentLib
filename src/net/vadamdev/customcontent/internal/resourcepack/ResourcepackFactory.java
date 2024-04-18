@@ -21,6 +21,8 @@ public class ResourcepackFactory {
     private final Logger logger;
     private final List<Model> models;
 
+    private boolean appliedOverrides;
+
     public ResourcepackFactory(Logger logger, List<Model> models) {
         this.logger = logger;
         this.models = new ArrayList<>(models);
@@ -49,6 +51,9 @@ public class ResourcepackFactory {
     }
 
     public void makeModels(File outDir) {
+        if(models.isEmpty())
+            return;
+
         logger.info("-> Baking models...");
 
         for (Model model : models) {
@@ -67,6 +72,8 @@ public class ResourcepackFactory {
         try {
             FileUtils.copyDirectory(overrideDir, outDir);
             logger.info("-> Applied overrides");
+
+            appliedOverrides = true;
         }catch (IOException e) {
             logger.severe("Failed to apply overrides:");
             e.printStackTrace();
@@ -74,6 +81,9 @@ public class ResourcepackFactory {
     }
 
     public void packResources(File outDir) {
+        if(models.isEmpty() && !appliedOverrides)
+            return;
+
         logger.info("-> Zipping resourcepack...");
 
         //TODO: ZIP outdir content

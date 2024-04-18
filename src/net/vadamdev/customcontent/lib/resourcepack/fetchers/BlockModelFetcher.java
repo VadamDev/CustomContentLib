@@ -4,6 +4,7 @@ import net.vadamdev.customcontent.api.blocks.CustomBlock;
 import net.vadamdev.customcontent.api.common.IRegistrable;
 import net.vadamdev.customcontent.api.resourcepack.IModelFetcher;
 import net.vadamdev.customcontent.api.resourcepack.Model;
+import net.vadamdev.customcontent.lib.resourcepack.models.BlockModel;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.annotation.Nonnull;
@@ -48,13 +49,50 @@ public class BlockModelFetcher implements IModelFetcher {
                 .filter(CustomBlock.class::isInstance)
                 .filter(registrable -> contentNames.contains(registrable.getRegistryName()))
                 .map(CustomBlock.class::cast)
-                .flatMap(customBlock -> collectBlockModel(customBlock, content).stream())
+                .map(customBlock -> collectBlockModel(customBlock, content))
                 .collect(Collectors.toList());
     }
 
-    private List<Model> collectBlockModel(CustomBlock customBlock, List<File> content) {
+    private Model collectBlockModel(CustomBlock customBlock, List<File> content) {
+        final String registryName = customBlock.getRegistryName();
 
+        File blockTexture = null, blockModel = null, blockMCPatcher = null;
+        File itemBlockTexture = null, itemBlockModel = null, itemBlockMCPatcher = null;
 
-        return Collections.emptyList();
+        for(File file : content) {
+            final String fileName = file.getName();
+            if(!fileName.startsWith(registryName))
+                continue;
+
+            final boolean isItemBlock = FilenameUtils.removeExtension(fileName).endsWith("_item");
+
+            switch(FilenameUtils.getExtension(fileName)) {
+                case "png":
+                    if(isItemBlock)
+                        itemBlockTexture = file;
+                    else
+                        blockTexture = file;
+
+                    break;
+                case "json":
+                    if(isItemBlock)
+                        itemBlockModel = file;
+                    else
+                        blockModel = file;
+
+                    break;
+                case "properties":
+                    if(isItemBlock)
+                        itemBlockMCPatcher = file;
+                    else
+                        blockMCPatcher = file;
+
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return new BlockModel(customBlock, blockTexture, blockModel, blockMCPatcher, itemBlockTexture, itemBlockModel, itemBlockMCPatcher);
     }
 }

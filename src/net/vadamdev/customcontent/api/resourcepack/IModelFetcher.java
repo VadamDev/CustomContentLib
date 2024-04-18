@@ -1,5 +1,6 @@
 package net.vadamdev.customcontent.api.resourcepack;
 
+import net.vadamdev.customcontent.annotations.Experimental;
 import net.vadamdev.customcontent.api.common.IRegistrable;
 
 import javax.annotation.Nonnull;
@@ -18,6 +19,7 @@ import java.util.List;
  * @author VadamDev
  * @since 23/02/2024
  */
+@Experimental
 public interface IModelFetcher {
     /**
      * Called when CustomContentLib want to get all models before preparing a resourcepack

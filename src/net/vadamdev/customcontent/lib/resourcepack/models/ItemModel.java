@@ -48,7 +48,7 @@ public class ItemModel implements RegistrableModel {
         if(mcPatcher != null)
             FileUtils.copyFile(mcPatcher, new File(packRootDir, createPath(mcPatcher)));
         else
-            mcPatcher = createMCPatcherFile(new File(packRootDir, createPath(texture).replace(texture.getName(), "") + registryName + ".properties"));
+            mcPatcher = createMCPatcherFile(new File(packRootDir, createPath(texture, registryName + ".properties")));
     }
 
     protected File createMCPatcherFile(File file) throws IOException {
@@ -56,6 +56,10 @@ public class ItemModel implements RegistrableModel {
                 .texture(texture.getName())
                 .registryName(registryName)
                 .createFile(file);
+    }
+
+    protected String createPath(File file, String name) {
+        return createPath(file).replace(file.getName(), "") + name;
     }
 
     protected String createPath(File file) {

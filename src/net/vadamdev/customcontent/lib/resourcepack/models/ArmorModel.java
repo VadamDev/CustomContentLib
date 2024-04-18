@@ -48,7 +48,7 @@ public class ArmorModel implements RegistrableModel {
         else {
             final File computedLayer = layer1 == null ? layer2 : layer1;
 
-            mcPatcher = createMCPatcherFile(new File(packRootDir, createPath(computedLayer).replace(computedLayer.getName(), "") + registryName + "_layer.properties"));
+            mcPatcher = createMCPatcherFile(new File(packRootDir, createPath(computedLayer, registryName + "_layer.properties")));
         }
     }
 
@@ -77,6 +77,10 @@ public class ArmorModel implements RegistrableModel {
             default:
                 return new String[0];
         }
+    }
+
+    protected String createPath(File file, String name) {
+        return createPath(file).replace(file.getName(), "") + name;
     }
 
     protected String createPath(File file) {
