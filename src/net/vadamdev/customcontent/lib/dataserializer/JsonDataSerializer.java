@@ -43,6 +43,8 @@ public class JsonDataSerializer extends AbstractDataSerializer {
     public void write(BlockPos blockPos, SerializableDataCompound dataCompound) {
         final JSONObject json = new JSONObject();
 
+        //TODO: check if the block is saving even if the compound is empty
+
         for(Map.Entry<String, ISerializableData> entry : dataCompound.getMapCopy().entrySet()) {
             final ISerializableData data = entry.getValue();
 
