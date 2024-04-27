@@ -1,9 +1,9 @@
 package net.vadamdev.customcontent.api.blocks;
 
-import net.vadamdev.customcontent.lib.BlockFlags;
+import net.vadamdev.customcontent.lib.blocks.BlockFlags;
 
 /**
- * A {@link CustomBlock} implementing this interface will have the ability to have custom abilities like being unbreakable.
+ * A {@link CustomBlock} implementing this interface will be able to have custom abilities (like being unbreakable).
  *
  * @author VadamDev
  * @since 10/12/2022

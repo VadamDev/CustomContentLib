@@ -20,7 +20,7 @@ import net.vadamdev.customcontent.internal.registry.ItemsRegistry;
  * @author VadamDev
  * @since 08/07/2023
  */
-public final class ContentRegistryImpl implements ContentRegistry {
+public class ContentRegistryImpl implements ContentRegistry {
     private final CommonRegistry commonRegistry;
     private final ItemsRegistry itemsRegistry;
     private final BlocksRegistry blocksRegistry;

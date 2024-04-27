@@ -1,16 +1,10 @@
 package net.vadamdev.customcontent.api;
 
 import net.minecraft.server.v1_8_R3.Entity;
-import net.vadamdev.customcontent.annotations.ForRemoval;
-import net.vadamdev.customcontent.api.blocks.CustomBlock;
 import net.vadamdev.customcontent.api.common.IRegistrable;
 import net.vadamdev.customcontent.api.common.tickable.AbstractTickableHandler;
 import net.vadamdev.customcontent.api.entities.CustomEntityContainer;
-import net.vadamdev.customcontent.api.items.CustomFood;
-import net.vadamdev.customcontent.api.items.CustomItem;
-import net.vadamdev.customcontent.api.items.EmptyItem;
 import net.vadamdev.customcontent.api.items.armor.ArmorSet;
-import net.vadamdev.customcontent.api.items.armor.CustomArmorPart;
 
 /**
  * @author VadamDev
@@ -62,38 +56,4 @@ public interface ContentRegistry {
      * @return True if the item is registered
      */
     boolean isRegistered(String registryName);
-
-    /*
-      Deprecated, going be removed soon!
-     */
-
-    @Deprecated
-    @ForRemoval(deadLine = "1.4.0", reason = "added register(IRegistrable) method", replacement = "register(emptyItem)")
-    default void registerEmptyItem(EmptyItem emptyItem) {
-        register(emptyItem);
-    }
-
-    @Deprecated
-    @ForRemoval(deadLine = "1.4.0", reason = "added register(IRegistrable) method", replacement = "register(customItem)")
-    default void registerCustomItem(CustomItem customItem) {
-        register(customItem);
-    }
-
-    @Deprecated
-    @ForRemoval(deadLine = "1.4.0", reason = "added register(IRegistrable) method", replacement = "register(customFood)")
-    default void registerCustomFood(CustomFood customFood) {
-        register(customFood);
-    }
-
-    @Deprecated
-    @ForRemoval(deadLine = "1.4.0", reason = "added register(IRegistrable) method", replacement = "register(customArmorPart)")
-    default void registerCustomArmorPart(CustomArmorPart customArmorPart) {
-        register(customArmorPart);
-    }
-
-    @Deprecated
-    @ForRemoval(deadLine = "1.4.0", reason = "added register(IRegistrable) method", replacement = "register(customBlock)")
-    default void registerCustomBlock(CustomBlock customBlock) {
-        register(customBlock);
-    }
 }

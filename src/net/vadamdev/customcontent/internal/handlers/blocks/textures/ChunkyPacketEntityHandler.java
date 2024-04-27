@@ -1,12 +1,14 @@
 package net.vadamdev.customcontent.internal.handlers.blocks.textures;
 
-import io.netty.util.internal.ConcurrentSet;
-import net.minecraft.server.v1_8_R3.ItemStack;
+import net.vadamdev.customcontent.api.blocks.texture.AbstractWorldTexture;
+import net.vadamdev.customcontent.api.blocks.texture.WorldTexture;
 import net.vadamdev.customcontent.internal.CustomContentPlugin;
 import net.vadamdev.customcontent.lib.BlockPos;
 import net.vadamdev.customcontent.lib.ChunkPos;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -21,33 +23,44 @@ import java.util.stream.Collectors;
  * @since 18/09/2023
  */
 public class ChunkyPacketEntityHandler {
-    private final Map<BlockPos, PacketCustomTexture> packetEntities;
-    private final int chunkX, chunkZ, viewRadius, period;
+    private static final BlockFace[] faces = new BlockFace[] { BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN };
 
+    private final ChunkPos chunkPos;
+
+    private final Map<BlockPos, AbstractWorldTexture> textures;
     private final Set<Player> viewers;
 
     private Updater updater;
 
-    public ChunkyPacketEntityHandler(ChunkPos chunkPos, int viewRadius, int period) {
-        this.packetEntities = new ConcurrentHashMap<>();
-        this.chunkX = chunkPos.getX();
-        this.chunkZ = chunkPos.getZ();
-        this.viewRadius = viewRadius * viewRadius;
-        this.period = period;
+    public ChunkyPacketEntityHandler(ChunkPos chunkPos) {
+        this.chunkPos = chunkPos;
 
-        this.viewers = new ConcurrentSet<>();
+        this.textures = new ConcurrentHashMap<>();
+        this.viewers = new HashSet<>();
+
+        this.updater = new Updater();
     }
 
-    public void addEntity(BlockPos blockPos, PacketCustomTexture customTexture) {
+    public void createTexture(BlockPos blockPos, AbstractWorldTexture customTexture) {
         customTexture.spawn(viewers);
-        packetEntities.put(blockPos, customTexture);
+        textures.put(blockPos, customTexture);
     }
 
-    public boolean removeEntity(BlockPos blockPos) {
-        packetEntities.get(blockPos).delete(viewers);
-        packetEntities.remove(blockPos);
+    public void applyTextureChanges(BlockPos blockPos, boolean texture, boolean direction) {
+        if(!textures.containsKey(blockPos))
+            return;
 
-        if(packetEntities.isEmpty()) {
+        textures.get(blockPos).applyTextureChanges(viewers, texture, direction);
+    }
+
+    public boolean removeTexture(BlockPos blockPos) {
+        if(!textures.containsKey(blockPos))
+            return false;
+
+        textures.get(blockPos).delete(viewers);
+        textures.remove(blockPos);
+
+        if(textures.isEmpty()) {
             delete();
             return true;
         }
@@ -55,29 +68,11 @@ public class ChunkyPacketEntityHandler {
         return false;
     }
 
-    public ItemStack getIcon(BlockPos blockPos) {
-        return packetEntities.containsKey(blockPos) ? packetEntities.get(blockPos).getIcon() : null;
+    public AbstractWorldTexture getTexture(BlockPos blockPos) {
+        return textures.get(blockPos);
     }
 
-    public void updateIcon(BlockPos blockPos, ItemStack itemStack) {
-        if(!packetEntities.containsKey(blockPos))
-            return;
-
-        packetEntities.get(blockPos).updateIcon(itemStack, viewers);
-    }
-
-    public void updateRotation(BlockPos blockPos, float yaw) {
-        if(!packetEntities.containsKey(blockPos))
-            return;
-
-        packetEntities.get(blockPos).updateRotation(yaw, viewers);
-    }
-
-    public void spawn() {
-        updater = new Updater(period);
-    }
-
-    public void delete() {
+    private void delete() {
         updater.cancel();
         updater = null;
 
@@ -87,62 +82,119 @@ public class ChunkyPacketEntityHandler {
                     .collect(Collectors.toSet());
 
             if(!toRemove.isEmpty())
-                packetEntities.forEach((blockPos, packetEntity) -> packetEntity.delete(toRemove));
+                textures.forEach((blockPos, packetEntity) -> packetEntity.delete(toRemove));
 
             viewers.clear();
         }
     }
 
-    public boolean isViewing(Player player) {
-        return viewers.contains(player);
-    }
-
     private class Updater extends BukkitRunnable {
-        private final Set<Player> toSpawn, toDelete;
-
-        private Updater(int period) {
-            this.toSpawn = new HashSet<>();
-            this.toDelete = new HashSet<>();
-
-            runTaskTimerAsynchronously(CustomContentPlugin.instance, 0, period);
+        private Updater() {
+            runTaskTimerAsynchronously(CustomContentPlugin.instance, 0, CustomTextureHandler.UPDATE_PERIOD);
         }
 
         @Override
         public void run() {
+            if(!chunkPos.isLoaded())
+                return;
+
+            doPlayerDistanceCheck();
+            doOccludingCheck();
+        }
+
+        /*
+           Player distance
+         */
+
+        private void doPlayerDistanceCheck() {
+            final Set<Player> viewersToSpawn = new HashSet<>(), viewersToDelete = new HashSet<>();
+
             for(final Player player : Bukkit.getOnlinePlayers()) {
                 final boolean closeEnough = isCloseEnough(player);
 
-                if(isViewing(player)) {
+                if(viewers.contains(player)) {
                     if(!player.isOnline())
                         viewers.remove(player);
                     else if(!closeEnough) {
                         viewers.remove(player);
-                        toDelete.add(player);
+                        viewersToDelete.add(player);
                     }
                 }else if(closeEnough) {
                     viewers.add(player);
-                    toSpawn.add(player);
+                    viewersToSpawn.add(player);
                 }
             }
 
-            if(!toSpawn.isEmpty()) {
-                packetEntities.values().forEach(packetEntity -> packetEntity.spawn(toSpawn));
-                toSpawn.clear();
-            }
+            if(!viewersToSpawn.isEmpty())
+                textures.values().stream().filter(texture -> texture.enabled).forEach(packetEntity -> packetEntity.spawn(viewersToSpawn));
 
-            if(!toDelete.isEmpty()) {
-                packetEntities.values().forEach(packetEntity -> packetEntity.delete(toDelete));
-                toDelete.clear();
-            }
+            if(!viewersToDelete.isEmpty())
+                textures.values().stream().filter(texture -> texture.enabled).forEach(packetEntity -> packetEntity.delete(viewersToDelete));
         }
 
         private boolean isCloseEnough(Player player) {
             final Chunk playerChunk = player.getLocation().getChunk();
-            final int xDir = chunkX - playerChunk.getX();
-            final int zDir = chunkZ - playerChunk.getZ();
+            final int xDir = chunkPos.getX() - playerChunk.getX();
+            final int zDir = chunkPos.getZ() - playerChunk.getZ();
 
-            return xDir * xDir + zDir * zDir <= viewRadius;
+            return xDir * xDir + zDir * zDir <= CustomTextureHandler.VIEW_RADIUS_SQUARED;
         }
+
+        /*
+           Occluding
+         */
+
+        private void doOccludingCheck() {
+            if(CustomTextureHandler.OCCLUDING_CHECK_DISABLED)
+                return;
+
+            final Set<AbstractWorldTexture> texturesToDisable = new HashSet<>(), texturesToEnable = new HashSet<>();
+
+            for(Map.Entry<BlockPos, AbstractWorldTexture> entry : textures.entrySet()) {
+                final AbstractWorldTexture worldTexture = entry.getValue();
+                final BlockPos blockPos = entry.getKey();
+
+                boolean flag = true;
+                for(BlockFace face : faces) {
+                    if(!isOccluding(new BlockPos(blockPos.getWorld(), blockPos.getX() + face.getModX(), blockPos.getY() + face.getModY(), blockPos.getZ() + face.getModZ()))) {
+                        flag = false; //TODO: check if it's broken
+                        break;
+                    }
+                }
+
+                if(flag) {
+                    if(worldTexture.enabled) {
+                        worldTexture.enabled = false;
+                        texturesToDisable.add(worldTexture);
+                    }
+                }else if(!worldTexture.enabled) {
+                    worldTexture.enabled = true;
+                    texturesToEnable.add(worldTexture);
+                }
+            }
+
+            if(!texturesToDisable.isEmpty())
+                texturesToDisable.forEach(worldTexture -> worldTexture.delete(viewers));
+
+            if(!texturesToEnable.isEmpty())
+                texturesToEnable.forEach(worldTexture -> worldTexture.spawn(viewers));
+        }
+    }
+
+    private boolean isOccluding(BlockPos blockPos) {
+        if(!blockPos.isChunkLoaded())
+            return true;
+
+        final Material material = blockPos.getBlock().getType();
+
+        if(material.equals(Material.BARRIER)) {
+            final WorldTexture worldTexture = CustomContentPlugin.instance.getTextureHandler().getCustomTexture(blockPos);
+
+            if(worldTexture != null)
+                return worldTexture.isOccluding();
+        }
+
+        return material.isOccluding();
     }
 }
 

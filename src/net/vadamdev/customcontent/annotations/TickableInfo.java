@@ -6,11 +6,10 @@ import javax.annotation.Nonnull;
 import java.lang.annotation.*;
 
 /**
- * Class which implement of {@link net.vadamdev.customcontent.api.common.tickable.ITickable ITickable} and
- * annotated with {@link TickableInfo} will have the ability to defines extra parameters for the execution of the tick() method
+ * <p> Class which implement of {@link net.vadamdev.customcontent.api.common.tickable.ITickable ITickable} and
+ * annotated with {@link TickableInfo} will have the ability to define extra parameters for the execution of the tick() method
  *
- * <br><br>
- * WARNING: There's not a 100% guarantee that these parameters will be taken in consideration by CCL
+ * <p> WARNING: There's not a 100% guarantee that these parameters will be taken in consideration by CCL
  * <br> For example, handlerId will be ignored for {@link net.vadamdev.customcontent.api.blocks.CustomTileEntity CustomTileEntity}
  *
  * @author VadamDev

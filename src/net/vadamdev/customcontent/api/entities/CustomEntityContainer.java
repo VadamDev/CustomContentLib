@@ -49,7 +49,7 @@ public class CustomEntityContainer<T extends Entity> {
 
     protected void addSpawnEntry(BiomeBase[] biomes, EnumCreatureType creatureType, int weight, int a, int b) {
         /*if(!nmsClass.isAssignableFrom(EntityInsentient.class))
-            throw new UnsupportedOperationException("You cannot add a spawn entry if the custom entity is not a instanceof EntityInsentient");*/
+            throw new UnsupportedOperationException("You cannot add a spawn entry if the custom entity is not an instanceof EntityInsentient");*/
 
         final BiomeBase.BiomeMeta meta = new BiomeBase.BiomeMeta((Class<? extends EntityInsentient>) customEntityClass, weight, a, b);
         for(BiomeBase biome : biomes)
@@ -95,7 +95,7 @@ public class CustomEntityContainer<T extends Entity> {
     }
 
     public int getNMSEntityId() {
-        return CustomContentAPI.Provider.get().getContentRegistry().getEntityId((Class<? extends Entity>) nmsClass);
+        return CustomContentAPI.get().getContentRegistry().getEntityId((Class<? extends Entity>) nmsClass);
     }
 
     private Class<?> findOriginalNMS() {

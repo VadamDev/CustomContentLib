@@ -27,26 +27,24 @@ public class WorldEditIntegration implements IIntegration {
     private BlocksHandler blocksHandler;
 
     @Override
-    public void load(CustomContentPlugin customContentPlugin) {
-        blocksRegistry = customContentPlugin.getBlocksRegistry();
-        blocksHandler = customContentPlugin.getBlocksHandler();
+    public void load(CustomContentPlugin plugin) {
+        blocksRegistry = plugin.getBlocksRegistry();
+        blocksHandler = plugin.getBlocksHandler();
 
         final WorldEdit worldEdit = WorldEdit.getInstance();
 
         try {
             final Field parsersField = AbstractFactory.class.getDeclaredField("parsers");
             parsersField.setAccessible(true);
+            ((List<InputParser<?>>) parsersField.get(worldEdit.getBlockFactory())).add(0, new CustomBlockInputParser(worldEdit, blocksRegistry));
 
-            final List<InputParser<?>> parsers = (List<InputParser<?>>) parsersField.get(worldEdit.getBlockFactory());
-            parsers.clear();
-            parsers.add(new CustomBlockInputParser(worldEdit, blocksRegistry));
-
-            if(customContentPlugin.getServer().getPluginManager().isPluginEnabled("FastAsyncWorldEdit")) {
+            if(plugin.getServer().getPluginManager().isPluginEnabled("FastAsyncWorldEdit")) {
                 Settings.IMP.EXTENT.ALLOWED_PLUGINS.add(FAWECustomBlockDelegate.class.getCanonicalName());
                 worldEdit.getEventBus().register(new FAWEListener());
+
+                plugin.getLogger().warning("-> FAWE integration is enabled, we DO NOT recommend using it. You can disable it in the config !");
             }else
                 worldEdit.getEventBus().register(new WEListener());
-
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -65,16 +63,20 @@ public class WorldEditIntegration implements IIntegration {
     private class WEListener {
         @Subscribe(priority = EventHandler.Priority.VERY_LATE)
         public void onEditSession(EditSessionEvent event) {
-            if(event.getStage().equals(EditSession.Stage.BEFORE_CHANGE))
-                event.setExtent(new WECustomBlockDelegate(event, blocksRegistry, blocksHandler));
+            if(!event.getStage().equals(EditSession.Stage.BEFORE_CHANGE))
+                return;
+
+            event.setExtent(new WECustomBlockDelegate(event, blocksRegistry, blocksHandler));
         }
     }
 
     private class FAWEListener {
         @Subscribe(priority = EventHandler.Priority.VERY_LATE)
         public void onEditSession(EditSessionEvent event) {
-            if(event.getStage().equals(EditSession.Stage.BEFORE_CHANGE))
-                event.setExtent(new FAWECustomBlockDelegate(event, blocksRegistry, blocksHandler));
+            if(!event.getStage().equals(EditSession.Stage.BEFORE_CHANGE))
+                return;
+
+            event.setExtent(new FAWECustomBlockDelegate(event, blocksRegistry, blocksHandler));
         }
     }
 }

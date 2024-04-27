@@ -17,14 +17,12 @@ import java.util.function.Predicate;
 public interface IHandTickable extends ITickable {
     @Override
     default void tick() {
-        final Predicate<ItemStack> predicate = testItem();
-
         for(Player player : Bukkit.getOnlinePlayers()) {
             final ItemStack itemStack = player.getItemInHand();
             if(itemStack == null || !itemStack.hasItemMeta())
                 continue;
 
-            if(predicate.test(itemStack))
+            if(testItem(itemStack))
                 handTick(itemStack, player);
         }
     }
@@ -40,5 +38,5 @@ public interface IHandTickable extends ITickable {
     /**
      * Return a {@link Predicate} that will define if the provided {@link ItemStack} is similar to the {@link net.vadamdev.customcontent.api.common.IRegistrable IRegistrable} ItemStack
      */
-    Predicate<ItemStack> testItem();
+    boolean testItem(ItemStack itemStack);
 }

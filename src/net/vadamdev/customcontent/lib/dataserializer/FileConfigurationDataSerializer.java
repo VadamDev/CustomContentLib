@@ -37,12 +37,16 @@ public class FileConfigurationDataSerializer extends AbstractDataSerializer {
     public void write(BlockPos blockPos, SerializableDataCompound dataCompound) {
         final String strBlockPos = blockPos.toSerializableString();
 
-        for(Map.Entry<String, ISerializableData> entry : dataCompound.getMapCopy().entrySet()) {
-            final String key = entry.getKey();
-            final ISerializableData data = entry.getValue();
+        if(dataCompound.isEmpty())
+            configFile.set(strBlockPos, "");
+        else {
+            for(Map.Entry<String, ISerializableData> entry : dataCompound.getMapCopy().entrySet()) {
+                final String key = entry.getKey();
+                final ISerializableData data = entry.getValue();
 
-            configFile.set(strBlockPos + "." + key + "." + "data", data.serialize());
-            configFile.set(strBlockPos + "." + key + "." + "type", data.getType().name());
+                configFile.set(strBlockPos + "." + key + "." + "type", data.getType().name());
+                configFile.set(strBlockPos + "." + key + "." + "data", data.serialize());
+            }
         }
     }
 

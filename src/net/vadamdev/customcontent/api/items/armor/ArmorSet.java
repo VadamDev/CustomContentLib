@@ -7,10 +7,9 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Represents an ArmorSet.
- * <br>It can be used to add effects to the wearer if the armor set is complete
- * <br><br>
- * By default, ArmorSet will have a period of 20 ticks
+ * <p> Represents an ArmorSet. It can be used to add effects to the wearer if the armor set is complete
+ *
+ * <p> By default, an ArmorSet will have an update period of 20 ticks
  * @author VadamDev
  * @since 27/03/2022
  */

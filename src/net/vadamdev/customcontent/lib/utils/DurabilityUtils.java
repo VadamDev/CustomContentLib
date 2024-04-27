@@ -7,7 +7,9 @@ import org.bukkit.inventory.ItemStack;
  * @author VadamDev
  * @since 24/02/2022
  */
-public class DurabilityUtils {
+public final class DurabilityUtils {
+    private DurabilityUtils() {}
+
     /**
      * Calculate the percentage of chance that the armor will decrease its durability when damaged.
      * @see <a href="https://minecraft.fandom.com/wiki/Unbreaking">https://minecraft.fandom.com/wiki/Unbreaking</a>
@@ -37,13 +39,9 @@ public class DurabilityUtils {
      * @return True if the item has custom durability
      */
     public static boolean hasDurabilityProvider(ItemStack itemStack) {
-        final String registryName = NBTHelper.getStringInNBTTag(itemStack, "RegistryName");
-        if(registryName == null)
-            return false;
-
         if(NBTHelper.getIntegerInNBTTag(itemStack ,"Durability") == 0 || NBTHelper.getIntegerInNBTTag(itemStack ,"MaxDurability") == 0)
             return false;
 
-        return CustomContentPlugin.instance.getCommonRegistry().isRegistered(registryName);
+        return CustomContentPlugin.instance.getCommonRegistry().isRegistered(NBTHelper.getStringInNBTTag(itemStack, "RegistryName"));
     }
 }

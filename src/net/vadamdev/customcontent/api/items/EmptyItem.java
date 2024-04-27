@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
  * @since 15/09/2022
  */
 public class EmptyItem implements IRegistrable {
-    private final ItemStack itemStack;
+    protected ItemStack itemStack;
     private final String registryName;
 
     public EmptyItem(ItemStack itemStack, String registryName) {

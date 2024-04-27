@@ -14,7 +14,7 @@ import java.util.*;
  * @author VadamDev
  * @since 08/07/2023
  */
-public final class RecipeRegistryImpl implements RecipeRegistry {
+public class RecipeRegistryImpl implements RecipeRegistry {
     private final Set<ItemStack> toRemove;
     private final List<ShapedRecipe> customCraftings;
 

@@ -36,7 +36,7 @@ public abstract class CustomItem implements IRegistrable {
      * @param block Clicked {@link Block} or null if it was air
      * @param blockFace Clicked {@link BlockFace} or null if clicked {@link Block} was air
      * @param item {@link ItemStack}
-     * @return True if the {@link org.bukkit.event.player.PlayerInteractEvent PlayerInteractEvent} should be cancelled
+     * @return True if the {@link org.bukkit.event.player.PlayerInteractEvent PlayerInteractEvent} should be canceled
      */
     public boolean onClick(Player player, ItemAction action, @Nullable Block block, @Nullable BlockFace blockFace, ItemStack item) {
         return false;
@@ -48,7 +48,7 @@ public abstract class CustomItem implements IRegistrable {
      * @param player {@link Player} who clicked
      * @param clicked Clicked {@link Entity}
      * @param item {@link ItemStack}
-     * @return True if the {@link org.bukkit.event.player.PlayerInteractAtEntityEvent PlayerInteractAtEntityEvent} should be cancelled
+     * @return True if the {@link org.bukkit.event.player.PlayerInteractAtEntityEvent PlayerInteractAtEntityEvent} should be canceled
      */
     public boolean onEntityClick(Player player, Entity clicked, ItemStack item) {
         return false;
@@ -60,7 +60,7 @@ public abstract class CustomItem implements IRegistrable {
      * @param player {@link Player} who damaged the {@link Entity}
      * @param victim Damaged {@link Entity}
      * @param item {@link ItemStack}
-     * @return True if the {@link org.bukkit.event.entity.EntityDamageByEntityEvent EntityDamageByEntityEvent} should be cancelled
+     * @return True if the {@link org.bukkit.event.entity.EntityDamageByEntityEvent EntityDamageByEntityEvent} should be canceled
      */
     public boolean hurtEntity(Player player, Entity victim, ItemStack item) {
         return false;
@@ -71,9 +71,9 @@ public abstract class CustomItem implements IRegistrable {
      *
      * @param player {@link Player} involved in this action
      * @param block {@link Block} involved in this action
-     * @param exp The amount of experience that the Block will drop if the {@link org.bukkit.event.block.BlockBreakEvent BlockBreakEvent} is not cancelled
+     * @param exp The amount of experience that the Block will drop if the {@link org.bukkit.event.block.BlockBreakEvent BlockBreakEvent} is not canceled
      * @param item {@link ItemStack}
-     * @return True if the {@link org.bukkit.event.block.BlockBreakEvent BlockBreakEvent} should be cancelled
+     * @return True if the {@link org.bukkit.event.block.BlockBreakEvent BlockBreakEvent} should be canceled
      */
     public boolean mineBlock(Player player, Block block, int exp, ItemStack item) {
         return false;

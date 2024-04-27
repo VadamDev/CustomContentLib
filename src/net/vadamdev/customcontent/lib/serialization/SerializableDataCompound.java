@@ -173,6 +173,10 @@ public final class SerializableDataCompound {
         return new HashMap<>(data);
     }
 
+    public boolean isEmpty() {
+        return data.isEmpty();
+    }
+
     private void requireGoodType(String key, DataType type) {
         if(data.get(key).getType().equals(type))
             return;

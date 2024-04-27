@@ -57,7 +57,7 @@ public interface IDurabilityBar {
             loreCopy.set(i, line.replace(placeholder, durabilityBar));
         }
 
-        ItemMeta im = itemStack.getItemMeta();
+        final ItemMeta im = itemStack.getItemMeta();
         im.setLore(loreCopy);
         itemStack.setItemMeta(im);
     }

@@ -57,20 +57,17 @@ public abstract class AbstractCustomBlockDelegate extends AbstractDelegateExtent
     }
 
     private CustomBlock findCustomBlockInTag(BaseBlock block) {
-        CustomBlock result = null;
-
         final CompoundTag data = block.getNbtData();
         if (data != null && data.containsKey("CCL-RegistryName")) {
             final String registryName = data.getString("CCL-RegistryName");
 
             for(CustomBlock customBlock : blocksRegistry.getCustomBlocks()) {
                 if(customBlock.getRegistryName().equals(registryName)) {
-                    result = customBlock;
-                    break;
+                    return customBlock;
                 }
             }
         }
 
-        return result;
+        return null;
     }
 }

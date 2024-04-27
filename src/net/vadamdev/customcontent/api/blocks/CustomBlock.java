@@ -32,7 +32,7 @@ public abstract class CustomBlock implements IRegistrable {
      * @param block Block involved in this action
      * @param blockPos Position of the block involved in this action
      * @param player Player that interacted with the block
-     * @return True if the {@link org.bukkit.event.player.PlayerInteractEvent PlayerInteractEvent} should be cancelled
+     * @return True if the {@link org.bukkit.event.player.PlayerInteractEvent PlayerInteractEvent} should be canceled
      */
     public boolean onInteract(Block block, BlockPos blockPos, Player player) {
         return false;
@@ -44,7 +44,7 @@ public abstract class CustomBlock implements IRegistrable {
      * @param block Block involved in this action
      * @param blockPos Position of the block involved in this action
      * @param player Player that interacted with the block
-     * @return True if the {@link org.bukkit.event.player.PlayerInteractEvent PlayerInteractEvent} should be cancelled
+     * @return True if the {@link org.bukkit.event.player.PlayerInteractEvent PlayerInteractEvent} should be canceled
      */
     public boolean tryBreak(Block block, BlockPos blockPos, Player player) {
         return false;
@@ -63,8 +63,8 @@ public abstract class CustomBlock implements IRegistrable {
      * Called when the block is broken
      *
      * @param blockPos Position of the block involved in this action
-     * @param tileEntity Associated TileEntity, null if doesn't exists
-     * @param entity Entity that broken the block, null if doesn't exists
+     * @param tileEntity Associated TileEntity, null if it doesn't exist
+     * @param entity Entity that broken the block, null if it doesn't exist
      */
     public void onBreak(BlockPos blockPos, @Nullable CustomTileEntity tileEntity, @Nullable Entity entity) {}
 
