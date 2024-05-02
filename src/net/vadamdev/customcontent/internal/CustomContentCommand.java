@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.StringUtil;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public class CustomContentCommand extends PermissionCommand {
 
                     return true;
                 }else if(args[0].equalsIgnoreCase("resources")) {
-                    if(args[1].equalsIgnoreCase("zip")) {
+                    if(args[1].equalsIgnoreCase("create") || args[1].equalsIgnoreCase("zip")) {
                         player.sendMessage("§3CustomContentLib §f» §7Started resourcepack creation... See console for more informations");
                         CustomContentAPI.get().getModelFactory().bakeModels();
                         player.sendMessage("§3CustomContentLib §f» §aResourcepack created !");
@@ -153,7 +154,7 @@ public class CustomContentCommand extends PermissionCommand {
                         .filter(registryName -> StringUtil.startsWithIgnoreCase(registryName, args[1]))
                         .collect(Collectors.toList());
             }else if(args[0].equalsIgnoreCase("resources")) {
-                return Collections.singletonList("zip");
+                return Arrays.asList("create", "zip");
             }
         }
 
