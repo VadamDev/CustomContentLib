@@ -173,11 +173,8 @@ public class ChunkyPacketEntityHandler {
                 }
             }
 
-            if(!texturesToDisable.isEmpty())
-                texturesToDisable.forEach(worldTexture -> worldTexture.delete(viewers));
-
-            if(!texturesToEnable.isEmpty())
-                texturesToEnable.forEach(worldTexture -> worldTexture.spawn(viewers));
+            texturesToDisable.forEach(worldTexture -> worldTexture.delete(viewers));
+            texturesToEnable.forEach(worldTexture -> worldTexture.spawn(viewers));
         }
     }
 

@@ -1,6 +1,7 @@
 package net.vadamdev.customcontent.internal;
 
 import net.vadamdev.customcontent.api.CustomContentAPI;
+import net.vadamdev.customcontent.internal.menu.CustomContentMenu;
 import net.vadamdev.customcontent.internal.registry.CommonRegistry;
 import net.vadamdev.viapi.tools.commands.PermissionCommand;
 import org.bukkit.Bukkit;
@@ -34,7 +35,15 @@ public class CustomContentCommand extends PermissionCommand {
         if(sender instanceof Player) {
             final Player player = (Player) sender;
 
-            if(args.length == 2) {
+            if(args.length == 1) {
+                if(args[0].equalsIgnoreCase("gui") || args[0].equalsIgnoreCase("menu") || args[0].equalsIgnoreCase("items")) {
+                    if(!testPermission(player, "customcontentlib.admin.menu"))
+                        return false;
+
+                    CustomContentMenu.get().open(player);
+                    return true;
+                }
+            }else if(args.length == 2) {
                 if(args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("get")) {
                     final ItemStack item = commonRegistry.getCustomItemAsItemStack(args[1]);
 
