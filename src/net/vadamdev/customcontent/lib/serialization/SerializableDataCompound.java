@@ -77,7 +77,7 @@ public final class SerializableDataCompound {
 
     public String getString(String key) {
         if(!data.containsKey(key))
-            return null;
+            return "";
 
         requireGoodType(key, DataType.STRING);
 

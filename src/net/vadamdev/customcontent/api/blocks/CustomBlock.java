@@ -1,11 +1,13 @@
 package net.vadamdev.customcontent.api.blocks;
 
+import net.vadamdev.customcontent.annotations.ForRemoval;
 import net.vadamdev.customcontent.api.blocks.serialization.IDataSerializer;
 import net.vadamdev.customcontent.api.common.IRegistrable;
 import net.vadamdev.customcontent.lib.BlockPos;
 import net.vadamdev.customcontent.lib.utils.NBTHelper;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -31,9 +33,16 @@ public abstract class CustomBlock implements IRegistrable {
      *
      * @param block Block involved in this action
      * @param blockPos Position of the block involved in this action
+     * @param blockFace Clicked {@link BlockFace}
      * @param player Player that interacted with the block
      * @return True if the {@link org.bukkit.event.player.PlayerInteractEvent PlayerInteractEvent} should be canceled
      */
+    public boolean onInteract(Block block, BlockPos blockPos, BlockFace blockFace, Player player) {
+        return onInteract(block, blockPos, player);
+    }
+
+    @ForRemoval(deadLine = "1.6.0", reason = "Added blockface", replacement = "onInteract(Block, BlockPos, BlockFace, Player)")
+    @Deprecated
     public boolean onInteract(Block block, BlockPos blockPos, Player player) {
         return false;
     }
@@ -43,9 +52,16 @@ public abstract class CustomBlock implements IRegistrable {
      *
      * @param block Block involved in this action
      * @param blockPos Position of the block involved in this action
+     * @param blockFace Clicked {@link BlockFace}
      * @param player Player that interacted with the block
      * @return True if the {@link org.bukkit.event.player.PlayerInteractEvent PlayerInteractEvent} should be canceled
      */
+    public boolean tryBreak(Block block, BlockPos blockPos, BlockFace blockFace, Player player) {
+        return tryBreak(block, blockPos, player);
+    }
+
+    @ForRemoval(deadLine = "1.6.0", reason = "Added blockface", replacement = "tryBreak(Block, BlockPos, BlockFace, Player)")
+    @Deprecated
     public boolean tryBreak(Block block, BlockPos blockPos, Player player) {
         return false;
     }

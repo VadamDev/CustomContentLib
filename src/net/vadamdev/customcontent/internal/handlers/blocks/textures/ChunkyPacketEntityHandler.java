@@ -157,7 +157,7 @@ public class ChunkyPacketEntityHandler {
                 boolean flag = true;
                 for(BlockFace face : faces) {
                     if(!isOccluding(new BlockPos(blockPos.getWorld(), blockPos.getX() + face.getModX(), blockPos.getY() + face.getModY(), blockPos.getZ() + face.getModZ()))) {
-                        flag = false; //TODO: check if it's broken
+                        flag = false;
                         break;
                     }
                 }

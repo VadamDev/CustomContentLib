@@ -1,11 +1,9 @@
 package net.vadamdev.customcontent.api;
 
-import net.vadamdev.customcontent.annotations.ForRemoval;
 import net.vadamdev.customcontent.api.blocks.CustomBlock;
 import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
 import net.vadamdev.customcontent.api.blocks.texture.WorldTexture;
 import net.vadamdev.customcontent.lib.BlockPos;
-import net.vadamdev.viapi.tools.enums.EnumDirection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -55,18 +53,6 @@ public interface CustomContentAPI {
     Map<String, ItemStack> getCustomItemstacks();
 
     /*
-       Deprecated
-     */
-    @Deprecated
-    @ForRemoval(deadLine = "1.5.0", reason = "New texture system", replacement = "getWorldTexture(blockpos)")
-    @Nullable
-    default ItemStack getCustomTexture(BlockPos blockPos) { return null; }
-
-    @Deprecated
-    @ForRemoval(deadLine = "1.5.0", reason = "New texture system", replacement = "applyTextureChanges(blockpos, texture, direction)")
-    default void updateCustomTexture(BlockPos blockPos, ItemStack itemStack, @Nullable EnumDirection direction) {}
-
-    /*
        Provider
      */
 
@@ -79,12 +65,6 @@ public interface CustomContentAPI {
         private static CustomContentAPI api;
 
         private Provider() {}
-
-        @Deprecated
-        @ForRemoval(deadLine = "1.5.0", replacement = "CustomContentAPI.get()")
-        public static CustomContentAPI get() {
-            return api;
-        }
 
         public static void set(@Nonnull CustomContentAPI api) {
             Provider.api = api;

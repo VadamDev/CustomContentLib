@@ -2,6 +2,7 @@ package net.vadamdev.customcontent.internal.handlers.blocks.tileentity;
 
 import net.vadamdev.customcontent.annotations.TickableInfo;
 import net.vadamdev.customcontent.api.blocks.CustomTileEntity;
+import net.vadamdev.customcontent.api.blocks.container.WorldyContainer;
 import net.vadamdev.customcontent.api.blocks.serialization.IDataSerializer;
 import net.vadamdev.customcontent.api.common.tickable.ITickable;
 import net.vadamdev.customcontent.lib.BlockPos;
@@ -20,9 +21,13 @@ public class TileEntityHandler {
     private final Map<BlockPos, Pair<IDataSerializer, CustomTileEntity>> tileEntities;
     private final Map<Class<? extends CustomTileEntity>, TickableExecutor> executorPool;
 
+    private final HopperHandler hopperHandler;
+
     public TileEntityHandler() {
         this.tileEntities = new ConcurrentHashMap<>();
         this.executorPool = new HashMap<>();
+
+        this.hopperHandler = new HopperHandler();
     }
 
     /*
@@ -35,6 +40,9 @@ public class TileEntityHandler {
 
         if(tileEntity instanceof ITickable)
             computeExecutor(tileEntity.getClass()).register(blockPos, (ITickable) tileEntity);
+
+        if(tileEntity instanceof WorldyContainer)
+            hopperHandler.register(blockPos, (WorldyContainer) tileEntity);
 
         tileEntities.put(blockPos, new ImmutablePair<>(dataSerializer, tileEntity));
     }
@@ -55,6 +63,7 @@ public class TileEntityHandler {
             });
         }
 
+        hopperHandler.remove(blockPos);
         tileEntities.remove(blockPos);
     }
 

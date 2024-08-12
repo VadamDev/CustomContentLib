@@ -46,9 +46,9 @@ public interface IModelFetcher {
         final List<File> files = new ArrayList<>();
 
         for (File file : directory.listFiles()) {
-            if(file.isDirectory()) {
+            if(file.isDirectory())
                 files.addAll(getDirectoryContent(file, filter));
-            }else if(filter.accept(file))
+            else if(filter.accept(file))
                 files.add(file);
         }
 

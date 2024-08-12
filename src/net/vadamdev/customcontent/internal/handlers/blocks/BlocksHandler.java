@@ -19,6 +19,7 @@ import net.vadamdev.customcontent.lib.serialization.SerializableDataCompound;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -28,7 +29,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashSet;
@@ -123,9 +126,9 @@ public class BlocksHandler implements Listener {
             boolean shouldCancel;
 
             if(action.equals(Action.RIGHT_CLICK_BLOCK))
-                shouldCancel = customBlock.onInteract(event.getClickedBlock(), blockPos, player);
+                shouldCancel = customBlock.onInteract(event.getClickedBlock(), blockPos, event.getBlockFace(), player);
             else {
-                shouldCancel = customBlock.tryBreak(event.getClickedBlock(), blockPos, player);
+                shouldCancel = customBlock.tryBreak(event.getClickedBlock(), blockPos, event.getBlockFace(), player);
 
                 if(!shouldCancel && player.getGameMode().equals(GameMode.SURVIVAL))
                     breakCustomBlock(blockPos, customBlock, true, true, player);
@@ -134,6 +137,17 @@ public class BlocksHandler implements Listener {
             if(shouldCancel)
                 event.setCancelled(true);
         });
+    }
+
+    //TODO: check if it works
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onInventoryMoveItem(InventoryMoveItemEvent event) {
+        final InventoryHolder holder = event.getDestination().getHolder();
+        if(!(holder instanceof BlockState))
+            return;
+
+        if(findCustomBlock(new BlockPos(((BlockState) holder).getLocation())).isPresent())
+            event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
